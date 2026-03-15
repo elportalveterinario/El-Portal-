@@ -1,0 +1,1437 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Star, Clock, ChevronLeft, Filter, Search, ShieldCheck,
+  FileText, CheckCircle2, PlayCircle, Plus, MessageCircle, Menu, ExternalLink, ChevronRight, Monitor, MapPin, Check,
+  Award, BookOpen, Users, Globe, Share2, Tag,
+  Facebook, Instagram, Linkedin, Mail, Heart,
+  Home, User, Edit3, LayoutGrid, X, Briefcase as BriefcaseIcon,
+  UploadCloud, Save, Loader2, Trash2, Download, Activity, AlertCircle, Sparkles
+} from 'lucide-react';
+
+// ==========================================
+// DATOS
+// ==========================================
+const CATEGORIAS = ["Cirugía General", "Diagnóstico por Imágenes", "Gestión Veterinaria", "Clínica de Pequeños", "Dermatología", "Anestesiología"];
+const MODALIDADES = ["Online", "Presencial", "Híbrido"];
+
+const SEMINARIOS = [
+  {
+    id: 1,
+    titulo: "Cirugía de Tejidos Blandos: Procedimientos Avanzados",
+    marca: "Acare Veterinaria",
+    logoMarca: "https://api.dicebear.com/7.x/initials/svg?seed=AV&backgroundColor=1A3D3D",
+    imagen: "https://images.unsplash.com/photo-1576089238240-749e77163c44?auto=format&fit=crop&w=800&q=80",
+    descripcion: "Técnicas innovadoras para resolución de patologías complejas en cavidad abdominal. Aprenderás desde la planificación pre-quirúrgica hasta el manejo post-operatorio crítico. Este curso está diseñado para brindar las herramientas necesarias en intervenciones donde el tiempo y la precisión son fundamentales.",
+    instructor: "Dr. Julián Martínez",
+    nivel: "Intermedio",
+    duracion: "12h 30m",
+    modalidad: "Online",
+    precio: 45000,
+    precioOriginal: 55000,
+    badge: "Más Vendido",
+    categoria: "Cirugía General",
+    incluye: ["Certificado de validez nacional", "Material de estudio descargable", "Acceso de por vida", "Foro de consultas con el docente", "Análisis de casos clínicos reales", "Protocolos anestésicos actualizados"]
+  },
+  {
+    id: 2,
+    titulo: "Dermatología Clínica: De la Atopia a la Citología",
+    marca: "VetLab Pro",
+    logoMarca: "https://api.dicebear.com/7.x/initials/svg?seed=VP&backgroundColor=2D6A6A",
+    imagen: "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80",
+    descripcion: "Diagnóstico citológico y manejo terapéutico de las alergias más comunes. Un enfoque práctico para el consultorio diario con casos clínicos reales para mejorar la calidad de vida del paciente atópico.",
+    instructor: "Dra. Sofía Galván",
+    nivel: "Principiante",
+    duracion: "8h 15m",
+    modalidad: "Presencial",
+    precio: 32000,
+    precioOriginal: 38000,
+    badge: "Nuevo",
+    categoria: "Dermatología",
+    incluye: ["Kit de bienvenida", "Práctica en laboratorio", "Certificado físico", "Networking presencial", "Toma de muestras en vivo", "Guía rápida de fármacos"]
+  }
+];
+
+const PARTNERS = [
+  {
+    id: 101,
+    titulo: "Ecógrafo Portátil Mindray V1",
+    marca: "Distribuidora MedVet",
+    imagen: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=400&q=80",
+    descripcion: "La mejor resolución para diagnóstico en campo. 10% OFF con el código PORTAL10.",
+    color: "#2D6A6A"
+  }
+];
+
+const FAQ_CATEGORIES = [
+  {
+    title: "Honorarios",
+    items: [
+      { q: "¿De cuánto es la comisión por venta?", a: "Retenemos un 15% por cada alumnx generado efectivamente. Este margen ya cubre los costos de las pasarelas de pago y nuestras campañas de marketing. No hay costos ocultos." },
+      { q: "¿Cómo y cuándo recibo mis ganancias?", a: "Realizamos liquidaciones quincenales. El dinero de las ventas (menos la comisión) se transfiere directamente a tu cuenta bancaria institucional." },
+      { q: "¿Quién emite la factura al alumno?", a: "La institución o docente le factura el 100% del curso al alumnx. El Portal emite una factura a la institución por el servicio de intermediación (la comisión del 15%)." }
+    ]
+  },
+  {
+    title: "Propiedad y Control",
+    items: [
+      { q: "¿Sigo siendo dueñx de mi contenido?", a: "Absolutamente. La propiedad intelectual es 100% tuya. El Portal actúa únicamente como un canal de difusión y venta para potenciar tu alcance." },
+      { q: "¿Debo vender mi curso exclusivamente acá?", a: "No exigimos exclusividad. Sos libre de vender tu curso por otros canales; solo cobramos comisión por los alumnxs que nosotros generamos efectivamente." },
+      { q: "¿Tengo acceso a los datos de mis alumnxs?", a: "Sí. Una vez concretada la inscripción, recibís el perfil y contacto del profesional para que puedas integrarlo a tu propia comunidad y seguimiento académico." }
+    ]
+  },
+  {
+    title: "Operativa y Logística",
+    items: [
+      { q: "¿Dónde se alojan y dictan los cursos?", a: "Tu metodología no cambia. El alumnx paga en El Portal, pero consume las clases en tu propia plataforma (Zoom, Moodle, Web propia), manteniendo tu identidad." },
+      { q: "¿Mi curso se publica inmediatamente?", a: "No. Para garantizar el nivel de nuestra comunidad, todo el material pasa por un breve proceso de curaduría de 24/48hs por parte de nuestro comité antes de ser visible en el repertorio." },
+      { q: "¿Qué sucede si un alumnx solicita un reembolso?", a: "Nos regimos por una política de satisfacción de 7 días. Si el alumnx solicita la baja justificada dentro de ese período, gestionamos la devolución sin costo administrativo para la institución." }
+    ]
+  }
+];
+
+export default function Repertorio() {
+  const navigate = useNavigate();
+  const [view, setView] = useState('grid');
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [filtroCategoria, setFiltroCategoria] = useState(null);
+  const [modalidadesSeleccionadas, setModalidadesSeleccionadas] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('about');
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(null);
+  const [isNavbarScrolled, setIsNavbarScrolled] = useState(false);
+  const [openFaq, setOpenFaq] = useState(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  
+  const [wizardStep, setWizardStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [courseForm, setCourseForm] = useState({
+    titulo: '', modalidad: 'Online', precio: '', nivel: 'Principiante', duracion: '',
+    descripcion: '', incluye: [''],
+    instructorNombre: '', instructorBio: '',
+    email: '', password: ''
+  });
+  
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const bannerRef = useRef(null);
+  const footerRef = useRef(null);
+
+  // Efecto para tipografías
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+    return () => document.head.removeChild(link);
+  }, []);
+
+  // Efecto para scroll del Navbar
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsNavbarScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleMouseMove = (e) => {
+    if (bannerRef.current) {
+      const rect = bannerRef.current.getBoundingClientRect();
+      setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    }
+  };
+
+  const toggleModalidad = (mod) => {
+    if (modalidadesSeleccionadas.includes(mod)) {
+      setModalidadesSeleccionadas(modalidadesSeleccionadas.filter(m => m !== mod));
+    } else {
+      setModalidadesSeleccionadas([...modalidadesSeleccionadas, mod]);
+    }
+  };
+
+  const handleCourseClick = (curso) => {
+    setSelectedCourse(curso);
+    setActiveTab('about'); 
+    setView('detail');
+    window.scrollTo(0,0);
+  };
+
+  const handleWizardChange = (field, value) => {
+    setCourseForm(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: null }));
+    }
+  };
+
+  const updateIncluyeItem = (index, value) => {
+    const newIncluye = [...courseForm.incluye];
+    newIncluye[index] = value;
+    handleWizardChange('incluye', newIncluye);
+  };
+
+  const addIncluyeItem = () => handleWizardChange('incluye', [...courseForm.incluye, '']);
+  const removeIncluyeItem = (index) => handleWizardChange('incluye', courseForm.incluye.filter((_, i) => i !== index));
+
+  const validateStep = (step) => {
+    const newErrors = {};
+    if (step === 1) {
+      if (!courseForm.titulo.trim()) newErrors.titulo = 'El título del curso es obligatorio.';
+      if (!courseForm.precio || courseForm.precio <= 0) newErrors.precio = 'Ingresá un precio válido mayor a 0.';
+    }
+    if (step === 2) {
+      if (!courseForm.descripcion.trim()) newErrors.descripcion = 'La descripción general es obligatoria.';
+      if (courseForm.incluye.filter(i => i.trim()).length === 0) newErrors.incluye = 'Agregá al menos un punto clave de aprendizaje.';
+    }
+    if (step === 3) {
+      if (!courseForm.instructorNombre.trim()) newErrors.instructorNombre = 'El nombre del docente es obligatorio.';
+      if (!courseForm.instructorBio.trim()) newErrors.instructorBio = 'La biografía breve es obligatoria.';
+    }
+    if (step === 4) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(courseForm.email)) newErrors.email = 'El formato del correo electrónico no es válido.';
+      if (courseForm.password.length < 6) newErrors.password = 'La contraseña debe tener al menos 6 caracteres.';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNextStep = () => {
+    if (validateStep(wizardStep)) {
+      setWizardStep(prev => prev + 1);
+      window.scrollTo(0,0);
+    }
+  };
+
+  const submitWizard = () => {
+    if (!validateStep(4)) return;
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      alert("¡Curso guardado como borrador! Redirigiendo a pasarela de pago segura...");
+      setView('grid');
+      setWizardStep(1);
+      window.scrollTo(0,0);
+    }, 2000);
+  };
+
+  const cursosFiltrados = SEMINARIOS.filter(curso => {
+    const matchCategoria = !filtroCategoria || curso.categoria === filtroCategoria;
+    const matchModalidad = modalidadesSeleccionadas.length === 0 || modalidadesSeleccionadas.includes(curso.modalidad);
+    const matchBusqueda = !searchTerm || curso.titulo.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchCategoria && matchModalidad && matchBusqueda;
+  });
+
+  const handleDownloadPDF = async () => {
+    setIsGeneratingPDF(true);
+    try {
+      if (!window.html2pdf) {
+        const script = document.createElement('script');
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+        await new Promise((resolve, reject) => {
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+      
+      const element = document.getElementById('dossier-pdf-export');
+      
+      const opt = {
+        margin:       0,
+        filename:     'Documento_Institucional_ElPortal.pdf',
+        image:        { type: 'jpeg', quality: 1 },
+        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      await window.html2pdf().set(opt).from(element).save();
+    } catch (error) {
+      console.error("Error al generar PDF:", error);
+      alert("Hubo un error al descargar el PDF. Por favor intentá nuevamente.");
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
+  const renderPropuesta = () => (
+    <article className="max-w-[1000px] mx-auto animate-in fade-in duration-500 pb-24 relative">
+      
+      {/* ========================================================= */}
+      {/* CONTENEDOR OCULTO PARA EXPORTAR EL PDF (DISEÑO EDITORIAL A4) */}
+      {/* ========================================================= */}
+      <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', pointerEvents: 'none' }}>
+        <div id="dossier-pdf-export" style={{ backgroundColor: '#ffffff', padding: '0', width: '210mm' }}>
+           <style>{`
+              .pdf-page { width: 210mm; height: 296mm; overflow: hidden; page-break-after: always; background: white; padding: 20mm 20mm 15mm 20mm; position: relative; box-sizing: border-box; display: flex; flex-direction: column; }
+              .pdf-page:last-child { page-break-after: auto; }
+              .pdf-header { border-bottom: 2px solid #2D6A6A; padding-bottom: 12px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; }
+              .pdf-logo { font-family: 'Montserrat', sans-serif; font-size: 24pt; font-weight: 900; color: #1A3D3D; line-height: 1; }
+              .pdf-logo span { color: #2D6A6A; }
+              .pdf-doc-meta { text-align: right; font-size: 8pt; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+              .pdf-h1 { font-family: 'Montserrat', sans-serif; font-size: 26pt; color: #1A3D3D; margin-bottom: 8px; line-height: 1.2; letter-spacing: -0.5px; font-weight: 900; flex-shrink: 0; }
+              .pdf-subtitle { font-size: 13pt; color: #2D6A6A; font-weight: 600; margin-bottom: 30px; font-family: 'Inter', sans-serif; flex-shrink: 0; }
+              .pdf-h2 { font-family: 'Montserrat', sans-serif; font-size: 15pt; color: #2D6A6A; margin-top: 25px; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; font-weight: 900; }
+              .pdf-h3 { font-family: 'Montserrat', sans-serif; font-size: 12pt; color: #1A3D3D; margin-top: 15px; margin-bottom: 5px; font-weight: 700; }
+              .pdf-p { font-family: 'Inter', sans-serif; font-size: 10pt; margin-bottom: 10px; text-align: left; color: #475569; line-height: 1.5; }
+              .pdf-highlight { border-left: 3px solid #4DB6AC; padding-left: 15px; margin: 15px 0; }
+              .pdf-highlight p { font-weight: 500; color: #1A3D3D; margin-bottom: 0; }
+              .pdf-feature-list { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; margin-bottom: 20px; }
+              .pdf-community { display: flex; align-items: center; gap: 20px; margin: 20px 0 15px 0; }
+              .pdf-percent { font-family: 'Montserrat', sans-serif; font-size: 38pt; font-weight: 900; color: #4DB6AC; line-height: 1; padding-right: 20px; border-right: 2px solid #e2e8f0; }
+              .pdf-page-number { position: absolute; bottom: 10mm; right: 20mm; font-size: 8pt; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-family: 'Inter', sans-serif; }
+              .pdf-contact-box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-top: 25px; margin-bottom: 10px; flex-shrink: 0; }
+              .pdf-legal-footer { margin-top: auto; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; font-family: 'Inter', sans-serif; font-size: 7.5pt; color: #94a3b8; line-height: 1.5; flex-shrink: 0; padding-bottom: 5mm; }
+              .pdf-legal-footer strong { color: #64748b; font-weight: 700; }
+              .pdf-email { font-size: 12pt; font-weight: 700; color: #2D6A6A; text-decoration: none; font-family: 'Inter', sans-serif; }
+           `}</style>
+           
+           {/* PÁGINA 1 PDF */}
+           <div className="pdf-page">
+               <div className="pdf-header">
+                   <div className="pdf-logo">El Portal<span>.</span></div>
+                   <div className="pdf-doc-meta">Documento Institucional<br/>Información para Instituciones y Docentes Veterinarios</div>
+               </div>
+               <h1 className="pdf-h1">Potenciamos el alcance<br/>de su propuesta académica.</h1>
+               <p className="pdf-subtitle">Marco de colaboración institucional</p>
+               
+               <h2 className="pdf-h2">1. El contexto de la formación continua</h2>
+               <p className="pdf-p">El desarrollo de un programa académico de excelencia en medicina veterinaria exige años de investigación, actualización constante y dedicación en la clínica diaria. Entendemos que, para los especialistas y las instituciones educativas, la difusión de este conocimiento hacia los colegas adecuados a menudo representa un desafío técnico y un esfuerzo económico adicional que desvía recursos de su labor principal: la enseñanza.</p>
+               <div className="pdf-highlight"><p className="pdf-p" style={{fontWeight: 500, color: '#1A3D3D', marginBottom: 0}}>El propósito de El Portal es facilitar la conexión entre su rigor académico y los profesionales médicos que buscan especializarse de manera continua.</p></div>
+               
+               <h2 className="pdf-h2">2. Nuestro modelo de colaboración</h2>
+               <p className="pdf-p">Proponemos un esquema de trabajo diseñado para acompañar a las instituciones educativas, basado en resultados concretos y exento de costos fijos que puedan comprometer su presupuesto:</p>
+               <div className="pdf-feature-list">
+                   <div><h3 className="pdf-h3" style={{marginTop: 0}}>Difusión sin costo inicial</h3><p className="pdf-p">No existen cuotas mensuales, tarifas de alta ni costos de mantenimiento de cuenta. La postulación y exhibición de su oferta académica en nuestro repertorio es totalmente gratuita.</p></div>
+                   <div><h3 className="pdf-h3" style={{marginTop: 0}}>Honorarios por inscripción</h3><p className="pdf-p">Nuestra plataforma se financia exclusivamente a través de comisiones. Solo percibimos nuestros honorarios cuando la inscripción de un alumno se concreta de forma efectiva a través del portal.</p></div>
+                   <div><h3 className="pdf-h3" style={{marginTop: 0}}>Gestión integral de la promoción</h3><p className="pdf-p">Asumimos la inversión en campañas de difusión enfocadas en la comunidad veterinaria, así como los costos de las pasarelas de pago, permitiendo que su institución concentre sus recursos en la calidad educativa.</p></div>
+               </div>
+               <div className="pdf-page-number">Página 1 de 3</div>
+           </div>
+
+           {/* PÁGINA 2 PDF */}
+           <div className="pdf-page">
+               <div className="pdf-header">
+                   <div className="pdf-logo">El Portal<span>.</span></div>
+                   <div className="pdf-doc-meta">Anexo Técnico<br/>Fomento y Condiciones Económicas</div>
+               </div>
+
+               <h2 className="pdf-h2" style={{marginTop: '10px'}}>3. Fomento de la especialización</h2>
+               <p className="pdf-p">Con el objetivo de fortalecer la formación continua dentro de la comunidad veterinaria, solicitamos a las instituciones colaboradoras que establezcan un valor preferencial para los colegas que se inscriban mediante nuestra plataforma.</p>
+               <div className="pdf-community">
+                   <div className="pdf-percent">15%</div>
+                   <div><h3 className="pdf-h3" style={{marginTop: 0}}>Bonificación Académica</h3><p className="pdf-p" style={{marginBottom: 0}}>Sugerimos aplicar una bonificación del 15% sobre el valor de lista de sus capacitaciones. Esta acción fomenta un mayor índice de inscripciones al acercar su propuesta a una red de veterinarios activamente orientados hacia la alta complejidad.</p></div>
+               </div>
+               
+               <h2 className="pdf-h2">4. Condiciones económicas y administrativas</h2>
+               <h3 className="pdf-h3">Comisión del 15% sobre inscripciones</h3>
+               <p className="pdf-p">El Portal retiene un 15% del valor abonado por el alumno inscrito a través de la plataforma. Este porcentaje es de carácter final y cubre integralmente los aranceles por transacciones bancarias, el mantenimiento de los servidores y las acciones de difusión.</p>
+               <h3 className="pdf-h3">Rendiciones quincenales</h3>
+               <p className="pdf-p">Efectuamos un proceso de rendición claro y estructurado cada 15 días. El monto neto de las inscripciones se transfiere directamente a la cuenta bancaria designada por el profesional o la institución académica.</p>
+               <h3 className="pdf-h3">Manejo de la facturación</h3>
+               <p className="pdf-p">La relación comercial y formativa con el alumno la mantiene enteramente su institución, siendo la responsable de emitirle la factura por el 100% del valor del curso. El Portal emitirá, a su vez, una factura a nombre de su institución exclusivamente por el monto correspondiente al servicio de intermediación.</p>
+               
+               <div className="pdf-page-number">Página 2 de 3</div>
+           </div>
+
+           {/* PÁGINA 3 PDF */}
+           <div className="pdf-page">
+               <div className="pdf-header">
+                   <div className="pdf-logo">El Portal<span>.</span></div>
+                   <div className="pdf-doc-meta">Anexo Técnico<br/>Propiedad Intelectual y Operativa</div>
+               </div>
+               
+               <h2 className="pdf-h2" style={{marginTop: '10px'}}>5. Propiedad intelectual y control académico</h2>
+               <div className="pdf-feature-list">
+                   <div><h3 className="pdf-h3" style={{marginTop: 0}}>Derechos de autor</h3><p className="pdf-p">Todos los derechos, la propiedad intelectual y la autoría de los materiales y clases dictadas pertenecen de forma exclusiva y perpetua al docente o a la institución de origen.</p></div>
+                   <div><h3 className="pdf-h3" style={{marginTop: 0}}>Libertad de difusión</h3><p className="pdf-p">Este acuerdo no exige exclusividad en la oferta. Su institución mantiene total libertad para continuar promocionando sus capacitaciones a través de sus canales de comunicación habituales.</p></div>
+               </div>
+               <h3 className="pdf-h3">Traspaso de los datos del alumno</h3>
+               <p className="pdf-p">Al confirmarse una inscripción en la plataforma, la institución recibe de forma automática todos los datos de contacto y el perfil profesional del matriculado, permitiéndole integrarlo a su plataforma educativa, sumar al alumno a su base de datos propia y realizar el seguimiento académico pertinente.</p>
+
+               <h2 className="pdf-h2">6. Aspectos operativos</h2>
+               <h3 className="pdf-h3">Lugar de dictado y metodologías</h3>
+               <p className="pdf-p">La metodología de enseñanza y el entorno virtual quedan a total criterio de su institución. El alumno abona su vacante a través de El Portal, pero asiste a las clases directamente en la plataforma que ustedes designen (Moodle, Zoom, Web propia o en su defecto, formato presencial), preservando íntegramente la experiencia y el prestigio de su institución.</p>
+               <h3 className="pdf-h3">Criterios de calidad y política de reembolsos</h3>
+               <p className="pdf-p">Para resguardar el estándar científico de la plataforma, toda propuesta formativa atraviesa un breve proceso de revisión por parte de nuestro comité previo a su publicación en el repertorio. Asimismo, para brindar seguridad a los colegas, rige una política de garantía de 7 días: en caso de que un alumno presente una baja justificada dentro de este plazo, El Portal gestionará el reembolso directamente, sin generar gastos administrativos ni compromisos económicos para su institución.</p>
+
+               <div className="pdf-contact-box">
+                   <h3 className="pdf-h3" style={{textAlign: 'center', color: '#1A3D3D', marginTop: 0}}>¿Tienen alguna consulta adicional sobre este documento?</h3>
+                   <p className="pdf-p" style={{textAlign: 'center', marginBottom: '8px'}}>Nuestro equipo comercial e institucional está a su entera disposición.</p>
+                   <p style={{textAlign: 'center', margin: 0}}><a href="mailto:elportalveterinario.arg@gmail.com" className="pdf-email">elportalveterinario.arg@gmail.com</a></p>
+               </div>
+
+               <div className="pdf-legal-footer">
+                   <p style={{margin: '0 0 3px 0'}}><strong>El Portal - Red Exclusiva para Veterinarios</strong></p>
+                   <p style={{margin: '0 0 3px 0'}}>Plataforma tecnológica de conexión académica y desarrollo profesional.</p>
+                   <p style={{margin: '0 0 8px 0'}}>Buenos Aires, Argentina | www.elportal.vet</p>
+                   <p style={{margin: 0}}>© {new Date().getFullYear()} El Portal. Todos los derechos reservados. Documento confidencial de uso institucional.</p>
+               </div>
+
+               <div className="pdf-page-number">Página 3 de 3</div>
+           </div>
+        </div>
+      </div>
+      {/* ========================================================= */}
+
+      {/* Controles Superiores Web */}
+      <div className="flex justify-between items-center mb-8">
+        <button 
+          onClick={() => { setView('publicitar'); setOpenFaq(null); window.scrollTo(0,0); }} 
+          className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-[10px] uppercase tracking-[0.3em] transition-colors group"
+        >
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver
+        </button>
+        <button 
+          onClick={handleDownloadPDF}
+          disabled={isGeneratingPDF}
+          className="flex items-center gap-2 bg-[#2D6A6A]/10 text-[#2D6A6A] px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[#2D6A6A] hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:cursor-wait"
+        >
+          {isGeneratingPDF ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          {isGeneratingPDF ? 'Generando...' : 'Guardar como PDF'}
+        </button>
+      </div>
+
+      <div className="space-y-8">
+        {/* Portada */}
+        <section className="bg-white rounded-[40px] p-12 md:p-20 text-center shadow-sm border border-gray-100 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#2D6A6A]/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3"></div>
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 bg-gray-50 border border-gray-200 px-5 py-2.5 rounded-full mb-8">
+              <span className="flex h-2 w-2 rounded-full bg-[#2D6A6A] animate-pulse"></span>
+              <span className="text-[#1A3D3D] font-bold text-[10px] uppercase tracking-[0.2em] leading-none">Red exclusiva de veterinarios</span>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-black text-[#1A3D3D] font-['Montserrat'] leading-[1.1] tracking-tighter mb-6">
+              Multiplicá el impacto<br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1A3D3D] to-[#2D6A6A]">de tu oferta académica.</span>
+            </h1>
+            <p className="text-[#2D6A6A] font-bold uppercase tracking-[0.2em] text-xs">Alianzas Estratégicas - El Portal</p>
+          </div>
+        </section>
+
+        {/* El Desafío */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100">
+          <div className="order-2 md:order-1">
+            <div className="inline-flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 rounded-full mb-6">
+              <span className="text-[#1A3D3D] font-bold text-[9px] uppercase tracking-[0.2em] leading-none">El Desafío</span>
+            </div>
+            <h2 className="text-3xl font-black text-[#1A3D3D] font-['Montserrat'] mb-6 tracking-tight">Rompiendo el ruido digital</h2>
+            <div className="space-y-4 text-gray-500 font-medium text-sm md:text-base leading-relaxed">
+              <p>Crear un programa de excelencia en medicina veterinaria requiere años de investigación y dedicación en la clínica diaria.</p>
+              <p>Sin embargo, lograr que ese conocimiento llegue a los colegas correctos no debería representar un gasto incalculable en publicidad ni un esfuerzo técnico desgastante.</p>
+              <p className="text-[#1A3D3D] font-bold">En El Portal, conectamos tu rigor académico directamente con la demanda insatisfecha del sector.</p>
+            </div>
+          </div>
+          <div className="order-1 md:order-2 h-64 md:h-[400px] w-full rounded-[32px] overflow-hidden shadow-inner">
+            <img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" alt="Veterinario" className="w-full h-full object-cover" />
+          </div>
+        </section>
+
+        {/* Sinergia */}
+        <section className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100">
+          <h2 className="text-3xl font-black text-[#1A3D3D] font-['Montserrat'] mb-10 tracking-tight text-center">Sinergia a resultados</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-gray-50 rounded-[24px] p-8 border border-gray-100 transition-transform hover:-translate-y-2 duration-300">
+              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm text-[#2D6A6A] mb-6"><Award className="w-7 h-7" aria-hidden="true" /></div>
+              <h3 className="text-lg font-black text-[#1A3D3D] font-['Montserrat'] mb-3">Visibilidad sin costo</h3>
+              <p className="text-sm text-gray-500 font-medium leading-relaxed">No existen honorarios mensuales ni costos de mantenimiento. Postular y exhibir tu temario es 100% gratuito.</p>
+            </div>
+            <div className="bg-gray-50 rounded-[24px] p-8 border border-gray-100 transition-transform hover:-translate-y-2 duration-300">
+              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm text-[#2D6A6A] mb-6"><ShieldCheck className="w-7 h-7" aria-hidden="true" /></div>
+              <h3 className="text-lg font-black text-[#1A3D3D] font-['Montserrat'] mb-3">Comisión por éxito</h3>
+              <p className="text-sm text-gray-500 font-medium leading-relaxed">Nuestro modelo es win-win. Retenemos comisión únicamente cuando la inscripción se concreta con éxito.</p>
+            </div>
+            <div className="bg-gray-50 rounded-[24px] p-8 border border-gray-100 transition-transform hover:-translate-y-2 duration-300">
+              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm text-[#2D6A6A] mb-6"><Activity className="w-7 h-7" aria-hidden="true" /></div>
+              <h3 className="text-lg font-black text-[#1A3D3D] font-['Montserrat'] mb-3">CAC Cero</h3>
+              <p className="text-sm text-gray-500 font-medium leading-relaxed">Absorbemos el trabajo de marketing, dejás de arriesgar presupuesto y tiempo en anuncios.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Beneficio Comunidad */}
+        <section className="bg-[#1A3D3D] rounded-[40px] p-8 md:p-12 shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-[80px]"></div>
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
+            <div className="bg-white/5 border border-white/10 rounded-[32px] p-10 md:p-14 text-center w-full md:w-1/3">
+              <span className="text-6xl md:text-8xl font-black text-[#4DB6AC] font-['Montserrat'] tracking-tighter shadow-[#4DB6AC]/30 drop-shadow-2xl">15%</span>
+              <p className="text-white/80 font-bold uppercase tracking-widest text-xs mt-4">Descuento Exclusivo</p>
+            </div>
+            <div className="w-full md:w-2/3 text-white">
+              <h2 className="text-3xl font-black font-['Montserrat'] mb-6 tracking-tight">El "Beneficio Comunidad"</h2>
+              <div className="space-y-4 text-white/70 font-medium text-sm md:text-base leading-relaxed">
+                <p>Para maximizar la conversión, te proponemos ofrecer un valor preferencial exclusivo para los usuarios que adquieren tu curso desde El Portal.</p>
+                <p>Al generar este incentivo, cambiás un pequeño margen individual por un <strong className="text-white">volumen de ventas mayor</strong>, aprovechando una audiencia cautiva por la que no tuviste que pagar un solo anuncio.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="bg-white rounded-[40px] p-10 md:p-16 border border-gray-100 shadow-sm flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
+          <div className="lg:w-1/3 shrink-0 lg:sticky lg:top-28 text-center lg:text-left w-full">
+            <h3 className="text-3xl md:text-4xl font-black font-['Montserrat'] text-[#1A3D3D] tracking-tight uppercase mb-4 leading-none">
+              Consultas<br className="hidden lg:block"/> Frecuentes
+            </h3>
+            <p className="text-gray-500 font-medium text-sm">Transparencia total sobre nuestro modelo de trabajo y alcance.</p>
+          </div>
+          
+          <div className="lg:w-2/3 w-full">
+            {FAQ_CATEGORIES.map((category, catIdx) => (
+              <div key={catIdx} className="mb-10 last:mb-0">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2D6A6A] mb-2 border-b border-gray-100 pb-3 flex items-center gap-2">
+                  {category.title}
+                </h4>
+                <div className="space-y-0">
+                  {category.items.map((faq, itemIdx) => {
+                    const faqId = `${catIdx}-${itemIdx}`;
+                    return (
+                      <div key={faqId} className="border-b border-gray-50 last:border-0">
+                        <button
+                          onClick={() => setOpenFaq(openFaq === faqId ? null : faqId)}
+                          className="w-full flex justify-between items-center py-4 md:py-5 text-left group"
+                        >
+                          <span className={`font-bold text-sm md:text-[15px] pr-8 transition-colors ${openFaq === faqId ? 'text-[#2D6A6A]' : 'text-[#1A3D3D] group-hover:text-[#2D6A6A]'}`}>
+                            {faq.q}
+                          </span>
+                          <div className={`shrink-0 transition-transform duration-300 ${openFaq === faqId ? 'rotate-45 text-[#2D6A6A]' : 'text-gray-300 group-hover:text-[#2D6A6A]'}`}>
+                            <Plus className="w-5 h-5" />
+                          </div>
+                        </button>
+                        <div className={`grid transition-all duration-300 ease-in-out ${openFaq === faqId ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                          <div className="overflow-hidden">
+                            <p className="pb-5 text-gray-500 text-sm font-medium leading-relaxed pr-8">
+                              {faq.a}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+            <div className="mt-8 p-5 bg-[#F4F7F7] rounded-2xl border border-gray-200 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-4 transition-all hover:border-[#2D6A6A]/30">
+              <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center shrink-0">
+                      <MessageCircle className="w-5 h-5 text-[#2D6A6A]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-[#1A3D3D]">¿Tenés alguna otra duda?</p>
+                    <p className="text-xs text-gray-500 font-medium">Nuestro equipo está listo para ayudarte.</p>
+                  </div>
+              </div>
+              <a href="mailto:elportalveterinario.arg@gmail.com" className="bg-white px-5 py-2.5 rounded-xl text-[10px] font-bold text-[#1A3D3D] hover:bg-[#1A3D3D] hover:text-white border border-gray-200 transition-all uppercase tracking-widest whitespace-nowrap shadow-sm">
+                  Contactar Soporte
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Final */}
+        <section className="bg-[#2D6A6A] rounded-[40px] p-12 md:p-16 text-center shadow-xl relative overflow-hidden text-white">
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-[100px] pointer-events-none"></div>
+           <div className="relative z-10">
+             <h2 className="text-4xl md:text-5xl font-black font-['Montserrat'] mb-6 tracking-tight">¿Comenzamos?</h2>
+             <p className="text-white/80 font-medium text-lg mb-10 max-w-xl mx-auto">Postulá tu programa académico hoy y expandí el alcance de tu conocimiento sin riesgos operativos.</p>
+             <button 
+               onClick={() => { setView('wizard'); window.scrollTo(0,0); }}
+               className="bg-white text-[#1A3D3D] px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] hover:bg-gray-100 hover:scale-105 transition-all shadow-xl active:scale-95"
+             >
+               Publicar mi curso ahora
+             </button>
+             <p className="mt-6 text-white/60 text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-1.5">
+               <ShieldCheck className="w-4 h-4" /> Postular tu temario es 100% gratis y sin compromiso
+             </p>
+           </div>
+        </section>
+
+      </div>
+    </article>
+  );
+
+  const renderCourseWizard = () => (
+    <section className="max-w-[800px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <button 
+          onClick={() => { setView('publicitar'); setWizardStep(1); setErrors({}); }} 
+          className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-[10px] uppercase tracking-[0.3em] transition-colors group"
+        >
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" aria-hidden="true" /> Cancelar
+        </button>
+        <div className="flex items-center gap-2 text-[#2D6A6A] bg-[#2D6A6A]/10 px-3 py-1.5 rounded-full">
+          <Save className="w-3.5 h-3.5" aria-hidden="true" />
+          <span className="text-[10px] font-bold uppercase tracking-widest">Borrador guardado localmente</span>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-[32px] border border-gray-100 shadow-xl overflow-hidden">
+        <div className="bg-gray-50 border-b border-gray-100 p-6 md:p-8 flex items-center justify-between relative" aria-label={`Paso ${wizardStep} de 4`}>
+          <div className="absolute top-1/2 left-8 right-8 h-1 bg-gray-200 -translate-y-1/2 rounded-full z-0 hidden md:block">
+            <div 
+              className="h-full bg-[#2D6A6A] rounded-full transition-all duration-500" 
+              style={{ width: `${((wizardStep - 1) / 3) * 100}%` }}
+            ></div>
+          </div>
+          
+          {[1, 2, 3, 4].map((step) => (
+            <div key={step} className="relative z-10 flex flex-col items-center gap-2">
+              <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 ${
+                wizardStep === step ? 'bg-[#1A3D3D] text-white shadow-lg scale-110' : 
+                wizardStep > step ? 'bg-[#2D6A6A] text-white' : 'bg-white border-2 border-gray-200 text-gray-400'
+              }`}>
+                {wizardStep > step ? <Check className="w-4 h-4 md:w-5 md:h-5" /> : step}
+              </div>
+              <span className={`text-[8px] md:text-[10px] uppercase tracking-widest font-bold hidden md:block ${wizardStep >= step ? 'text-[#1A3D3D]' : 'text-gray-400'}`}>
+                {step === 1 ? 'Básicos' : step === 2 ? 'Temario' : step === 3 ? 'Docente' : 'Publicar'}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="p-6 md:p-10">
+          
+          {wizardStep === 1 && (
+            <div className="space-y-6 animate-in fade-in">
+              <div>
+                <h2 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-1">Información Básica</h2>
+                <p className="text-gray-500 text-sm font-medium">Atraé a tus colegas con un título claro y conciso.</p>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="titulo">Título del Curso *</label>
+                  <input 
+                    id="titulo"
+                    type="text" 
+                    value={courseForm.titulo}
+                    onChange={(e) => handleWizardChange('titulo', e.target.value)}
+                    placeholder="Ej: Cirugía de Tejidos Blandos: Procedimientos Avanzados" 
+                    className={`w-full bg-gray-50 border rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] ${errors.titulo ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                  />
+                  {errors.titulo && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.titulo}</p>}
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="modalidad">Modalidad</label>
+                    <select 
+                      id="modalidad"
+                      value={courseForm.modalidad}
+                      onChange={(e) => handleWizardChange('modalidad', e.target.value)}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]"
+                    >
+                      {MODALIDADES.map(m => <option key={m} value={m}>{m}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="precio">Precio de lista (ARS) *</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                      <input 
+                        id="precio"
+                        type="number" 
+                        value={courseForm.precio}
+                        onChange={(e) => handleWizardChange('precio', e.target.value)}
+                        placeholder="45000" 
+                        className={`w-full bg-gray-50 border rounded-xl pl-8 pr-4 py-3.5 text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] ${errors.precio ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                      />
+                    </div>
+                    {errors.precio && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.precio}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="nivel">Nivel</label>
+                    <select 
+                      id="nivel"
+                      value={courseForm.nivel}
+                      onChange={(e) => handleWizardChange('nivel', e.target.value)}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]"
+                    >
+                      <option value="Principiante">Principiante (Estudiantes/Recibidos)</option>
+                      <option value="Intermedio">Intermedio (Clínica General)</option>
+                      <option value="Avanzado">Avanzado (Especialistas)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="duracion">Duración aprox.</label>
+                    <input 
+                      id="duracion"
+                      type="text" 
+                      value={courseForm.duracion}
+                      onChange={(e) => handleWizardChange('duracion', e.target.value)}
+                      placeholder="Ej: 12h 30m / 4 Semanas" 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]" 
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {wizardStep === 2 && (
+            <div className="space-y-6 animate-in fade-in">
+              <div>
+                <h2 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-1">Detalles y Temario</h2>
+                <p className="text-gray-500 text-sm font-medium">Contale a los colegas por qué este curso es imperdible.</p>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="descripcion">Descripción general *</label>
+                  <textarea 
+                    id="descripcion"
+                    value={courseForm.descripcion}
+                    onChange={(e) => handleWizardChange('descripcion', e.target.value)}
+                    placeholder="Escribí un resumen atrapante sobre los objetivos principales del curso..." 
+                    rows="4"
+                    className={`w-full bg-gray-50 border rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] resize-none ${errors.descripcion ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                  ></textarea>
+                  {errors.descripcion && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.descripcion}</p>}
+                </div>
+                
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">¿Qué van a aprender? (Puntos clave) *</label>
+                  <div className="space-y-3">
+                    {courseForm.incluye.map((item, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className="flex-1 relative">
+                          <Check className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2D6A6A]" aria-hidden="true" />
+                          <input 
+                            type="text" 
+                            value={item}
+                            aria-label={`Punto de aprendizaje ${index + 1}`}
+                            onChange={(e) => updateIncluyeItem(index, e.target.value)}
+                            placeholder="Ej: Análisis de casos clínicos reales..." 
+                            className={`w-full bg-gray-50 border rounded-xl pl-10 pr-4 py-3 text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] ${errors.incluye ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                          />
+                        </div>
+                        {courseForm.incluye.length > 1 && (
+                          <button onClick={() => removeIncluyeItem(index)} aria-label="Eliminar punto" className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    {errors.incluye && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.incluye}</p>}
+                    
+                    <button 
+                      onClick={addIncluyeItem}
+                      className="flex items-center gap-2 text-[#2D6A6A] font-bold text-xs uppercase tracking-widest mt-2 hover:bg-[#2D6A6A]/10 px-4 py-2 rounded-lg transition-colors"
+                    >
+                      <Plus className="w-4 h-4" /> Agregar otro punto
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {wizardStep === 3 && (
+            <div className="space-y-6 animate-in fade-in">
+              <div>
+                <h2 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-1">Docente / Instructorx</h2>
+                <p className="text-gray-500 text-sm font-medium">Humanizá tu curso presentando al especialista a cargo.</p>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="instructorNombre">Nombre completo con título *</label>
+                  <input 
+                    id="instructorNombre"
+                    type="text" 
+                    value={courseForm.instructorNombre}
+                    onChange={(e) => handleWizardChange('instructorNombre', e.target.value)}
+                    placeholder="Ej: Dr. Julián Martínez" 
+                    className={`w-full bg-gray-50 border rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] ${errors.instructorNombre ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                  />
+                  {errors.instructorNombre && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.instructorNombre}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="instructorBio">Mini Bio del Docente *</label>
+                  <textarea 
+                    id="instructorBio"
+                    value={courseForm.instructorBio}
+                    onChange={(e) => handleWizardChange('instructorBio', e.target.value)}
+                    placeholder="Resumí su experiencia, especialidades y reconocimientos (máx. 300 caracteres)..." 
+                    rows="3"
+                    className={`w-full bg-gray-50 border rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] resize-none ${errors.instructorBio ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                  ></textarea>
+                  {errors.instructorBio && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.instructorBio}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Foto de perfil del docente</label>
+                  <div className="w-full border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 hover:bg-white hover:border-[#2D6A6A] transition-all p-8 flex flex-col items-center justify-center text-center cursor-pointer group">
+                    <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <UploadCloud className="w-6 h-6 text-[#2D6A6A]" />
+                    </div>
+                    <p className="text-sm font-bold text-[#1A3D3D]">Hacé clic para subir una imagen</p>
+                    <p className="text-xs text-gray-400 mt-1">o arrastrala y soltala acá (PNG, JPG hasta 5MB)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {wizardStep === 4 && (
+            <div className="space-y-6 animate-in fade-in">
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-[#2D6A6A]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Award className="w-8 h-8 text-[#2D6A6A]" aria-hidden="true" />
+                </div>
+                <h2 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-2">¡Tu curso está casi listo!</h2>
+                <p className="text-gray-500 text-sm font-medium max-w-sm mx-auto">
+                  Creá tu cuenta institucional para gestionar las ventas y proceder al pago de la publicación.
+                </p>
+              </div>
+              
+              <div className="bg-gray-50 p-6 md:p-8 rounded-[24px] border border-gray-100 space-y-4 max-w-md mx-auto">
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="email">Email Institucional *</label>
+                  <input 
+                    id="email"
+                    type="email" 
+                    value={courseForm.email}
+                    onChange={(e) => handleWizardChange('email', e.target.value)}
+                    placeholder="contacto@tuinstitucion.com" 
+                    className={`w-full bg-white border rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none transition-all text-[#1A3D3D] ${errors.email ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                  />
+                  {errors.email && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.email}</p>}
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="password">Contraseña *</label>
+                  <input 
+                    id="password"
+                    type="password" 
+                    value={courseForm.password}
+                    onChange={(e) => handleWizardChange('password', e.target.value)}
+                    placeholder="••••••••" 
+                    className={`w-full bg-white border rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none transition-all text-[#1A3D3D] ${errors.password ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                  />
+                  {errors.password && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.password}</p>}
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        <div className="bg-gray-50 border-t border-gray-100 p-6 md:px-10 md:py-8 flex items-center justify-between">
+          {wizardStep > 1 ? (
+            <button 
+              onClick={() => { setWizardStep(prev => prev - 1); setErrors({}); window.scrollTo(0,0); }}
+              className="px-6 py-3.5 text-[#1A3D3D] font-bold text-[11px] uppercase tracking-widest hover:bg-gray-200 rounded-xl transition-all"
+            >
+              Anterior
+            </button>
+          ) : <div></div>}
+
+          {wizardStep < 4 ? (
+            <button 
+              onClick={handleNextStep}
+              className="px-8 py-3.5 bg-[#1A3D3D] text-white font-black text-[11px] uppercase tracking-widest hover:bg-[#2D6A6A] rounded-xl transition-all shadow-lg flex items-center gap-2"
+            >
+              Siguiente <ChevronRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <button 
+              onClick={submitWizard}
+              disabled={isSubmitting}
+              className="px-8 py-3.5 bg-[#2D6A6A] text-white font-black text-[11px] uppercase tracking-widest hover:bg-[#1A3D3D] rounded-xl transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
+              ) : (
+                <><ShieldCheck className="w-4 h-4" /> Crear cuenta y Pagar</>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderAdvertise = () => (
+    <section className="max-w-[1000px] mx-auto animate-in fade-in duration-500 pb-24">
+      <button 
+        onClick={() => setView('grid')} 
+        className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-[10px] uppercase tracking-[0.3em] mb-8 transition-colors group"
+      >
+        <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver al Repertorio
+      </button>
+
+      <div className="bg-[#1A3D3D] rounded-[32px] pt-12 pb-28 md:pt-16 md:pb-32 px-8 text-center relative overflow-hidden shadow-2xl">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-white opacity-5 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
+          
+          <span className="bg-[#2D6A6A] text-white text-[10px] font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6">
+            Alianzas Estratégicas
+          </span>
+          
+          <h1 className="text-3xl md:text-5xl font-black font-['Montserrat'] leading-[1.1] uppercase tracking-tighter mb-6 text-white flex items-center justify-center flex-wrap">
+            <span>Conectá tu marca con la élite veterinaria</span>
+            <span className="inline-block w-[4px] md:w-[6px] h-[0.9em] bg-[#2D6A6A] animate-pulse ml-2 align-baseline -mb-1 shadow-[0_0_10px_rgba(45,106,106,0.5)]"></span>
+          </h1>
+          
+          <p className="text-white/60 text-sm md:text-base font-medium leading-relaxed max-w-xl mx-auto">
+            El Portal es la red exclusiva para profesionales de alta complejidad. Posicioná tus cursos, seminarios o equipamiento médico frente a una audiencia altamente segmentada y calificada.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4 md:px-8 relative z-20 -mt-20 mb-8">
+        
+        <article className="bg-white p-8 md:p-10 rounded-[32px] border border-gray-100 shadow-xl flex flex-col items-center text-center hover:-translate-y-2 transition-transform duration-300">
+          <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+            <BookOpen className="w-8 h-8 text-[#2D6A6A]" />
+          </div>
+          <h3 className="text-xl font-black font-['Montserrat'] text-[#1A3D3D] mb-4">Instituciones Educativas</h3>
+          <p className="text-gray-500 text-sm leading-relaxed mb-8 flex-grow">
+            Publicá tus cursos y seminarios usando nuestra plantilla optimizada. Mostrá el temario, instructorxs y recibí inscripciones directas de colegas buscando especializarse.
+          </p>
+          
+          <div className="w-full flex flex-col gap-3 mt-auto">
+            <button 
+              onClick={() => { setView('wizard'); window.scrollTo(0,0); }}
+              className="w-full py-4 bg-[#1A3D3D] text-white rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-[#2D6A6A] transition-all shadow-md active:scale-95"
+            >
+              Publicar un curso
+            </button>
+            <button 
+              onClick={() => { setView('propuesta'); window.scrollTo(0,0); }}
+              className="w-full py-4 bg-white text-[#2D6A6A] border border-[#2D6A6A]/30 rounded-[20px] font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#2D6A6A]/5 transition-all flex items-center justify-center gap-2"
+            >
+              ¿Por qué publicar acá? <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </article>
+        
+        <article className="bg-white p-8 md:p-10 rounded-[32px] border border-gray-100 shadow-xl flex flex-col items-center text-center hover:-translate-y-2 transition-transform duration-300">
+          <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+            <Tag className="w-8 h-8 text-[#2D6A6A]" />
+          </div>
+          <h3 className="text-xl font-black font-['Montserrat'] text-[#1A3D3D] mb-4">Empresas de Insumos</h3>
+          <p className="text-gray-500 text-sm leading-relaxed mb-8 flex-grow">
+            Destacá tu equipamiento (ecógrafos, instrumental quirúrgico, anestesia) en un entorno donde los profesionales entran específicamente a buscar mejorar su clínica diaria.
+          </p>
+          <div className="w-full flex flex-col gap-3 mt-auto">
+            <button className="w-full py-4 bg-gray-50 text-[#1A3D3D] border border-gray-200 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-gray-100 transition-all shadow-sm active:scale-95">
+              Contactar equipo de ventas
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+
+  const renderGrid = () => (
+    <div className="flex flex-col gap-6 md:gap-8 animate-in fade-in duration-500">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-2 md:mb-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-black font-['Montserrat'] text-[#1A3D3D] tracking-tight uppercase leading-none">
+            Repertorio Clínico
+          </h1>
+          <p className="text-[#2D6A6A] text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">
+            Insumos & cursos
+          </p>
+        </div>
+
+        <div className="w-full lg:max-w-md flex flex-col gap-3">
+          <div className="relative w-full">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-4 h-4" aria-hidden="true" />
+            <input 
+              type="search" 
+              aria-label="Buscar curso o seminario"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="¿Qué quieres aprender hoy?" 
+              className="bg-white border border-gray-100 rounded-full pl-11 pr-6 py-3 md:py-3.5 text-xs font-medium focus:outline-none focus:border-[#2D6A6A] w-full shadow-sm placeholder:text-gray-300 transition-all" 
+            />
+          </div>
+
+          <div className="flex lg:hidden items-center gap-2 relative z-20">
+            <div className="flex-1 relative">
+              <button 
+                onClick={() => setMobileFilterOpen(mobileFilterOpen === 'cat' ? null : 'cat')}
+                aria-haspopup="listbox"
+                aria-expanded={mobileFilterOpen === 'cat'}
+                className="w-full bg-white border border-gray-200 rounded-[12px] px-3 py-2 text-[10px] font-bold text-[#1A3D3D] flex justify-between items-center shadow-sm"
+              >
+                <span className="truncate pr-2">{filtroCategoria || "Categorías"}</span> <Filter className="w-3 h-3 shrink-0" />
+              </button>
+              {mobileFilterOpen === 'cat' && (
+                <div className="absolute top-full left-0 w-[150%] mt-2 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50" role="listbox">
+                  <div 
+                    role="option"
+                    aria-selected={filtroCategoria === null}
+                    className="px-4 py-2.5 text-[11px] font-bold text-gray-400 cursor-pointer hover:bg-gray-50 border-b border-gray-50"
+                    onClick={() => { setFiltroCategoria(null); setMobileFilterOpen(null); }}
+                  >Todas las categorías</div>
+                  {CATEGORIAS.map(cat => (
+                    <div 
+                      key={cat}
+                      role="option"
+                      aria-selected={filtroCategoria === cat}
+                      className="px-4 py-2.5 text-[11px] font-semibold text-[#1A3D3D] cursor-pointer hover:bg-gray-50 leading-tight"
+                      onClick={() => { setFiltroCategoria(cat); setMobileFilterOpen(null); }}
+                    >{cat}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="flex-1 relative">
+              <button 
+                onClick={() => setMobileFilterOpen(mobileFilterOpen === 'mod' ? null : 'mod')}
+                aria-haspopup="listbox"
+                aria-expanded={mobileFilterOpen === 'mod'}
+                className="w-full bg-white border border-gray-200 rounded-[12px] px-3 py-2 text-[10px] font-bold text-[#1A3D3D] flex justify-between items-center shadow-sm"
+              >
+                Modalidad <Monitor className="w-3 h-3 shrink-0" />
+              </button>
+              {mobileFilterOpen === 'mod' && (
+                <div className="absolute top-full right-0 w-[120%] mt-2 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50" role="listbox">
+                  {MODALIDADES.map(mod => (
+                    <div 
+                      key={mod}
+                      role="option"
+                      aria-selected={modalidadesSeleccionadas.includes(mod)}
+                      className="px-4 py-2.5 flex items-center gap-3 cursor-pointer hover:bg-gray-50"
+                      onClick={() => toggleModalidad(mod)}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${modalidadesSeleccionadas.includes(mod) ? 'bg-[#2D6A6A] border-[#2D6A6A]' : 'border-gray-300'}`}>
+                        {modalidadesSeleccionadas.includes(mod) && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
+                      </div>
+                      <span className="text-[11px] font-semibold text-[#1A3D3D]">{mod}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="w-full flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-16">
+        <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6">
+          <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm sticky top-32">
+            <h3 className="font-['Montserrat'] font-black text-[#1A3D3D] text-[10px] uppercase tracking-[0.2em] mb-6 flex items-center gap-2 border-b border-gray-50 pb-2">
+              <Filter className="w-3.5 h-3.5 text-[#2D6A6A]" /> Categorías
+            </h3>
+            <ul className="space-y-4 mb-10">
+              <li 
+                onClick={() => setFiltroCategoria(null)}
+                className={`text-[13px] font-black font-['Montserrat'] tracking-tight cursor-pointer transition-colors ${!filtroCategoria ? 'text-[#2D6A6A]' : 'text-gray-300 hover:text-[#1A3D3D]'}`}
+              >
+                Todos
+              </li>
+              {CATEGORIAS.map(cat => (
+                <li 
+                  key={cat} 
+                  onClick={() => setFiltroCategoria(cat)}
+                  className={`text-[13px] font-semibold cursor-pointer transition-colors ${filtroCategoria === cat ? 'text-[#2D6A6A]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+                >
+                  {cat}
+                </li>
+              ))}
+            </ul>
+
+            <h3 className="font-['Montserrat'] font-black text-[#1A3D3D] text-[10px] uppercase tracking-[0.2em] mb-6 flex items-center gap-2 border-b border-gray-50 pb-2">
+              <Monitor className="w-3.5 h-3.5 text-[#2D6A6A]" /> Modalidad
+            </h3>
+            <div className="space-y-4">
+              {MODALIDADES.map(mod => (
+                <div 
+                  key={mod} 
+                  onClick={() => toggleModalidad(mod)}
+                  className="flex items-center gap-3 group cursor-pointer"
+                >
+                  <div className={`w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center ${
+                    modalidadesSeleccionadas.includes(mod) 
+                    ? 'bg-[#2D6A6A] border-[#2D6A6A]' 
+                    : 'border-gray-200 group-hover:border-[#2D6A6A]'
+                  }`}>
+                    {modalidadesSeleccionadas.includes(mod) && <Check className="w-3 h-3 text-white stroke-[4px]" />}
+                  </div>
+                  <span className={`text-[13px] font-semibold transition-colors ${
+                    modalidadesSeleccionadas.includes(mod) ? 'text-[#1A3D3D]' : 'text-gray-400 group-hover:text-[#1A3D3D]'
+                  }`}>
+                    {mod}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        <section className="lg:col-span-9 flex flex-col gap-6 md:gap-10">
+          <article 
+            ref={bannerRef}
+            onMouseMove={handleMouseMove}
+            className="bg-[#1A3D3D] px-4 py-3 md:p-10 rounded-[16px] md:rounded-[32px] text-left relative overflow-hidden group shadow-md md:shadow-lg flex flex-row items-center justify-between gap-3 md:gap-6 border border-white/5"
+          >
+            <div 
+              className="absolute pointer-events-none transition-transform duration-300 ease-out bg-white opacity-5 rounded-full blur-3xl"
+              style={{ width: '300px', height: '300px', left: mousePos.x - 150, top: mousePos.y - 150 }}
+            />
+            <div className="relative z-10 flex flex-col items-start gap-0.5 md:gap-2 max-w-xl">
+              <h2 className="text-white font-['Montserrat'] font-black text-[12px] md:text-2xl uppercase leading-none tracking-tight">
+                ¿Querés publicitar tu marca?
+              </h2>
+              <p className="text-white/40 text-[9px] md:text-[13px] font-medium italic hidden sm:block">Llegá a miles de profesionales de todo el país</p>
+            </div>
+            <button 
+              onClick={() => { setView('publicitar'); window.scrollTo(0,0); }}
+              className="bg-[#2D6A6A] text-white px-4 py-2 md:px-8 md:py-3.5 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-widest relative z-10 shadow-lg hover:bg-[#3d8b8b] transition-all whitespace-nowrap"
+            >
+              <span className="md:hidden">Más Info</span>
+              <span className="hidden md:inline">Más información</span>
+            </button>
+          </article>
+
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-10 items-start">
+            <div className="col-span-1 lg:col-span-2 flex flex-col gap-4 md:gap-6">
+              <h2 className="font-['Montserrat'] font-black text-[#2D6A6A] text-[9px] md:text-base uppercase tracking-[0.2em]">Seminarios</h2>
+              
+              {cursosFiltrados.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  {cursosFiltrados.map(curso => (
+                    <article key={curso.id} className="bg-white rounded-[16px] md:rounded-[32px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all group flex flex-col h-full">
+                      <div className="h-20 md:h-44 relative overflow-hidden cursor-pointer" onClick={() => handleCourseClick(curso)}>
+                        <img src={curso.imagen} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={curso.titulo} />
+                        <div className="absolute top-2 left-2 md:top-4 md:left-4">
+                          <span className="bg-[#1A3D3D] text-white text-[6px] md:text-[8px] font-bold px-2 py-1 md:px-3 md:py-1.5 rounded-full uppercase tracking-widest">{curso.badge}</span>
+                        </div>
+                      </div>
+                      <div className="p-3 md:p-6 flex flex-col flex-grow">
+                        <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
+                          <img src={curso.logoMarca} className="w-4 h-4 md:w-5 md:h-5 rounded-full border border-gray-100" alt={`${curso.marca} logo`} />
+                          <span className="text-[7px] md:text-[9px] font-bold text-[#2D6A6A] uppercase tracking-widest truncate">{curso.marca}</span>
+                        </div>
+                        <h3 
+                          onClick={() => handleCourseClick(curso)}
+                          className="font-['Montserrat'] font-black text-[#1A3D3D] text-[10px] md:text-sm leading-tight mb-3 md:mb-6 group-hover:text-[#2D6A6A] transition-colors line-clamp-3 md:line-clamp-2 cursor-pointer"
+                        >
+                          {curso.titulo}
+                        </h3>
+                        <div className="mt-auto pt-3 md:pt-5 border-t border-gray-50 flex items-center justify-between">
+                          <span className="text-xs md:text-lg font-black text-[#1A3D3D] tracking-tight">${curso.precio.toLocaleString('es-AR')}</span>
+                          <button aria-label="Ver detalles del curso" onClick={() => handleCourseClick(curso)} className="bg-[#1A3D3D] text-white p-1.5 md:p-2.5 rounded-lg md:rounded-xl hover:bg-[#2D6A6A] transition-all">
+                            <ChevronRight className="w-3 h-3 md:w-4 md:h-4" aria-hidden="true" />
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-[32px] border border-gray-100 p-10 text-center flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                    <Search className="w-8 h-8 text-gray-300" />
+                  </div>
+                  <h3 className="font-['Montserrat'] font-black text-[#1A3D3D] text-lg mb-2">No encontramos resultados</h3>
+                  <p className="text-gray-500 text-sm">Intentá cambiar los filtros o el término de búsqueda.</p>
+                  <button 
+                    onClick={() => { setFiltroCategoria(null); setModalidadesSeleccionadas([]); setSearchTerm(''); }}
+                    className="mt-6 text-[#2D6A6A] font-bold text-[10px] uppercase tracking-widest hover:underline"
+                  >
+                    Limpiar filtros
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <aside className="col-span-1 flex flex-col gap-4 md:gap-6">
+              <h2 className="font-['Montserrat'] font-black text-gray-400 text-[9px] md:text-base uppercase tracking-[0.2em]">Insumos</h2>
+              {PARTNERS.map(ad => (
+                <article key={ad.id} className="bg-white rounded-[16px] md:rounded-[32px] overflow-hidden shadow-sm p-2 md:p-4 border border-gray-100 group">
+                  <div className="h-20 md:h-40 relative rounded-[12px] md:rounded-[24px] overflow-hidden mb-3 md:mb-5">
+                    <img src={ad.imagen} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={ad.titulo} />
+                  </div>
+                  <div className="px-1 md:px-2 pb-1 md:pb-2 text-center md:text-left">
+                    <span className="text-[7px] md:text-[9px] font-black text-[#2D6A6A] uppercase tracking-[0.3em] block mb-1 md:mb-2 truncate">{ad.marca}</span>
+                    <h4 className="font-['Montserrat'] font-black text-[#1A3D3D] text-[9px] md:text-sm mb-2 md:mb-3 uppercase leading-tight line-clamp-2">{ad.titulo}</h4>
+                    <button className="w-full py-2 md:py-3.5 bg-gray-50 text-[#1A3D3D] rounded-[10px] md:rounded-[16px] text-[7px] md:text-[9px] font-bold uppercase tracking-[0.2em] hover:bg-[#2D6A6A] hover:text-white transition-all">
+                      Ver Catálogo
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </aside>
+            
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+
+  const renderDetail = () => {
+    if (!selectedCourse) {
+      // Esto previene un crash si la vista es 'detail' pero no hay curso seleccionado.
+      return null; 
+    }
+    return (
+    <article className="max-w-[1200px] mx-auto animate-in fade-in duration-500">
+      <button 
+        onClick={() => setView('grid')} 
+        className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-[10px] uppercase tracking-[0.3em] mb-8 transition-colors group"
+      >
+        <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver al Repertorio
+      </button>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-24">
+        <section className="lg:col-span-8">
+          <header className="mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-[40px] font-black font-['Montserrat'] text-[#1A3D3D] leading-[1.1] uppercase tracking-tighter">
+              {selectedCourse.titulo}
+            </h1>
+          </header>
+
+          <div className="w-full md:w-[95%] aspect-video md:max-h-[360px] rounded-[32px] overflow-hidden bg-black shadow-lg relative group cursor-pointer mb-10 border border-gray-100">
+            <img src={selectedCourse.imagen} className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-[2s]" alt="Portada del curso" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 transition-all shadow-xl">
+                <PlayCircle className="w-8 h-8 md:w-10 md:h-10 text-white fill-white/80" />
+              </div>
+            </div>
+          </div>
+
+          <nav className="flex flex-wrap gap-x-6 gap-y-3 md:gap-12 border-b border-gray-200 mb-8" aria-label="Pestañas del curso">
+            <button 
+              onClick={() => setActiveTab('about')} 
+              aria-current={activeTab === 'about' ? 'page' : undefined}
+              className={`pb-3 md:pb-4 text-[11px] md:text-[13px] font-bold uppercase tracking-widest transition-all ${activeTab === 'about' ? 'border-b-2 border-[#2D6A6A] text-[#1A3D3D]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+            >
+              Acerca del curso
+            </button>
+            <button 
+              onClick={() => setActiveTab('speaker')} 
+              aria-current={activeTab === 'speaker' ? 'page' : undefined}
+              className={`pb-3 md:pb-4 text-[11px] md:text-[13px] font-bold uppercase tracking-widest transition-all ${activeTab === 'speaker' ? 'border-b-2 border-[#2D6A6A] text-[#1A3D3D]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+            >
+              Instructorxs
+            </button>
+            <button 
+              onClick={() => setActiveTab('reviews')} 
+              aria-current={activeTab === 'reviews' ? 'page' : undefined}
+              className={`pb-3 md:pb-4 text-[11px] md:text-[13px] font-bold uppercase tracking-widest transition-all ${activeTab === 'reviews' ? 'border-b-2 border-[#2D6A6A] text-[#1A3D3D]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+            >
+              Reseñas (4.9)
+            </button>
+          </nav>
+
+          {activeTab === 'about' && (
+            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2">
+              <div>
+                <h3 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-4">Descripción del programa</h3>
+                <p className="text-gray-600 text-[15px] md:text-base leading-relaxed font-medium">
+                  {selectedCourse.descripcion}
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-6">¿Qué vas a aprender?</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {selectedCourse.incluye.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-4 bg-white px-5 py-4 rounded-[16px] border border-gray-100 shadow-sm">
+                      <div className="w-6 h-6 rounded-full bg-[#2D6A6A]/10 flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 text-[#2D6A6A] stroke-[3]" />
+                      </div>
+                      <span className="text-[13px] font-bold text-[#1A3D3D] leading-tight">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'speaker' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+              <div className="bg-white p-5 md:p-8 rounded-[24px] md:rounded-[32px] border border-gray-100 shadow-sm flex flex-row gap-4 md:gap-6 items-start">
+                <img 
+                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedCourse.instructor}&backgroundColor=F4F7F7`} 
+                  className="w-16 h-16 md:w-24 md:h-24 rounded-full border border-gray-100 shrink-0 object-cover" 
+                  alt={selectedCourse.instructor} 
+                />
+                <div className="text-left flex-1 mt-1 md:mt-2">
+                  <h3 className="text-lg md:text-2xl font-black font-['Montserrat'] text-[#1A3D3D] leading-tight">{selectedCourse.instructor}</h3>
+                  <p className="text-[9px] md:text-[10px] font-bold text-[#2D6A6A] uppercase tracking-widest mb-3 md:mb-4 mt-1">Especialista Referente</p>
+                  <p className="text-gray-600 text-xs md:text-sm leading-relaxed font-medium">
+                    Profesional con más de 15 años de experiencia clínica especializada. Disertante internacional y autor de múltiples publicaciones científicas en la materia. Reconocido por su enfoque práctico y resolución de casos complejos.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'reviews' && (
+            <div className="animate-in fade-in slide-in-from-bottom-2 bg-white p-8 rounded-[32px] border border-gray-100 text-center">
+               <Star className="w-12 h-12 text-yellow-400 fill-yellow-400 mx-auto mb-4 opacity-50" />
+               <p className="text-[#1A3D3D] font-bold text-lg mb-2">Reseñas Excelentes</p>
+               <p className="text-gray-500 font-medium text-sm">Este curso mantiene un promedio de 4.9 estrellas en evaluaciones de profesionales.</p>
+            </div>
+          )}
+
+        </section>
+
+        <aside className="lg:col-span-4">
+          <div className="sticky top-28 bg-white p-8 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-gray-100 space-y-8">
+            <div>
+              <div className="flex items-baseline gap-3 mb-1">
+                <h4 className="text-4xl md:text-5xl font-black font-['Montserrat'] text-[#1A3D3D] tracking-tighter">
+                  ${selectedCourse.precio.toLocaleString('es-AR')}
+                </h4>
+                <span className="text-gray-400 line-through text-lg font-bold">${selectedCourse.precioOriginal.toLocaleString('es-AR')}</span>
+              </div>
+              <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mt-2 flex items-center gap-1.5">
+                <Clock className="w-3 h-3" /> Oferta por tiempo limitado
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <button className="w-full py-5 bg-[#2D6A6A] text-white rounded-[20px] font-black text-xs uppercase tracking-[0.2em] hover:bg-[#1A3D3D] transition-all shadow-lg shadow-[#2D6A6A]/20 flex items-center justify-center gap-2 active:scale-95">
+                Inscribirme Ahora
+              </button>
+              <button className="w-full py-4 bg-gray-50 text-[#1A3D3D] border border-gray-200 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-gray-100 transition-all flex items-center justify-center gap-2 active:scale-95">
+                Descargar Programa <FileText className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-5 pt-6 border-t border-gray-100">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-[14px] bg-gray-50 flex items-center justify-center border border-gray-100"><Clock className="w-5 h-5 text-[#2D6A6A]" /></div>
+                <div><p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Duración</p><p className="text-sm font-black text-[#1A3D3D]">{selectedCourse.duracion}</p></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-[14px] bg-gray-50 flex items-center justify-center border border-gray-100"><Award className="w-5 h-5 text-[#2D6A6A]" /></div>
+                <div><p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Nivel</p><p className="text-sm font-black text-[#1A3D3D]">{selectedCourse.nivel}</p></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-[14px] bg-gray-50 flex items-center justify-center border border-gray-100"><Monitor className="w-5 h-5 text-[#2D6A6A]" /></div>
+                <div><p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Modalidad</p><p className="text-sm font-black text-[#1A3D3D]">{selectedCourse.modalidad}</p></div>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-gray-100 text-center">
+              <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-4">Certificación avalada por</p>
+              <div className="flex items-center justify-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                <img src={selectedCourse.logoMarca} className="w-8 h-8 rounded-full border border-gray-200" alt="Marca" />
+                <span className="text-xs font-black text-[#1A3D3D] uppercase tracking-wider">{selectedCourse.marca}</span>
+              </div>
+            </div>
+
+          </div>
+        </aside>
+      </div>
+    </article>
+    );
+  };
+
+  return (
+    <div className="bg-[#F4F7F7] min-h-screen font-['Inter'] antialiased relative">
+      <nav className={`sticky top-0 w-full z-50 h-[80px] flex items-center px-6 md:px-12 lg:px-24 transition-all duration-300 print:hidden ${isNavbarScrolled ? 'bg-white/85 backdrop-blur-md shadow-md border-b border-gray-200' : 'bg-white border-b border-gray-100 shadow-sm'}`}>
+        <div className="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+          <button onClick={() => navigate('/')} aria-label="Volver a Inicio" className="text-[#1A3D3D] font-['Montserrat'] font-black text-2xl tracking-tighter cursor-pointer hover:opacity-80 transition-opacity">
+            El Portal<span className="text-[#2D6A6A]">.</span>
+          </button>
+          
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-10 text-[11px] font-black text-gray-400 uppercase tracking-widest">
+              <button className="text-[#1A3D3D] border-b-2 border-[#2D6A6A] pb-1 cursor-pointer" onClick={() => { setView('grid'); window.scrollTo(0,0); }}>Ecosistema</button>
+              <button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-[#1A3D3D] cursor-pointer transition-colors">Empleos</button>
+              <button onClick={() => navigate('/novedades')} className="hover:text-[#1A3D3D] cursor-pointer transition-colors">Novedades</button>
+              <button onClick={() => { setView('publicitar'); window.scrollTo(0,0); }} className="bg-[#1A3D3D] text-white px-8 py-3 rounded-full hover:bg-[#2D6A6A] transition-all">Publicar</button>
+            </div>
+
+            <div className="relative">
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                aria-label={isMenuOpen ? "Cerrar menú principal" : "Abrir menú principal"}
+                aria-expanded={isMenuOpen}
+                className="w-12 h-12 bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center text-[#1A3D3D] hover:bg-[#F4F7F7] transition-all active:scale-95"
+              >
+                {isMenuOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
+              </button>
+              {isMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-[-1]" onClick={() => setIsMenuOpen(false)}></div>
+                  <nav className="absolute right-0 mt-4 w-64 bg-white rounded-[32px] shadow-[0_20px_50px_rgba(26,61,61,0.15)] border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="p-3">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 text-left">Navegación</p>
+                      <button onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Home className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Inicio</span></button>
+                      <button onClick={() => { navigate('/perfil'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><User className="w-4 h-4 text-[#2D6A6A]" /><span className="text-sm font-bold text-[#1A3D3D]">Mi Perfil Público</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { setView('grid'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Ecosistema</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { navigate('/novedades'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Sparkles className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Novedades</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { navigate('/bolsa-de-trabajo'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><BriefcaseIcon className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Bolsa de Trabajo</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { navigate('/editor'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit3 className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Ir al Editor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                    </div>
+                  </nav>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main id="main-content" className="max-w-[1440px] mx-auto pt-6 px-6 md:px-12 lg:px-24">
+        {view === 'grid' ? renderGrid() : view === 'detail' ? renderDetail() : view === 'wizard' ? renderCourseWizard() : view === 'propuesta' ? renderPropuesta() : renderAdvertise()}
+      </main>
+
+      <footer ref={footerRef} className="w-full bg-gradient-to-br from-[#1A3D3D] to-[#2D6A6A] relative overflow-hidden mt-12 pt-20 pb-12 text-left print:hidden">
+        <div className="absolute top-0 left-0 w-full h-px bg-white/10"></div>
+        <div className="max-w-[1100px] mx-auto px-8 md:px-10 relative z-10 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16 text-left">
+            <div className="md:col-span-1 text-left">
+              <button onClick={() => navigate('/')} className="text-white font-['Montserrat'] font-bold text-2xl mb-6 text-left leading-none cursor-pointer block hover:opacity-80 transition-opacity">El Portal<span className="text-white/40">.</span></button>
+              <p className="text-white/50 text-[13px] leading-relaxed mb-6 font-medium text-left">La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.</p>
+              <div className="flex gap-4">
+                <a href="#" aria-label="Facebook de El Portal" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Facebook className="w-4 h-4" /></a>
+                <a href="#" aria-label="Instagram de El Portal" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Instagram className="w-4 h-4" /></a>
+                <a href="#" aria-label="Linkedin de El Portal" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Linkedin className="w-4 h-4" /></a>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Repertorio</h4>
+              <ul className="space-y-4 text-white/40 text-sm">
+                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
+                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Insumos</button></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Comunidad</h4>
+              <ul className="space-y-4 text-white/40 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">Bolsa de Trabajo</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Foro de Discusión</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Contacto</h4>
+              <ul className="space-y-4 mb-8 text-white/40 text-sm leading-none">
+                <li><a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors"><Mail className="w-4 h-4 shrink-0" /> <span>elportalveterinario.arg@gmail.com</span></a></li>
+                <li className="flex items-center gap-3"><Globe className="w-4 h-4" /> elportal.vet</li>
+              </ul>
+            </div>
+          </div>
+          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-white/40 font-bold text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
+            <div className="text-white/40 text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
+              <span>Hecho con</span>
+              <Heart className="w-3 h-3 text-red-400/50 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
+              <span>en Argentina.</span>
+            </div>
+            <div className="flex items-center gap-2 text-white/40">
+              <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
