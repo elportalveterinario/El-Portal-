@@ -212,9 +212,10 @@ function LandingPageContent() {
                     <div className="absolute right-0 mt-4 w-64 bg-white rounded-[32px] shadow-[0_20px_50px_rgba(26,61,61,0.15)] border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
                       <div className="p-3">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 text-left">Navegación</p>
-                        <button onClick={() => handleNav('landing')} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Home className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Inicio</span></button>
+                        <button onClick={() => handleNav('landing')} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Info className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Entrada</span></button>
+                        <button onClick={() => handleNav('inicio')} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Home className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Inicio</span></button>
                         <button onClick={() => handleNav('perfil')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><User className="w-4 h-4 text-[#2D6A6A]" /><span className="text-sm font-bold text-[#1A3D3D]">Mi Perfil Público</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                        <button onClick={() => handleNav('ecosistema')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Ecosistema</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        <button onClick={() => handleNav('ecosistema')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Repertorio Clínico</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                         <button onClick={() => handleNav('novedades')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Sparkles className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Novedades</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                         <button onClick={() => handleNav('bolsa-de-trabajo')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Briefcase className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Bolsa de Trabajo</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                         <button onClick={() => handleNav('editor')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Ir al Editor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
@@ -241,7 +242,7 @@ function LandingPageContent() {
             <div className="absolute bottom-[10%] right-[10%] w-[70vw] md:w-[40vw] h-[70vw] md:h-[40vw] bg-[#4DB6AC]/[0.23] rounded-full blur-[130px] mix-blend-multiply opacity-80"></div>
           </div>
 
-          <div className="relative z-10 w-full pt-[55px] pb-16 md:pt-[70px] md:pb-24">
+          <div className="relative z-10 w-full pt-[110px] pb-16 md:pt-[150px] md:pb-24">
             <div className="max-w-[1100px] mx-auto px-8 md:px-10 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start reveal-on-scroll">
               
               {/* LADO IZQUIERDO: CONTENIDO */}
@@ -307,7 +308,7 @@ function LandingPageContent() {
                   
                   {/* Pequeño texto legal en el registro */}
                   <p className="text-gray-400 text-[10px] text-center mt-5 w-full">
-                    Al registrarte, aceptás nuestros <span onClick={() => handleNav('terminos')} className="underline cursor-pointer hover:text-[#2D6A6A]">Términos</span> y la <span onClick={() => handleNav('privacidad')} className="underline cursor-pointer hover:text-[#2D6A6A]">Política de Privacidad</span>.
+.32                    Al registrarte, aceptás nuestros <span onClick={() => navigate('/terminos-y-condiciones')} className="underline cursor-pointer hover:text-[#2D6A6A]">Términos</span> y la <span onClick={() => navigate('/politica-de-privacidad')} className="underline cursor-pointer hover:text-[#2D6A6A]">Política de Privacidad</span>.
                   </p>
                 </div>
               </div>
@@ -331,7 +332,7 @@ function LandingPageContent() {
 
                   <div className="flex items-center gap-2">
                     <div className="bg-gray-50 border border-gray-100 px-4 py-3 rounded-2xl flex items-center gap-2 flex-1 cursor-pointer hover:bg-gray-100 transition-colors">
-                      <MapPin className="w-4 h-4 text-[#2D6A6A]" />
+   4                   <MapPin className="w-4 h-4 text-[#2D6A6A]" />
                       <span className="text-xs font-bold text-gray-600">Capital Federal</span>
                     </div>
                     <div className="bg-gray-50 border border-gray-100 px-4 py-3 rounded-2xl flex items-center gap-2 flex-1 cursor-pointer hover:bg-gray-100 transition-colors">
@@ -712,9 +713,9 @@ function LandingPageContent() {
                   <div className="text-white/40 text-[10px] font-medium space-y-1.5 flex flex-col items-start">
                     <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
                     <p className="flex items-center gap-2">
-                      <button onClick={() => handleNav('terminos')} className="underline hover:text-white transition-colors focus:outline-none">Términos</button>
+                      <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors focus:outline-none">Términos</button>
                       <span>•</span>
-                      <button onClick={() => handleNav('privacidad')} className="underline hover:text-white transition-colors focus:outline-none">Privacidad</button>
+                      <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors focus:outline-none">Privacidad</button>
                     </p>
                   </div>
                 </div>
@@ -770,7 +771,7 @@ function LandingPageContent() {
           <div className="flex items-start md:items-center gap-3 text-white/80 text-[11px] md:text-xs font-medium max-w-[900px]">
             <Info className="w-4 h-4 text-[#2D6A6A] shrink-0 mt-0.5 md:mt-0" />
             <p>
-              Utilizamos cookies para mejorar tu experiencia en El Portal. Al continuar navegando, aceptás nuestros <button onClick={() => handleNav('terminos')} className="text-white font-bold underline hover:text-[#4DB6AC] transition-colors focus:outline-none">Términos</button> y nuestra <button onClick={() => handleNav('privacidad')} className="text-white font-bold underline hover:text-[#4DB6AC] transition-colors focus:outline-none">Política de Privacidad</button>.
+              Utilizamos cookies para mejorar tu experiencia en El Portal. Al continuar navegando, aceptás nuestros <button onClick={() => navigate('/terminos-y-condiciones')} className="text-white font-bold underline hover:text-[#4DB6AC] transition-colors focus:outline-none">Términos</button> y nuestra <button onClick={() => navigate('/politica-de-privacidad')} className="text-white font-bold underline hover:text-[#4DB6AC] transition-colors focus:outline-none">Política de Privacidad</button>.
             </p>
           </div>
           <button 
