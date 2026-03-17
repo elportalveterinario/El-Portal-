@@ -463,7 +463,7 @@ function LandingPageContent() {
             subtitle="Atemporalidad"
             title="Foco en tu vocación, no en el algoritmo."
             text="El Portal está diseñado para que no pierdas tiempo en redes sociales que exigen creación constante y no están pensadas para profesionales de la salud. Aquí, tu perfil es atemporal: trabaja por vos 24/7. No necesitás publicar historias para que te deriven pacientes; si un colega o un tutor busca tu especialidad, te encuentra al instante, sin esfuerzo ni mantenimiento de tu parte."
-            image="/historia-atemporalidad.jpg"
+            image="/profesion.jpg"
             isReversed={false}
             badge={
               <div className="bg-white p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-gray-100">
