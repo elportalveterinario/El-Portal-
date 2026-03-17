@@ -463,7 +463,7 @@ function LandingPageContent() {
             subtitle="Atemporalidad"
             title="Foco en tu vocación, no en el algoritmo."
             text="El Portal está diseñado para que no pierdas tiempo en redes sociales que exigen creación constante y no están pensadas para profesionales de la salud. Aquí, tu perfil es atemporal: trabaja por vos 24/7. No necesitás publicar historias para que te deriven pacientes; si un colega o un tutor busca tu especialidad, te encuentra al instante, sin esfuerzo ni mantenimiento de tu parte."
-            image="/profesion.jpg"
+            image="/1. profesion.jpg"
             isReversed={false}
             badge={
               <div className="bg-white p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-gray-100">
@@ -485,7 +485,7 @@ function LandingPageContent() {
             subtitle="Comunidad"
             title="Rompé con el aislamiento del consultorio."
             text="El Portal te permite mantenerte conectado con los referentes de tu área. Encontrá fácilmente el contacto exacto que necesitás para derivar un paciente, trabajar en equipo o impulsar tu carrera. Una red sólida te abre puertas a oportunidades reales, desde nuevas alianzas hasta invitaciones para disertar en cursos de tu especialidad."
-            image="/historia-comunidad.jpg"
+            image="/2.consultorio.png"
             isReversed={true}
             badge={
               <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-white/10 text-left">
@@ -508,7 +508,7 @@ function LandingPageContent() {
             subtitle="Presencia Virtual"
             title="Tu trayectoria, verificada y en un solo lugar."
             text="Centralizá tu experiencia, formación y casos de éxito en una plataforma exclusiva. Tu perfil en El Portal funciona como una carta de presentación digital de máxima credibilidad. Asegurate de que, cuando una clínica o colega escuche tu nombre, encuentre un respaldo profesional que hable por tu talento."
-            image="/historia-presencia.jpg"
+            image="/3.perfil-verificado.png"
             isReversed={false}
             badge={
               <div className="bg-white p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-gray-100 text-left">
