@@ -6,7 +6,8 @@ import {
   Award, BookOpen, Users, Globe, Share2, Tag,
   Facebook, Instagram, Linkedin, Mail, Heart,
   Home, User, Edit3, LayoutGrid, X, Briefcase as BriefcaseIcon,
-  UploadCloud, Save, Loader2, Trash2, Download, Activity, AlertCircle, Sparkles
+  UploadCloud, Save, Loader2, Trash2, Download, Activity, AlertCircle, Sparkles,
+  Truck, Settings2, Shield, Smartphone, Send, CreditCard, Lock
 } from 'lucide-react';
 
 // ==========================================
@@ -57,9 +58,27 @@ const PARTNERS = [
     id: 101,
     titulo: "Ecógrafo Portátil Mindray V1",
     marca: "Distribuidora MedVet",
-    imagen: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=400&q=80",
-    descripcion: "La mejor resolución para diagnóstico en campo. 10% OFF con el código PORTAL10.",
-    color: "#2D6A6A"
+    logoMarca: "https://api.dicebear.com/7.x/initials/svg?seed=DM&backgroundColor=2D6A6A",
+    imagen: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80",
+    descripcionCorta: "La mejor resolución para diagnóstico en campo. 10% OFF con el código PORTAL10.",
+    descripcionLarga: "El Mindray V1 es la solución definitiva para el veterinario moderno que requiere movilidad sin sacrificar calidad de imagen. Su diseño ultraportátil y resistente al agua lo hace ideal tanto para el consultorio como para el trabajo de campo con grandes animales (equinos, bovinos). Cuenta con tecnología de procesamiento de imágenes avanzada que garantiza diagnósticos precisos en ecografía abdominal, cardíaca y reproductiva.",
+    color: "#2D6A6A",
+    precio: 2500000, // Precio ficticio en ARS
+    codigoDescuento: "PORTAL10",
+    porcentajeDescuento: 10,
+    caracteristicas: [
+      "Pantalla táctil de 15 pulgadas de alta resolución anti-reflejo",
+      "Batería de larga duración (hasta 4 horas de escaneo continuo)",
+      "Diseño robusto y resistente a salpicaduras y polvo (IPX4)",
+      "Conectividad Wi-Fi y Bluetooth para exportación instantánea de imágenes",
+      "Incluye transductor microconvexo multifrecuencia de serie"
+    ],
+    especificaciones: [
+      { label: "Peso", value: "2.5 kg (con batería)" },
+      { label: "Dimensiones", value: "35 cm x 30 cm x 5 cm" },
+      { label: "Almacenamiento", value: "Disco SSD 128GB interno" },
+      { label: "Garantía", value: "2 años directa de fábrica" }
+    ]
   }
 ];
 
@@ -94,16 +113,19 @@ export default function Repertorio() {
   const navigate = useNavigate();
   const [view, setView] = useState('grid');
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedInsumo, setSelectedInsumo] = useState(null);
   const [filtroCategoria, setFiltroCategoria] = useState(null);
   const [modalidadesSeleccionadas, setModalidadesSeleccionadas] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('about');
+  const [activeInsumoTab, setActiveInsumoTab] = useState('features');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(null);
   const [isNavbarScrolled, setIsNavbarScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   
+  // States Formulario Wizard (Cursos)
   const [wizardStep, setWizardStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
@@ -113,6 +135,20 @@ export default function Repertorio() {
     instructorNombre: '', instructorBio: '',
     email: '', password: ''
   });
+
+  // States Formulario Contacto Ventas (Insumos)
+  const [isInsumoSubmitting, setIsInsumoSubmitting] = useState(false);
+  const [insumoFormState, setInsumoFormState] = useState({
+    empresa: '', contacto: '', email: '', telefono: '', 
+    tituloProducto: '', precio: '', categoria: 'Ecografía y Diagnóstico', categoriaOtra: '', 
+    website: '', mensaje: '',
+    caracteristicas: [''],
+    especificaciones: [{ label: '', value: '' }]
+  });
+
+  // NUEVOS: States Checkout y Success para Insumos
+  const [checkoutData, setCheckoutData] = useState(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const bannerRef = useRef(null);
@@ -158,6 +194,13 @@ export default function Repertorio() {
     window.scrollTo(0,0);
   };
 
+  const handleInsumoClick = (insumo) => {
+    setSelectedInsumo(insumo);
+    setActiveInsumoTab('features');
+    setView('insumoDetail');
+    window.scrollTo(0,0);
+  };
+
   const handleWizardChange = (field, value) => {
     setCourseForm(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -165,12 +208,34 @@ export default function Repertorio() {
     }
   };
 
+  // Manejadores del Formulario de Insumos
+  const handleInsumoFormChange = (field, value) => {
+    setInsumoFormState(prev => ({ ...prev, [field]: value }));
+  };
+
+  const updateCaracteristica = (index, value) => {
+    const newCaract = [...insumoFormState.caracteristicas];
+    newCaract[index] = value;
+    handleInsumoFormChange('caracteristicas', newCaract);
+  };
+  const addCaracteristica = () => handleInsumoFormChange('caracteristicas', [...insumoFormState.caracteristicas, '']);
+  const removeCaracteristica = (index) => handleInsumoFormChange('caracteristicas', insumoFormState.caracteristicas.filter((_, i) => i !== index));
+
+  const updateEspecificacion = (index, field, value) => {
+    const newSpecs = [...insumoFormState.especificaciones];
+    newSpecs[index] = { ...newSpecs[index], [field]: value };
+    handleInsumoFormChange('especificaciones', newSpecs);
+  };
+  const addEspecificacion = () => handleInsumoFormChange('especificaciones', [...insumoFormState.especificaciones, { label: '', value: '' }]);
+  const removeEspecificacion = (index) => handleInsumoFormChange('especificaciones', insumoFormState.especificaciones.filter((_, i) => i !== index));
+
+
+  // Manejadores del Formulario de Cursos
   const updateIncluyeItem = (index, value) => {
     const newIncluye = [...courseForm.incluye];
     newIncluye[index] = value;
     handleWizardChange('incluye', newIncluye);
   };
-
   const addIncluyeItem = () => handleWizardChange('incluye', [...courseForm.incluye, '']);
   const removeIncluyeItem = (index) => handleWizardChange('incluye', courseForm.incluye.filter((_, i) => i !== index));
 
@@ -216,6 +281,45 @@ export default function Repertorio() {
     }, 2000);
   };
 
+  // MODIFICADO: Ahora redirige al checkout en vez del alert y publicitar
+  const handleInsumoSubmit = (e) => {
+    e.preventDefault();
+    setIsInsumoSubmitting(true);
+    setTimeout(() => {
+      setIsInsumoSubmitting(false);
+      setCheckoutData({ 
+        type: 'insumo', 
+        title: insumoFormState.tituloProducto,
+        empresa: insumoFormState.empresa,
+        precioPublicacion: 25000 // Precio ficticio por publicar en ARS
+      });
+      setView('checkout');
+      window.scrollTo(0,0);
+    }, 1500);
+  };
+
+  // NUEVO: Manejador del pago para los insumos
+  const handlePaymentSubmit = (e) => {
+    e.preventDefault();
+    setIsProcessingPayment(true);
+    setTimeout(() => {
+      setIsProcessingPayment(false);
+      // Limpiamos el formulario una vez procesado el pago con éxito
+      setInsumoFormState({ 
+        empresa: '', contacto: '', email: '', telefono: '', 
+        tituloProducto: '', precio: '', categoria: 'Ecografía y Diagnóstico', categoriaOtra: '', 
+        website: '', mensaje: '', caracteristicas: [''], especificaciones: [{ label: '', value: '' }] 
+      });
+      setView('success');
+      window.scrollTo(0,0);
+    }, 2500);
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    alert(`Código ${text} copiado al portapapeles`);
+  };
+
   const cursosFiltrados = SEMINARIOS.filter(curso => {
     const matchCategoria = !filtroCategoria || curso.categoria === filtroCategoria;
     const matchModalidad = modalidadesSeleccionadas.length === 0 || modalidadesSeleccionadas.includes(curso.modalidad);
@@ -254,6 +358,194 @@ export default function Repertorio() {
       setIsGeneratingPDF(false);
     }
   };
+
+  // NUEVO: Pantalla de Checkout
+  const renderCheckout = () => (
+    <section className="max-w-[1000px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24 px-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <button 
+          onClick={() => { setView('insumoForm'); window.scrollTo(0,0); }} 
+          className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-xs md:text-[10px] uppercase tracking-[0.3em] transition-colors group"
+        >
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver al Formulario
+        </button>
+        <div className="flex items-center gap-2 text-[#2D6A6A] bg-[#2D6A6A]/10 px-4 py-2 rounded-full self-start md:self-auto">
+          <Lock className="w-4 h-4" />
+          <span className="text-[11px] font-bold uppercase tracking-widest">Pago 100% Seguro</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-7 space-y-6">
+          <div className="bg-white rounded-[32px] p-8 md:p-10 border border-gray-100 shadow-xl relative overflow-hidden">
+            <h2 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-6">Detalles de Facturación</h2>
+            
+            <form onSubmit={handlePaymentSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Número de Tarjeta</label>
+                  <div className="relative">
+                    <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input 
+                      type="text" required
+                      placeholder="0000 0000 0000 0000" 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-12 pr-4 py-3.5 text-base font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Vencimiento</label>
+                    <input 
+                      type="text" required
+                      placeholder="MM/AA" 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">CVC</label>
+                    <input 
+                      type="text" required
+                      placeholder="123" 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Nombre en la tarjeta</label>
+                  <input 
+                    type="text" required
+                    placeholder="TITULAR DE LA TARJETA" 
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
+                  />
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-gray-100">
+                <button 
+                  type="submit"
+                  disabled={isProcessingPayment}
+                  className="w-full py-4 bg-[#1A3D3D] text-white font-black text-sm uppercase tracking-widest hover:bg-[#2D6A6A] rounded-xl transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50"
+                >
+                  {isProcessingPayment ? (
+                    <><Loader2 className="w-5 h-5 animate-spin" /> Procesando el pago...</>
+                  ) : (
+                    <><Lock className="w-5 h-5" /> Pagar ${checkoutData?.precioPublicacion.toLocaleString('es-AR')}</>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div className="lg:col-span-5">
+          <div className="bg-[#1A3D3D] text-white rounded-[32px] p-8 shadow-xl sticky top-28 overflow-hidden">
+            <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-white/5 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/3"></div>
+            
+            <h3 className="text-xl font-black font-['Montserrat'] mb-6 relative z-10 border-b border-white/10 pb-4">Resumen de Publicación</h3>
+            
+            <div className="space-y-4 relative z-10 mb-8">
+              <div className="flex justify-between items-start gap-4">
+                <div>
+                  <p className="text-white/60 text-xs uppercase tracking-widest font-bold mb-1">Producto a publicar</p>
+                  <p className="font-medium text-lg leading-tight">{checkoutData?.title}</p>
+                </div>
+              </div>
+              <div className="flex justify-between items-center pt-4 border-t border-white/10">
+                <p className="text-white/60 text-xs uppercase tracking-widest font-bold">Empresa</p>
+                <p className="font-bold">{checkoutData?.empresa}</p>
+              </div>
+              <div className="flex justify-between items-center pt-4 border-t border-white/10">
+                <p className="text-white/60 text-xs uppercase tracking-widest font-bold">Duración</p>
+                <p className="font-bold">Anual</p>
+              </div>
+            </div>
+
+            <div className="relative z-10 bg-white/10 rounded-2xl p-6 border border-white/20">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-white/80">Subtotal</span>
+                <span className="text-sm font-bold">${checkoutData?.precioPublicacion.toLocaleString('es-AR')}</span>
+              </div>
+              <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
+                <span className="text-sm font-medium text-white/80">Impuestos (IVA)</span>
+                <span className="text-sm font-bold">Incluido</span>
+              </div>
+              <div className="flex justify-between items-end">
+                <span className="text-xs uppercase tracking-widest font-bold text-white/80">Total a pagar</span>
+                <span className="text-3xl font-black font-['Montserrat']">${checkoutData?.precioPublicacion.toLocaleString('es-AR')}</span>
+              </div>
+            </div>
+            
+            <div className="mt-6 flex items-start gap-3 relative z-10">
+              <ShieldCheck className="w-5 h-5 text-[#4DB6AC] shrink-0" />
+              <p className="text-[11px] text-white/60 leading-tight">Al procesar el pago, tu producto entrará en fase de verificación (24hs). Si no cumple los requisitos, el dinero será devuelto automáticamente.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
+  // NUEVO: Pantalla de Éxito
+  const renderSuccess = () => (
+    <section className="max-w-[700px] mx-auto animate-in zoom-in-95 duration-500 pb-24 px-4 text-center mt-10">
+      <div className="bg-white rounded-[40px] p-12 md:p-20 shadow-xl border border-gray-100 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-[#4DB6AC]/10 rounded-full blur-[80px]"></div>
+        
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="w-24 h-24 bg-[#4DB6AC] rounded-full flex items-center justify-center mb-8 shadow-lg shadow-[#4DB6AC]/30 animate-bounce">
+            <Check className="w-12 h-12 text-white stroke-[3]" />
+          </div>
+          
+          <h1 className="text-3xl md:text-5xl font-black font-['Montserrat'] text-[#1A3D3D] tracking-tight mb-4">
+            ¡Pago Aprobado!
+          </h1>
+          
+          <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 w-full max-w-sm mb-8">
+            <p className="text-xs uppercase tracking-widest font-bold text-gray-400 mb-1">
+              Equipamiento Insumo
+            </p>
+            <p className="text-lg font-bold text-[#1A3D3D]">{checkoutData?.title}</p>
+          </div>
+          
+          <p className="text-gray-500 font-medium text-base md:text-lg mb-10 max-w-md mx-auto leading-relaxed">
+            Hemos recibido el pago y los datos del producto correctamente. Nuestro equipo lo verificará y será publicado en el portal a la brevedad.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
+            <button 
+              onClick={() => { setView('grid'); setCheckoutData(null); window.scrollTo(0,0); }}
+              className="px-8 py-4 bg-[#1A3D3D] text-white font-black text-xs uppercase tracking-widest hover:bg-[#2D6A6A] rounded-xl transition-all shadow-lg"
+            >
+              Volver al Repertorio
+            </button>
+            <button 
+              onClick={() => { setView('publicitar'); setCheckoutData(null); window.scrollTo(0,0); }}
+              className="px-8 py-4 bg-white text-[#1A3D3D] border border-gray-200 font-bold text-xs uppercase tracking-widest hover:bg-gray-50 rounded-xl transition-all shadow-sm"
+            >
+              Publicar otro
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
+  // Añadido para evitar crash si el renderDetail faltaba en tu copia del portapapeles
+  const renderDetail = () => {
+    if (!selectedCourse) return null;
+    return (
+      <div className="max-w-[1000px] mx-auto animate-in fade-in duration-500 pb-24 text-center py-20">
+         <button onClick={() => setView('grid')} className="mx-auto flex items-center gap-2 text-[#2D6A6A] font-bold text-xs uppercase tracking-widest mb-4 hover:underline">
+          <ChevronLeft className="w-4 h-4" /> Volver
+         </button>
+         <h1 className="text-4xl font-black text-[#1A3D3D] font-['Montserrat']">{selectedCourse.titulo}</h1>
+         <p className="mt-4 text-gray-500 max-w-lg mx-auto">{selectedCourse.descripcion}</p>
+      </div>
+    )
+  }
 
   const renderPropuesta = () => (
     <article className="max-w-[1000px] mx-auto animate-in fade-in duration-500 pb-24 relative">
@@ -379,14 +671,14 @@ export default function Repertorio() {
       <div className="flex justify-between items-center mb-8">
         <button 
           onClick={() => { setView('publicitar'); setOpenFaq(null); window.scrollTo(0,0); }} 
-          className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-[10px] uppercase tracking-[0.3em] transition-colors group"
+          className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-xs md:text-[10px] uppercase tracking-[0.3em] transition-colors group"
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver
         </button>
         <button 
           onClick={handleDownloadPDF}
           disabled={isGeneratingPDF}
-          className="flex items-center gap-2 bg-[#2D6A6A]/10 text-[#2D6A6A] px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[#2D6A6A] hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:cursor-wait"
+          className="flex items-center gap-2 bg-[#2D6A6A]/10 text-[#2D6A6A] px-5 py-2.5 rounded-xl font-bold text-[11px] md:text-[10px] uppercase tracking-widest hover:bg-[#2D6A6A] hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:cursor-wait"
         >
           {isGeneratingPDF ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
           {isGeneratingPDF ? 'Generando...' : 'Guardar como PDF'}
@@ -400,13 +692,13 @@ export default function Repertorio() {
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 bg-gray-50 border border-gray-200 px-5 py-2.5 rounded-full mb-8">
               <span className="flex h-2 w-2 rounded-full bg-[#2D6A6A] animate-pulse"></span>
-              <span className="text-[#1A3D3D] font-bold text-[10px] uppercase tracking-[0.2em] leading-none">Red exclusiva de veterinarios</span>
+              <span className="text-[#1A3D3D] font-bold text-xs md:text-[10px] uppercase tracking-[0.2em] leading-none">Red exclusiva de veterinarios</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-black text-[#1A3D3D] font-['Montserrat'] leading-[1.1] tracking-tighter mb-6">
               Multiplicá el impacto<br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1A3D3D] to-[#2D6A6A]">de tu oferta académica.</span>
             </h1>
-            <p className="text-[#2D6A6A] font-bold uppercase tracking-[0.2em] text-xs">Alianzas Estratégicas - El Portal</p>
+            <p className="text-[#2D6A6A] font-bold uppercase tracking-[0.2em] text-sm md:text-xs">Alianzas Estratégicas - El Portal</p>
           </div>
         </section>
 
@@ -414,10 +706,10 @@ export default function Repertorio() {
         <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-gray-100">
           <div className="order-2 md:order-1">
             <div className="inline-flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 rounded-full mb-6">
-              <span className="text-[#1A3D3D] font-bold text-[9px] uppercase tracking-[0.2em] leading-none">El Desafío</span>
+              <span className="text-[#1A3D3D] font-bold text-[11px] md:text-[9px] uppercase tracking-[0.2em] leading-none">El Desafío</span>
             </div>
             <h2 className="text-3xl font-black text-[#1A3D3D] font-['Montserrat'] mb-6 tracking-tight">Rompiendo el ruido digital</h2>
-            <div className="space-y-4 text-gray-500 font-medium text-sm md:text-base leading-relaxed">
+            <div className="space-y-4 text-gray-500 font-medium text-base leading-relaxed">
               <p>Crear un programa de excelencia en medicina veterinaria requiere años de investigación y dedicación en la clínica diaria.</p>
               <p>Sin embargo, lograr que ese conocimiento llegue a los colegas correctos no debería representar un gasto incalculable en publicidad ni un esfuerzo técnico desgastante.</p>
               <p className="text-[#1A3D3D] font-bold">En El Portal, conectamos tu rigor académico directamente con la demanda insatisfecha del sector.</p>
@@ -435,17 +727,17 @@ export default function Repertorio() {
             <div className="bg-gray-50 rounded-[24px] p-8 border border-gray-100 transition-transform hover:-translate-y-2 duration-300">
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm text-[#2D6A6A] mb-6"><Award className="w-7 h-7" aria-hidden="true" /></div>
               <h3 className="text-lg font-black text-[#1A3D3D] font-['Montserrat'] mb-3">Visibilidad sin costo</h3>
-              <p className="text-sm text-gray-500 font-medium leading-relaxed">No existen honorarios mensuales ni costos de mantenimiento. Postular y exhibir tu temario es 100% gratuito.</p>
+              <p className="text-sm md:text-[15px] text-gray-500 font-medium leading-relaxed">No existen honorarios mensuales ni costos de mantenimiento. Postular y exhibir tu temario es 100% gratuito.</p>
             </div>
             <div className="bg-gray-50 rounded-[24px] p-8 border border-gray-100 transition-transform hover:-translate-y-2 duration-300">
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm text-[#2D6A6A] mb-6"><ShieldCheck className="w-7 h-7" aria-hidden="true" /></div>
               <h3 className="text-lg font-black text-[#1A3D3D] font-['Montserrat'] mb-3">Comisión por éxito</h3>
-              <p className="text-sm text-gray-500 font-medium leading-relaxed">Nuestro modelo es win-win. Retenemos comisión únicamente cuando la inscripción se concreta con éxito.</p>
+              <p className="text-sm md:text-[15px] text-gray-500 font-medium leading-relaxed">Nuestro modelo es win-win. Retenemos comisión únicamente cuando la inscripción se concreta con éxito.</p>
             </div>
             <div className="bg-gray-50 rounded-[24px] p-8 border border-gray-100 transition-transform hover:-translate-y-2 duration-300">
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm text-[#2D6A6A] mb-6"><Activity className="w-7 h-7" aria-hidden="true" /></div>
               <h3 className="text-lg font-black text-[#1A3D3D] font-['Montserrat'] mb-3">CAC Cero</h3>
-              <p className="text-sm text-gray-500 font-medium leading-relaxed">Absorbemos el trabajo de marketing, dejás de arriesgar presupuesto y tiempo en anuncios.</p>
+              <p className="text-sm md:text-[15px] text-gray-500 font-medium leading-relaxed">Absorbemos el trabajo de marketing, dejás de arriesgar presupuesto y tiempo en anuncios.</p>
             </div>
           </div>
         </section>
@@ -456,11 +748,11 @@ export default function Repertorio() {
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
             <div className="bg-white/5 border border-white/10 rounded-[32px] p-10 md:p-14 text-center w-full md:w-1/3">
               <span className="text-6xl md:text-8xl font-black text-[#4DB6AC] font-['Montserrat'] tracking-tighter shadow-[#4DB6AC]/30 drop-shadow-2xl">15%</span>
-              <p className="text-white/80 font-bold uppercase tracking-widest text-xs mt-4">Descuento Exclusivo</p>
+              <p className="text-white/80 font-bold uppercase tracking-widest text-sm md:text-xs mt-4">Descuento Exclusivo</p>
             </div>
             <div className="w-full md:w-2/3 text-white">
               <h2 className="text-3xl font-black font-['Montserrat'] mb-6 tracking-tight">El "Beneficio Comunidad"</h2>
-              <div className="space-y-4 text-white/70 font-medium text-sm md:text-base leading-relaxed">
+              <div className="space-y-4 text-white/70 font-medium text-base leading-relaxed">
                 <p>Para maximizar la conversión, te proponemos ofrecer un valor preferencial exclusivo para los usuarios que adquieren tu curso desde El Portal.</p>
                 <p>Al generar este incentivo, cambiás un pequeño margen individual por un <strong className="text-white">volumen de ventas mayor</strong>, aprovechando una audiencia cautiva por la que no tuviste que pagar un solo anuncio.</p>
               </div>
@@ -474,13 +766,13 @@ export default function Repertorio() {
             <h3 className="text-3xl md:text-4xl font-black font-['Montserrat'] text-[#1A3D3D] tracking-tight uppercase mb-4 leading-none">
               Consultas<br className="hidden lg:block"/> Frecuentes
             </h3>
-            <p className="text-gray-500 font-medium text-sm">Transparencia total sobre nuestro modelo de trabajo y alcance.</p>
+            <p className="text-gray-500 font-medium text-base md:text-sm">Transparencia total sobre nuestro modelo de trabajo y alcance.</p>
           </div>
           
           <div className="lg:w-2/3 w-full">
             {FAQ_CATEGORIES.map((category, catIdx) => (
               <div key={catIdx} className="mb-10 last:mb-0">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2D6A6A] mb-2 border-b border-gray-100 pb-3 flex items-center gap-2">
+                <h4 className="text-xs md:text-[10px] font-black uppercase tracking-[0.2em] text-[#2D6A6A] mb-2 border-b border-gray-100 pb-3 flex items-center gap-2">
                   {category.title}
                 </h4>
                 <div className="space-y-0">
@@ -492,7 +784,7 @@ export default function Repertorio() {
                           onClick={() => setOpenFaq(openFaq === faqId ? null : faqId)}
                           className="w-full flex justify-between items-center py-4 md:py-5 text-left group"
                         >
-                          <span className={`font-bold text-sm md:text-[15px] pr-8 transition-colors ${openFaq === faqId ? 'text-[#2D6A6A]' : 'text-[#1A3D3D] group-hover:text-[#2D6A6A]'}`}>
+                          <span className={`font-bold text-base md:text-[15px] pr-8 transition-colors ${openFaq === faqId ? 'text-[#2D6A6A]' : 'text-[#1A3D3D] group-hover:text-[#2D6A6A]'}`}>
                             {faq.q}
                           </span>
                           <div className={`shrink-0 transition-transform duration-300 ${openFaq === faqId ? 'rotate-45 text-[#2D6A6A]' : 'text-gray-300 group-hover:text-[#2D6A6A]'}`}>
@@ -501,7 +793,7 @@ export default function Repertorio() {
                         </button>
                         <div className={`grid transition-all duration-300 ease-in-out ${openFaq === faqId ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                           <div className="overflow-hidden">
-                            <p className="pb-5 text-gray-500 text-sm font-medium leading-relaxed pr-8">
+                            <p className="pb-5 text-gray-500 text-[15px] md:text-sm font-medium leading-relaxed pr-8">
                               {faq.a}
                             </p>
                           </div>
@@ -519,11 +811,11 @@ export default function Repertorio() {
                       <MessageCircle className="w-5 h-5 text-[#2D6A6A]" />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-[#1A3D3D]">¿Tenés alguna otra duda?</p>
-                    <p className="text-xs text-gray-500 font-medium">Nuestro equipo está listo para ayudarte.</p>
+                    <p className="text-base md:text-sm font-black text-[#1A3D3D]">¿Tenés alguna otra duda?</p>
+                    <p className="text-sm md:text-xs text-gray-500 font-medium">Nuestro equipo está listo para ayudarte.</p>
                   </div>
               </div>
-              <a href="mailto:elportalveterinario.arg@gmail.com" className="bg-white px-5 py-2.5 rounded-xl text-[10px] font-bold text-[#1A3D3D] hover:bg-[#1A3D3D] hover:text-white border border-gray-200 transition-all uppercase tracking-widest whitespace-nowrap shadow-sm">
+              <a href="mailto:elportalveterinario.arg@gmail.com" className="bg-white px-5 py-2.5 rounded-xl text-xs md:text-[10px] font-bold text-[#1A3D3D] hover:bg-[#1A3D3D] hover:text-white border border-gray-200 transition-all uppercase tracking-widest whitespace-nowrap shadow-sm">
                   Contactar Soporte
               </a>
             </div>
@@ -538,12 +830,12 @@ export default function Repertorio() {
              <p className="text-white/80 font-medium text-lg mb-10 max-w-xl mx-auto">Postulá tu programa académico hoy y expandí el alcance de tu conocimiento sin riesgos operativos.</p>
              <button 
                onClick={() => { setView('wizard'); window.scrollTo(0,0); }}
-               className="bg-white text-[#1A3D3D] px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] hover:bg-gray-100 hover:scale-105 transition-all shadow-xl active:scale-95"
+               className="bg-white text-[#1A3D3D] px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs md:text-[11px] hover:bg-gray-100 hover:scale-105 transition-all shadow-xl active:scale-95"
              >
                Publicar mi curso ahora
              </button>
-             <p className="mt-6 text-white/60 text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-1.5">
-               <ShieldCheck className="w-4 h-4" /> Postular tu temario es 100% gratis y sin compromiso
+             <p className="mt-6 text-white/60 text-xs md:text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-1.5">
+               <ShieldCheck className="w-4 h-4" /> Postular tu temario es 100% gratis
              </p>
            </div>
         </section>
@@ -552,18 +844,290 @@ export default function Repertorio() {
     </article>
   );
 
+  const renderInsumoForm = () => (
+    <section className="max-w-[800px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <button 
+          onClick={() => { setView('publicitar'); window.scrollTo(0,0); }} 
+          className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-xs md:text-[10px] uppercase tracking-[0.3em] transition-colors group"
+        >
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" aria-hidden="true" /> Cancelar
+        </button>
+      </div>
+
+      <div className="bg-white rounded-[32px] border border-gray-100 shadow-xl overflow-hidden">
+        {/* Header del form */}
+        <div className="bg-[#1A3D3D] p-8 md:p-12 text-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/3"></div>
+          <div className="relative z-10">
+            <div className="w-16 h-16 bg-[#2D6A6A]/40 border border-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+              <Tag className="w-8 h-8 text-white" aria-hidden="true" />
+            </div>
+            <h2 className="text-3xl font-black font-['Montserrat'] text-white mb-2 tracking-tight">Publicar Equipamiento</h2>
+            <p className="text-white/60 text-base md:text-sm font-medium max-w-md mx-auto">
+              Completá los datos de tu producto. Sin necesidad de crear cuenta: pagás, lo verificamos y se publica.
+            </p>
+          </div>
+        </div>
+
+        {/* Body del form */}
+        <form onSubmit={handleInsumoSubmit} className="p-6 md:p-10 space-y-8">
+          
+          {/* Sección 1: Datos de la Empresa */}
+          <div>
+            <h3 className="text-lg font-black font-['Montserrat'] text-[#1A3D3D] mb-4 border-b border-gray-100 pb-2 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-[#2D6A6A]" /> Datos de la Empresa
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="empresa">Nombre de la Empresa *</label>
+                <input 
+                  id="empresa" required type="text" 
+                  value={insumoFormState.empresa}
+                  onChange={(e) => handleInsumoFormChange('empresa', e.target.value)}
+                  placeholder="Ej: MedVet Insumos" 
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
+                />
+              </div>
+              <div>
+                <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="contacto">Persona de Contacto *</label>
+                <input 
+                  id="contacto" required type="text" 
+                  value={insumoFormState.contacto}
+                  onChange={(e) => handleInsumoFormChange('contacto', e.target.value)}
+                  placeholder="Ej: Lic. Martín Perez" 
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
+                />
+              </div>
+              <div>
+                <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="emailContacto">Email Corporativo *</label>
+                <input 
+                  id="emailContacto" required type="email" 
+                  value={insumoFormState.email}
+                  onChange={(e) => handleInsumoFormChange('email', e.target.value)}
+                  placeholder="ventas@tuempresa.com" 
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
+                />
+              </div>
+              <div>
+                <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="telefono">Teléfono / WhatsApp *</label>
+                <input 
+                  id="telefono" required type="tel" 
+                  value={insumoFormState.telefono}
+                  onChange={(e) => handleInsumoFormChange('telefono', e.target.value)}
+                  placeholder="+54 9 11 1234 5678" 
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sección 2: Datos del Producto */}
+          <div>
+            <h3 className="text-lg font-black font-['Montserrat'] text-[#1A3D3D] mb-4 border-b border-gray-100 pb-2 flex items-center gap-2">
+              <Monitor className="w-5 h-5 text-[#2D6A6A]" /> Detalles del Producto
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="md:col-span-2">
+                <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="tituloProducto">Nombre del Equipo / Insumo *</label>
+                <input 
+                  id="tituloProducto" required type="text" 
+                  value={insumoFormState.tituloProducto}
+                  onChange={(e) => handleInsumoFormChange('tituloProducto', e.target.value)}
+                  placeholder="Ej: Ecógrafo Portátil Mindray V1" 
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
+                />
+              </div>
+              <div>
+                <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="precioInsumo">Precio (ARS) *</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                  <input 
+                    id="precioInsumo" required type="number" 
+                    value={insumoFormState.precio}
+                    onChange={(e) => handleInsumoFormChange('precio', e.target.value)}
+                    placeholder="2500000" 
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-8 pr-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="categoriaInsumo">Categoría *</label>
+                <select 
+                  id="categoriaInsumo"
+                  value={insumoFormState.categoria}
+                  onChange={(e) => handleInsumoFormChange('categoria', e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]"
+                >
+                  <option value="Ecografía y Diagnóstico">Ecografía y Diagnóstico por Imágenes</option>
+                  <option value="Equipamiento Quirófano">Equipamiento Quirófano (Anestesia, Monitores)</option>
+                  <option value="Laboratorio">Analizadores de Laboratorio</option>
+                  <option value="Instrumental y Descartables">Instrumental y Descartables</option>
+                  <option value="Software y Gestión">Software y Gestión Veterinaria</option>
+                  <option value="Otro">Otro / Varios</option>
+                </select>
+              </div>
+            </div>
+
+            {insumoFormState.categoria === 'Otro' && (
+              <div className="mb-6 animate-in fade-in slide-in-from-top-2">
+                <label className="block text-xs md:text-[11px] font-bold text-[#2D6A6A] uppercase tracking-widest mb-2" htmlFor="categoriaOtra">Especificar Categoría *</label>
+                <input 
+                  id="categoriaOtra" required type="text" 
+                  value={insumoFormState.categoriaOtra}
+                  onChange={(e) => handleInsumoFormChange('categoriaOtra', e.target.value)}
+                  placeholder="Ej: Mobiliario Clínico" 
+                  className="w-full bg-[#2D6A6A]/5 border border-[#2D6A6A]/30 rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
+                />
+              </div>
+            )}
+
+            <div className="mb-6">
+              <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="website">Sitio Web / Catálogo / PDF</label>
+              <input 
+                id="website" type="url" 
+                value={insumoFormState.website}
+                onChange={(e) => handleInsumoFormChange('website', e.target.value)}
+                placeholder="https://www.tuempresa.com/producto" 
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="mensaje">Descripción General del Equipo</label>
+              <textarea 
+                id="mensaje" rows="4"
+                value={insumoFormState.mensaje}
+                onChange={(e) => handleInsumoFormChange('mensaje', e.target.value)}
+                placeholder="Describí las funciones principales y ventajas competitivas del equipo..." 
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D] resize-none" 
+              ></textarea>
+            </div>
+          </div>
+
+          {/* Sección 3: Ficha Técnica (Características y Especificaciones) */}
+          <div>
+            <h3 className="text-lg font-black font-['Montserrat'] text-[#1A3D3D] mb-4 border-b border-gray-100 pb-2 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-[#2D6A6A]" /> Ficha Técnica
+            </h3>
+            
+            {/* Características Destacadas */}
+            <div className="mb-8">
+              <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Puntos Destacados / Características *</label>
+              <div className="space-y-3">
+                {insumoFormState.caracteristicas.map((item, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="flex-1 relative">
+                      <Check className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2D6A6A]" aria-hidden="true" />
+                      <input 
+                        type="text" 
+                        value={item}
+                        onChange={(e) => updateCaracteristica(index, e.target.value)}
+                        placeholder="Ej: Pantalla táctil de 15 pulgadas anti-reflejo..." 
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-base md:text-sm font-medium focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]" 
+                      />
+                    </div>
+                    {insumoFormState.caracteristicas.length > 1 && (
+                      <button type="button" onClick={() => removeCaracteristica(index)} className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button 
+                  type="button"
+                  onClick={addCaracteristica}
+                  className="flex items-center gap-2 text-[#2D6A6A] font-bold text-xs md:text-xs uppercase tracking-widest mt-2 hover:bg-[#2D6A6A]/10 px-4 py-2 rounded-lg transition-colors"
+                >
+                  <Plus className="w-4 h-4" /> Agregar característica
+                </button>
+              </div>
+            </div>
+
+            {/* Especificaciones Duras */}
+            <div>
+              <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Especificaciones Técnicas (Ej: Peso, Dimensiones)</label>
+              <div className="space-y-3">
+                {insumoFormState.especificaciones.map((spec, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="grid grid-cols-3 gap-2 flex-1">
+                      <input 
+                        type="text" 
+                        value={spec.label}
+                        onChange={(e) => updateEspecificacion(index, 'label', e.target.value)}
+                        placeholder="Ej: Peso" 
+                        className="col-span-1 w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base md:text-sm font-bold focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]" 
+                      />
+                      <input 
+                        type="text" 
+                        value={spec.value}
+                        onChange={(e) => updateEspecificacion(index, 'value', e.target.value)}
+                        placeholder="Ej: 2.5 kg (con batería)" 
+                        className="col-span-2 w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base md:text-sm font-medium focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]" 
+                      />
+                    </div>
+                    {insumoFormState.especificaciones.length > 1 && (
+                      <button type="button" onClick={() => removeEspecificacion(index)} className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shrink-0">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button 
+                  type="button"
+                  onClick={addEspecificacion}
+                  className="flex items-center gap-2 text-[#2D6A6A] font-bold text-xs md:text-xs uppercase tracking-widest mt-2 hover:bg-[#2D6A6A]/10 px-4 py-2 rounded-lg transition-colors"
+                >
+                  <Plus className="w-4 h-4" /> Agregar especificación
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Sección 4: Imágenes */}
+          <div>
+            <h3 className="text-lg font-black font-['Montserrat'] text-[#1A3D3D] mb-4 border-b border-gray-100 pb-2 flex items-center gap-2">
+              <UploadCloud className="w-5 h-5 text-[#2D6A6A]" /> Fotos del Producto
+            </h3>
+            <div className="w-full border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 hover:bg-white hover:border-[#2D6A6A] transition-all p-8 flex flex-col items-center justify-center text-center cursor-pointer group">
+              <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <UploadCloud className="w-6 h-6 text-[#2D6A6A]" />
+              </div>
+              <p className="text-sm font-bold text-[#1A3D3D]">Hacé clic para subir imágenes</p>
+              <p className="text-xs text-gray-400 mt-1">Podés subir hasta 4 fotos (PNG o JPG, máx. 5MB c/u)</p>
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-gray-100 flex justify-end">
+            <button 
+              type="submit"
+              disabled={isInsumoSubmitting}
+              className="w-full md:w-auto px-10 py-4 bg-[#2D6A6A] text-white font-black text-xs md:text-[11px] uppercase tracking-widest hover:bg-[#1A3D3D] rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isInsumoSubmitting ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
+              ) : (
+                <><ShieldCheck className="w-4 h-4" /> Enviar y Proceder al Pago</>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  );
+
   const renderCourseWizard = () => (
     <section className="max-w-[800px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <button 
           onClick={() => { setView('publicitar'); setWizardStep(1); setErrors({}); }} 
-          className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-[10px] uppercase tracking-[0.3em] transition-colors group"
+          className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-xs md:text-[10px] uppercase tracking-[0.3em] transition-colors group"
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" aria-hidden="true" /> Cancelar
         </button>
-        <div className="flex items-center gap-2 text-[#2D6A6A] bg-[#2D6A6A]/10 px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-2 text-[#2D6A6A] bg-[#2D6A6A]/10 px-3 py-1.5 rounded-full self-start md:self-auto">
           <Save className="w-3.5 h-3.5" aria-hidden="true" />
-          <span className="text-[10px] font-bold uppercase tracking-widest">Borrador guardado localmente</span>
+          <span className="text-[11px] md:text-[10px] font-bold uppercase tracking-widest">Borrador guardado localmente</span>
         </div>
       </div>
 
@@ -578,13 +1142,13 @@ export default function Repertorio() {
           
           {[1, 2, 3, 4].map((step) => (
             <div key={step} className="relative z-10 flex flex-col items-center gap-2">
-              <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 ${
+              <div className={`w-10 h-10 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-sm md:text-xs transition-all duration-300 ${
                 wizardStep === step ? 'bg-[#1A3D3D] text-white shadow-lg scale-110' : 
                 wizardStep > step ? 'bg-[#2D6A6A] text-white' : 'bg-white border-2 border-gray-200 text-gray-400'
               }`}>
-                {wizardStep > step ? <Check className="w-4 h-4 md:w-5 md:h-5" /> : step}
+                {wizardStep > step ? <Check className="w-5 h-5 md:w-5 md:h-5" /> : step}
               </div>
-              <span className={`text-[8px] md:text-[10px] uppercase tracking-widest font-bold hidden md:block ${wizardStep >= step ? 'text-[#1A3D3D]' : 'text-gray-400'}`}>
+              <span className={`text-[10px] uppercase tracking-widest font-bold hidden md:block ${wizardStep >= step ? 'text-[#1A3D3D]' : 'text-gray-400'}`}>
                 {step === 1 ? 'Básicos' : step === 2 ? 'Temario' : step === 3 ? 'Docente' : 'Publicar'}
               </span>
             </div>
@@ -597,37 +1161,37 @@ export default function Repertorio() {
             <div className="space-y-6 animate-in fade-in">
               <div>
                 <h2 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-1">Información Básica</h2>
-                <p className="text-gray-500 text-sm font-medium">Atraé a tus colegas con un título claro y conciso.</p>
+                <p className="text-gray-500 text-base md:text-sm font-medium">Atraé a tus colegas con un título claro y conciso.</p>
               </div>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="titulo">Título del Curso *</label>
+                  <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="titulo">Título del Curso *</label>
                   <input 
                     id="titulo"
                     type="text" 
                     value={courseForm.titulo}
                     onChange={(e) => handleWizardChange('titulo', e.target.value)}
                     placeholder="Ej: Cirugía de Tejidos Blandos: Procedimientos Avanzados" 
-                    className={`w-full bg-gray-50 border rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] ${errors.titulo ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                    className={`w-full bg-gray-50 border rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] ${errors.titulo ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
                   />
-                  {errors.titulo && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.titulo}</p>}
+                  {errors.titulo && <p className="text-red-500 text-[11px] md:text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.titulo}</p>}
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="modalidad">Modalidad</label>
+                    <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="modalidad">Modalidad</label>
                     <select 
                       id="modalidad"
                       value={courseForm.modalidad}
                       onChange={(e) => handleWizardChange('modalidad', e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]"
                     >
                       {MODALIDADES.map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="precio">Precio de lista (ARS) *</label>
+                    <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="precio">Precio de lista (ARS) *</label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
                       <input 
@@ -636,21 +1200,21 @@ export default function Repertorio() {
                         value={courseForm.precio}
                         onChange={(e) => handleWizardChange('precio', e.target.value)}
                         placeholder="45000" 
-                        className={`w-full bg-gray-50 border rounded-xl pl-8 pr-4 py-3.5 text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] ${errors.precio ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                        className={`w-full bg-gray-50 border rounded-xl pl-8 pr-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] ${errors.precio ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
                       />
                     </div>
-                    {errors.precio && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.precio}</p>}
+                    {errors.precio && <p className="text-red-500 text-[11px] md:text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.precio}</p>}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="nivel">Nivel</label>
+                    <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="nivel">Nivel</label>
                     <select 
                       id="nivel"
                       value={courseForm.nivel}
                       onChange={(e) => handleWizardChange('nivel', e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]"
                     >
                       <option value="Principiante">Principiante (Estudiantes/Recibidos)</option>
                       <option value="Intermedio">Intermedio (Clínica General)</option>
@@ -658,14 +1222,14 @@ export default function Repertorio() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="duracion">Duración aprox.</label>
+                    <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="duracion">Duración aprox.</label>
                     <input 
                       id="duracion"
                       type="text" 
                       value={courseForm.duracion}
                       onChange={(e) => handleWizardChange('duracion', e.target.value)}
                       placeholder="Ej: 12h 30m / 4 Semanas" 
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]" 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:border-[#2D6A6A] focus:bg-white transition-all text-[#1A3D3D]" 
                     />
                   </div>
                 </div>
@@ -677,25 +1241,25 @@ export default function Repertorio() {
             <div className="space-y-6 animate-in fade-in">
               <div>
                 <h2 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-1">Detalles y Temario</h2>
-                <p className="text-gray-500 text-sm font-medium">Contale a los colegas por qué este curso es imperdible.</p>
+                <p className="text-gray-500 text-base md:text-sm font-medium">Contale a los colegas por qué este curso es imperdible.</p>
               </div>
               
               <div className="space-y-6">
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="descripcion">Descripción general *</label>
+                  <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="descripcion">Descripción general *</label>
                   <textarea 
                     id="descripcion"
                     value={courseForm.descripcion}
                     onChange={(e) => handleWizardChange('descripcion', e.target.value)}
                     placeholder="Escribí un resumen atrapante sobre los objetivos principales del curso..." 
                     rows="4"
-                    className={`w-full bg-gray-50 border rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] resize-none ${errors.descripcion ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                    className={`w-full bg-gray-50 border rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] resize-none ${errors.descripcion ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
                   ></textarea>
-                  {errors.descripcion && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.descripcion}</p>}
+                  {errors.descripcion && <p className="text-red-500 text-[11px] md:text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.descripcion}</p>}
                 </div>
                 
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">¿Qué van a aprender? (Puntos clave) *</label>
+                  <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">¿Qué van a aprender? (Puntos clave) *</label>
                   <div className="space-y-3">
                     {courseForm.incluye.map((item, index) => (
                       <div key={index} className="flex items-center gap-2">
@@ -707,7 +1271,7 @@ export default function Repertorio() {
                             aria-label={`Punto de aprendizaje ${index + 1}`}
                             onChange={(e) => updateIncluyeItem(index, e.target.value)}
                             placeholder="Ej: Análisis de casos clínicos reales..." 
-                            className={`w-full bg-gray-50 border rounded-xl pl-10 pr-4 py-3 text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] ${errors.incluye ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                            className={`w-full bg-gray-50 border rounded-xl pl-10 pr-4 py-3 text-base md:text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] ${errors.incluye ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
                           />
                         </div>
                         {courseForm.incluye.length > 1 && (
@@ -717,11 +1281,11 @@ export default function Repertorio() {
                         )}
                       </div>
                     ))}
-                    {errors.incluye && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.incluye}</p>}
+                    {errors.incluye && <p className="text-red-500 text-[11px] md:text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.incluye}</p>}
                     
                     <button 
                       onClick={addIncluyeItem}
-                      className="flex items-center gap-2 text-[#2D6A6A] font-bold text-xs uppercase tracking-widest mt-2 hover:bg-[#2D6A6A]/10 px-4 py-2 rounded-lg transition-colors"
+                      className="flex items-center gap-2 text-[#2D6A6A] font-bold text-xs md:text-xs uppercase tracking-widest mt-2 hover:bg-[#2D6A6A]/10 px-4 py-2 rounded-lg transition-colors"
                     >
                       <Plus className="w-4 h-4" /> Agregar otro punto
                     </button>
@@ -735,38 +1299,38 @@ export default function Repertorio() {
             <div className="space-y-6 animate-in fade-in">
               <div>
                 <h2 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-1">Docente / Instructorx</h2>
-                <p className="text-gray-500 text-sm font-medium">Humanizá tu curso presentando al especialista a cargo.</p>
+                <p className="text-gray-500 text-base md:text-sm font-medium">Humanizá tu curso presentando al especialista a cargo.</p>
               </div>
               
               <div className="space-y-6">
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="instructorNombre">Nombre completo con título *</label>
+                  <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="instructorNombre">Nombre completo con título *</label>
                   <input 
                     id="instructorNombre"
                     type="text" 
                     value={courseForm.instructorNombre}
                     onChange={(e) => handleWizardChange('instructorNombre', e.target.value)}
                     placeholder="Ej: Dr. Julián Martínez" 
-                    className={`w-full bg-gray-50 border rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] ${errors.instructorNombre ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                    className={`w-full bg-gray-50 border rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] ${errors.instructorNombre ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
                   />
-                  {errors.instructorNombre && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.instructorNombre}</p>}
+                  {errors.instructorNombre && <p className="text-red-500 text-[11px] md:text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.instructorNombre}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="instructorBio">Mini Bio del Docente *</label>
+                  <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="instructorBio">Mini Bio del Docente *</label>
                   <textarea 
                     id="instructorBio"
                     value={courseForm.instructorBio}
                     onChange={(e) => handleWizardChange('instructorBio', e.target.value)}
                     placeholder="Resumí su experiencia, especialidades y reconocimientos (máx. 300 caracteres)..." 
                     rows="3"
-                    className={`w-full bg-gray-50 border rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] resize-none ${errors.instructorBio ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                    className={`w-full bg-gray-50 border rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:bg-white transition-all text-[#1A3D3D] resize-none ${errors.instructorBio ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
                   ></textarea>
-                  {errors.instructorBio && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.instructorBio}</p>}
+                  {errors.instructorBio && <p className="text-red-500 text-[11px] md:text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.instructorBio}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Foto de perfil del docente</label>
+                  <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Foto de perfil del docente</label>
                   <div className="w-full border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 hover:bg-white hover:border-[#2D6A6A] transition-all p-8 flex flex-col items-center justify-center text-center cursor-pointer group">
                     <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                       <UploadCloud className="w-6 h-6 text-[#2D6A6A]" />
@@ -786,35 +1350,35 @@ export default function Repertorio() {
                   <Award className="w-8 h-8 text-[#2D6A6A]" aria-hidden="true" />
                 </div>
                 <h2 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-2">¡Tu curso está casi listo!</h2>
-                <p className="text-gray-500 text-sm font-medium max-w-sm mx-auto">
+                <p className="text-gray-500 text-base md:text-sm font-medium max-w-sm mx-auto">
                   Creá tu cuenta institucional para gestionar las ventas y proceder al pago de la publicación.
                 </p>
               </div>
               
               <div className="bg-gray-50 p-6 md:p-8 rounded-[24px] border border-gray-100 space-y-4 max-w-md mx-auto">
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="email">Email Institucional *</label>
+                  <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="email">Email Institucional *</label>
                   <input 
                     id="email"
                     type="email" 
                     value={courseForm.email}
                     onChange={(e) => handleWizardChange('email', e.target.value)}
                     placeholder="contacto@tuinstitucion.com" 
-                    className={`w-full bg-white border rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none transition-all text-[#1A3D3D] ${errors.email ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                    className={`w-full bg-white border rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none transition-all text-[#1A3D3D] ${errors.email ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
                   />
-                  {errors.email && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.email}</p>}
+                  {errors.email && <p className="text-red-500 text-[11px] md:text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.email}</p>}
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="password">Contraseña *</label>
+                  <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2" htmlFor="password">Contraseña *</label>
                   <input 
                     id="password"
                     type="password" 
                     value={courseForm.password}
                     onChange={(e) => handleWizardChange('password', e.target.value)}
                     placeholder="••••••••" 
-                    className={`w-full bg-white border rounded-xl px-4 py-3.5 text-sm font-medium focus:outline-none transition-all text-[#1A3D3D] ${errors.password ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
+                    className={`w-full bg-white border rounded-xl px-4 py-3.5 text-base md:text-sm font-medium focus:outline-none transition-all text-[#1A3D3D] ${errors.password ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#2D6A6A]'}`} 
                   />
-                  {errors.password && <p className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.password}</p>}
+                  {errors.password && <p className="text-red-500 text-[11px] md:text-[10px] font-bold mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.password}</p>}
                 </div>
               </div>
             </div>
@@ -826,7 +1390,7 @@ export default function Repertorio() {
           {wizardStep > 1 ? (
             <button 
               onClick={() => { setWizardStep(prev => prev - 1); setErrors({}); window.scrollTo(0,0); }}
-              className="px-6 py-3.5 text-[#1A3D3D] font-bold text-[11px] uppercase tracking-widest hover:bg-gray-200 rounded-xl transition-all"
+              className="px-6 py-3.5 text-[#1A3D3D] font-bold text-xs md:text-[11px] uppercase tracking-widest hover:bg-gray-200 rounded-xl transition-all"
             >
               Anterior
             </button>
@@ -835,7 +1399,7 @@ export default function Repertorio() {
           {wizardStep < 4 ? (
             <button 
               onClick={handleNextStep}
-              className="px-8 py-3.5 bg-[#1A3D3D] text-white font-black text-[11px] uppercase tracking-widest hover:bg-[#2D6A6A] rounded-xl transition-all shadow-lg flex items-center gap-2"
+              className="px-8 py-3.5 bg-[#1A3D3D] text-white font-black text-xs md:text-[11px] uppercase tracking-widest hover:bg-[#2D6A6A] rounded-xl transition-all shadow-lg flex items-center gap-2"
             >
               Siguiente <ChevronRight className="w-4 h-4" />
             </button>
@@ -843,7 +1407,7 @@ export default function Repertorio() {
             <button 
               onClick={submitWizard}
               disabled={isSubmitting}
-              className="px-8 py-3.5 bg-[#2D6A6A] text-white font-black text-[11px] uppercase tracking-widest hover:bg-[#1A3D3D] rounded-xl transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3.5 bg-[#2D6A6A] text-white font-black text-xs md:text-[11px] uppercase tracking-widest hover:bg-[#1A3D3D] rounded-xl transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
@@ -861,7 +1425,7 @@ export default function Repertorio() {
     <section className="max-w-[1000px] mx-auto animate-in fade-in duration-500 pb-24">
       <button 
         onClick={() => setView('grid')} 
-        className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-[10px] uppercase tracking-[0.3em] mb-8 transition-colors group"
+        className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-xs md:text-[10px] uppercase tracking-[0.3em] mb-8 transition-colors group"
       >
         <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver al Repertorio
       </button>
@@ -870,7 +1434,7 @@ export default function Repertorio() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-white opacity-5 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
           
-          <span className="bg-[#2D6A6A] text-white text-[10px] font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6">
+          <span className="bg-[#2D6A6A] text-white text-xs md:text-[10px] font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6">
             Alianzas Estratégicas
           </span>
           
@@ -879,7 +1443,7 @@ export default function Repertorio() {
             <span className="inline-block w-[4px] md:w-[6px] h-[0.9em] bg-[#2D6A6A] animate-pulse ml-2 align-baseline -mb-1 shadow-[0_0_10px_rgba(45,106,106,0.5)]"></span>
           </h1>
           
-          <p className="text-white/60 text-sm md:text-base font-medium leading-relaxed max-w-xl mx-auto">
+          <p className="text-white/60 text-base md:text-base font-medium leading-relaxed max-w-xl mx-auto">
             El Portal es la red exclusiva para profesionales de alta complejidad. Posicioná tus cursos, seminarios o equipamiento médico frente a una audiencia altamente segmentada y calificada.
           </p>
         </div>
@@ -892,20 +1456,20 @@ export default function Repertorio() {
             <BookOpen className="w-8 h-8 text-[#2D6A6A]" />
           </div>
           <h3 className="text-xl font-black font-['Montserrat'] text-[#1A3D3D] mb-4">Instituciones Educativas</h3>
-          <p className="text-gray-500 text-sm leading-relaxed mb-8 flex-grow">
+          <p className="text-gray-500 text-[15px] md:text-sm leading-relaxed mb-8 flex-grow">
             Publicá tus cursos y seminarios usando nuestra plantilla optimizada. Mostrá el temario, instructorxs y recibí inscripciones directas de colegas buscando especializarse.
           </p>
           
           <div className="w-full flex flex-col gap-3 mt-auto">
             <button 
               onClick={() => { setView('wizard'); window.scrollTo(0,0); }}
-              className="w-full py-4 bg-[#1A3D3D] text-white rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-[#2D6A6A] transition-all shadow-md active:scale-95"
+              className="w-full py-4 bg-[#1A3D3D] text-white rounded-[20px] font-black text-xs md:text-[10px] uppercase tracking-[0.2em] hover:bg-[#2D6A6A] transition-all shadow-md active:scale-95"
             >
               Publicar un curso
             </button>
             <button 
               onClick={() => { setView('propuesta'); window.scrollTo(0,0); }}
-              className="w-full py-4 bg-white text-[#2D6A6A] border border-[#2D6A6A]/30 rounded-[20px] font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#2D6A6A]/5 transition-all flex items-center justify-center gap-2"
+              className="w-full py-4 bg-white text-[#2D6A6A] border border-[#2D6A6A]/30 rounded-[20px] font-bold text-xs md:text-[10px] uppercase tracking-[0.2em] hover:bg-[#2D6A6A]/5 transition-all flex items-center justify-center gap-2"
             >
               ¿Por qué publicar acá? <ChevronRight className="w-3.5 h-3.5" />
             </button>
@@ -917,18 +1481,189 @@ export default function Repertorio() {
             <Tag className="w-8 h-8 text-[#2D6A6A]" />
           </div>
           <h3 className="text-xl font-black font-['Montserrat'] text-[#1A3D3D] mb-4">Empresas de Insumos</h3>
-          <p className="text-gray-500 text-sm leading-relaxed mb-8 flex-grow">
+          <p className="text-gray-500 text-[15px] md:text-sm leading-relaxed mb-8 flex-grow">
             Destacá tu equipamiento (ecógrafos, instrumental quirúrgico, anestesia) en un entorno donde los profesionales entran específicamente a buscar mejorar su clínica diaria.
           </p>
           <div className="w-full flex flex-col gap-3 mt-auto">
-            <button className="w-full py-4 bg-gray-50 text-[#1A3D3D] border border-gray-200 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-gray-100 transition-all shadow-sm active:scale-95">
-              Contactar equipo de ventas
+            <button 
+              onClick={() => { setView('insumoForm'); window.scrollTo(0,0); }}
+              className="w-full py-4 bg-gray-50 text-[#1A3D3D] border border-gray-200 rounded-[20px] font-black text-xs md:text-[10px] uppercase tracking-[0.2em] hover:bg-gray-100 transition-all shadow-sm active:scale-95"
+            >
+              Publicar equipamiento
             </button>
           </div>
         </article>
       </div>
     </section>
   );
+
+  const renderInsumoDetail = () => {
+    if (!selectedInsumo) return null;
+
+    return (
+      <article className="max-w-[1200px] mx-auto animate-in fade-in duration-500 pb-24">
+        <button 
+          onClick={() => setView('grid')} 
+          className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-xs md:text-[10px] uppercase tracking-[0.3em] mb-8 transition-colors group"
+        >
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver a Insumos
+        </button>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          {/* Columna Izquierda: Imagen y Detalles */}
+          <section className="lg:col-span-8 flex flex-col gap-8">
+            {/* Encabezado */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <img src={selectedInsumo.logoMarca} alt={selectedInsumo.marca} className="w-8 h-8 rounded-full border border-gray-100" />
+                <span className="text-xs md:text-[11px] font-bold text-[#2D6A6A] uppercase tracking-widest">{selectedInsumo.marca}</span>
+              </div>
+              <h1 className="text-3xl md:text-4xl lg:text-[40px] font-black font-['Montserrat'] text-[#1A3D3D] leading-[1.1] tracking-tighter mb-4">
+                {selectedInsumo.titulo}
+              </h1>
+              <p className="text-gray-500 text-lg font-medium leading-relaxed">
+                {selectedInsumo.descripcionCorta}
+              </p>
+            </div>
+
+            {/* Imagen Principal */}
+            <div className="w-full aspect-video md:aspect-[16/10] bg-white rounded-[32px] border border-gray-100 p-4 md:p-8 flex items-center justify-center shadow-sm relative overflow-hidden group">
+               <img src={selectedInsumo.imagen} alt={selectedInsumo.titulo} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700" />
+            </div>
+
+            {/* Navegación Interna */}
+            <nav className="flex flex-wrap gap-x-6 gap-y-3 md:gap-12 border-b border-gray-200" aria-label="Pestañas del producto">
+              <button 
+                onClick={() => setActiveInsumoTab('features')} 
+                className={`pb-3 md:pb-4 text-xs md:text-[13px] font-bold uppercase tracking-widest transition-all ${activeInsumoTab === 'features' ? 'border-b-2 border-[#2D6A6A] text-[#1A3D3D]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+              >
+                Características
+              </button>
+              <button 
+                onClick={() => setActiveInsumoTab('specs')} 
+                className={`pb-3 md:pb-4 text-xs md:text-[13px] font-bold uppercase tracking-widest transition-all ${activeInsumoTab === 'specs' ? 'border-b-2 border-[#2D6A6A] text-[#1A3D3D]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+              >
+                Especificaciones
+              </button>
+            </nav>
+
+            {/* Contenido Pestañas */}
+            <div className="min-h-[300px]">
+              {activeInsumoTab === 'features' && (
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
+                  <div>
+                    <h3 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-4">Acerca del equipo</h3>
+                    <p className="text-gray-600 text-base leading-relaxed font-medium">
+                      {selectedInsumo.descripcionLarga}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black font-['Montserrat'] text-[#1A3D3D] mb-4">Puntos destacados</h3>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {selectedInsumo.caracteristicas.map((caract, idx) => (
+                        <li key={idx} className="flex items-start gap-3 bg-white p-4 rounded-2xl border border-gray-50 shadow-sm">
+                          <Check className="w-5 h-5 text-[#2D6A6A] shrink-0 mt-0.5" />
+                          <span className="text-[14px] text-[#1A3D3D] font-medium leading-snug">{caract}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {activeInsumoTab === 'specs' && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+                  <h3 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-2">Ficha Técnica</h3>
+                  <div className="bg-white border border-gray-100 rounded-[24px] overflow-hidden">
+                    {selectedInsumo.especificaciones.map((spec, idx) => (
+                      <div key={idx} className={`flex flex-col sm:flex-row sm:items-center justify-between p-5 ${idx !== selectedInsumo.especificaciones.length - 1 ? 'border-b border-gray-50' : ''} hover:bg-gray-50 transition-colors`}>
+                        <span className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-widest mb-1 sm:mb-0 w-1/3">{spec.label}</span>
+                        <span className="text-sm md:text-base font-black text-[#1A3D3D] sm:text-right w-2/3">{spec.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Columna Derecha: Sticky Pricing y CTA */}
+          <aside className="lg:col-span-4">
+            <div className="sticky top-28 space-y-6">
+              {/* Tarjeta de Compra */}
+              <div className="bg-white p-8 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col gap-6">
+                
+                <div>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Inversión sugerida</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl lg:text-4xl font-black font-['Montserrat'] text-[#1A3D3D] tracking-tighter">
+                      ${selectedInsumo.precio.toLocaleString('es-AR')}
+                    </span>
+                    <span className="text-sm font-bold text-gray-400">ARS</span>
+                  </div>
+                  <p className="text-[11px] text-gray-400 font-medium mt-1">Precio referencial, sujeto a cotización oficial.</p>
+                </div>
+
+                {/* Cupón de descuento */}
+                <div className="bg-[#2D6A6A]/5 border border-[#2D6A6A]/20 rounded-2xl p-5 relative overflow-hidden">
+                  <div className="absolute -right-4 -top-4 w-16 h-16 bg-[#2D6A6A]/10 rounded-full blur-xl"></div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[#2D6A6A] mb-2 flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5" /> Beneficio Comunidad El Portal
+                  </p>
+                  <div className="flex items-center justify-between bg-white border border-gray-200 rounded-xl p-3 cursor-pointer hover:border-[#2D6A6A] transition-colors" onClick={() => copyToClipboard(selectedInsumo.codigoDescuento)}>
+                    <span className="font-['Montserrat'] font-black text-lg tracking-wider text-[#1A3D3D]">{selectedInsumo.codigoDescuento}</span>
+                    <span className="bg-[#2D6A6A] text-white text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider">{selectedInsumo.porcentajeDescuento}% OFF</span>
+                  </div>
+                  <p className="text-[10px] text-gray-500 font-medium mt-3 text-center">Hacé clic en el código para copiarlo.</p>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <button className="w-full py-4 bg-[#1A3D3D] text-white rounded-[20px] font-black text-xs uppercase tracking-[0.2em] hover:bg-[#2D6A6A] transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95">
+                    <Smartphone className="w-4 h-4" /> Cotizar por WhatsApp
+                  </button>
+                  <button className="w-full py-3.5 bg-gray-50 text-[#1A3D3D] border border-gray-200 rounded-[20px] font-bold text-xs uppercase tracking-[0.2em] hover:bg-gray-100 transition-all flex items-center justify-center gap-2 active:scale-95">
+                    Contactar Vendedor
+                  </button>
+                </div>
+              </div>
+
+              {/* Tarjetas de Confianza */}
+              <div className="grid grid-cols-1 gap-3">
+                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center gap-4">
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm shrink-0">
+                    <Shield className="w-5 h-5 text-[#2D6A6A]" />
+                  </div>
+                  <div>
+                    <h4 className="text-[11px] font-black text-[#1A3D3D] uppercase tracking-wider">Compra Segura</h4>
+                    <p className="text-[10px] text-gray-500 font-medium leading-tight mt-0.5">Distribuidor verificado por El Portal.</p>
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center gap-4">
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm shrink-0">
+                    <Truck className="w-5 h-5 text-[#2D6A6A]" />
+                  </div>
+                  <div>
+                    <h4 className="text-[11px] font-black text-[#1A3D3D] uppercase tracking-wider">Envíos a todo el país</h4>
+                    <p className="text-[10px] text-gray-500 font-medium leading-tight mt-0.5">Consultá tiempos y costos de entrega.</p>
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center gap-4">
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm shrink-0">
+                    <Settings2 className="w-5 h-5 text-[#2D6A6A]" />
+                  </div>
+                  <div>
+                    <h4 className="text-[11px] font-black text-[#1A3D3D] uppercase tracking-wider">Soporte Técnico</h4>
+                    <p className="text-[10px] text-gray-500 font-medium leading-tight mt-0.5">Garantía oficial y servicio post-venta.</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </aside>
+        </div>
+      </article>
+    );
+  };
 
   const renderGrid = () => (
     <div className="flex flex-col gap-6 md:gap-8 animate-in fade-in duration-500">
@@ -937,7 +1672,7 @@ export default function Repertorio() {
           <h1 className="text-2xl md:text-3xl font-black font-['Montserrat'] text-[#1A3D3D] tracking-tight uppercase leading-none">
             Repertorio Clínico
           </h1>
-          <p className="text-[#2D6A6A] text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">
+          <p className="text-[#2D6A6A] text-[11px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">
             Insumos & cursos
           </p>
         </div>
@@ -951,7 +1686,7 @@ export default function Repertorio() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="¿Qué quieres aprender hoy?" 
-              className="bg-white border border-gray-100 rounded-full pl-11 pr-6 py-3 md:py-3.5 text-xs font-medium focus:outline-none focus:border-[#2D6A6A] w-full shadow-sm placeholder:text-gray-300 transition-all" 
+              className="bg-white border border-gray-100 rounded-full pl-11 pr-6 py-3 md:py-3.5 text-base md:text-xs font-medium focus:outline-none focus:border-[#2D6A6A] w-full shadow-sm placeholder:text-gray-300 transition-all" 
             />
           </div>
 
@@ -961,7 +1696,7 @@ export default function Repertorio() {
                 onClick={() => setMobileFilterOpen(mobileFilterOpen === 'cat' ? null : 'cat')}
                 aria-haspopup="listbox"
                 aria-expanded={mobileFilterOpen === 'cat'}
-                className="w-full bg-white border border-gray-200 rounded-[12px] px-3 py-2 text-[10px] font-bold text-[#1A3D3D] flex justify-between items-center shadow-sm"
+                className="w-full bg-white border border-gray-200 rounded-[12px] px-3 py-3 md:py-2 text-xs md:text-[10px] font-bold text-[#1A3D3D] flex justify-between items-center shadow-sm"
               >
                 <span className="truncate pr-2">{filtroCategoria || "Categorías"}</span> <Filter className="w-3 h-3 shrink-0" />
               </button>
@@ -970,7 +1705,7 @@ export default function Repertorio() {
                   <div 
                     role="option"
                     aria-selected={filtroCategoria === null}
-                    className="px-4 py-2.5 text-[11px] font-bold text-gray-400 cursor-pointer hover:bg-gray-50 border-b border-gray-50"
+                    className="px-4 py-3 md:py-2.5 text-xs md:text-[11px] font-bold text-gray-400 cursor-pointer hover:bg-gray-50 border-b border-gray-50"
                     onClick={() => { setFiltroCategoria(null); setMobileFilterOpen(null); }}
                   >Todas las categorías</div>
                   {CATEGORIAS.map(cat => (
@@ -978,7 +1713,7 @@ export default function Repertorio() {
                       key={cat}
                       role="option"
                       aria-selected={filtroCategoria === cat}
-                      className="px-4 py-2.5 text-[11px] font-semibold text-[#1A3D3D] cursor-pointer hover:bg-gray-50 leading-tight"
+                      className="px-4 py-3 md:py-2.5 text-xs md:text-[11px] font-semibold text-[#1A3D3D] cursor-pointer hover:bg-gray-50 leading-tight"
                       onClick={() => { setFiltroCategoria(cat); setMobileFilterOpen(null); }}
                     >{cat}</div>
                   ))}
@@ -991,7 +1726,7 @@ export default function Repertorio() {
                 onClick={() => setMobileFilterOpen(mobileFilterOpen === 'mod' ? null : 'mod')}
                 aria-haspopup="listbox"
                 aria-expanded={mobileFilterOpen === 'mod'}
-                className="w-full bg-white border border-gray-200 rounded-[12px] px-3 py-2 text-[10px] font-bold text-[#1A3D3D] flex justify-between items-center shadow-sm"
+                className="w-full bg-white border border-gray-200 rounded-[12px] px-3 py-3 md:py-2 text-xs md:text-[10px] font-bold text-[#1A3D3D] flex justify-between items-center shadow-sm"
               >
                 Modalidad <Monitor className="w-3 h-3 shrink-0" />
               </button>
@@ -1002,13 +1737,13 @@ export default function Repertorio() {
                       key={mod}
                       role="option"
                       aria-selected={modalidadesSeleccionadas.includes(mod)}
-                      className="px-4 py-2.5 flex items-center gap-3 cursor-pointer hover:bg-gray-50"
+                      className="px-4 py-3 md:py-2.5 flex items-center gap-3 cursor-pointer hover:bg-gray-50"
                       onClick={() => toggleModalidad(mod)}
                     >
-                      <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${modalidadesSeleccionadas.includes(mod) ? 'bg-[#2D6A6A] border-[#2D6A6A]' : 'border-gray-300'}`}>
-                        {modalidadesSeleccionadas.includes(mod) && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
+                      <div className={`w-4 h-4 md:w-3.5 md:h-3.5 rounded border flex items-center justify-center shrink-0 ${modalidadesSeleccionadas.includes(mod) ? 'bg-[#2D6A6A] border-[#2D6A6A]' : 'border-gray-300'}`}>
+                        {modalidadesSeleccionadas.includes(mod) && <Check className="w-3 h-3 md:w-2.5 md:h-2.5 text-white stroke-[3]" />}
                       </div>
-                      <span className="text-[11px] font-semibold text-[#1A3D3D]">{mod}</span>
+                      <span className="text-xs md:text-[11px] font-semibold text-[#1A3D3D]">{mod}</span>
                     </div>
                   ))}
                 </div>
@@ -1074,21 +1809,21 @@ export default function Repertorio() {
           <article 
             ref={bannerRef}
             onMouseMove={handleMouseMove}
-            className="bg-[#1A3D3D] px-4 py-3 md:p-10 rounded-[16px] md:rounded-[32px] text-left relative overflow-hidden group shadow-md md:shadow-lg flex flex-row items-center justify-between gap-3 md:gap-6 border border-white/5"
+            className="bg-[#1A3D3D] px-5 py-4 md:p-10 rounded-[20px] md:rounded-[32px] text-left relative overflow-hidden group shadow-md md:shadow-lg flex flex-row items-center justify-between gap-3 md:gap-6 border border-white/5"
           >
             <div 
               className="absolute pointer-events-none transition-transform duration-300 ease-out bg-white opacity-5 rounded-full blur-3xl"
               style={{ width: '300px', height: '300px', left: mousePos.x - 150, top: mousePos.y - 150 }}
             />
-            <div className="relative z-10 flex flex-col items-start gap-0.5 md:gap-2 max-w-xl">
-              <h2 className="text-white font-['Montserrat'] font-black text-[12px] md:text-2xl uppercase leading-none tracking-tight">
+            <div className="relative z-10 flex flex-col items-start gap-1 md:gap-2 max-w-xl">
+              <h2 className="text-white font-['Montserrat'] font-black text-[13px] md:text-2xl uppercase leading-none tracking-tight">
                 ¿Querés publicitar tu marca?
               </h2>
-              <p className="text-white/40 text-[9px] md:text-[13px] font-medium italic hidden sm:block">Llegá a miles de profesionales de todo el país</p>
+              <p className="text-white/40 text-[10px] md:text-[13px] font-medium italic hidden sm:block">Llegá a miles de profesionales de todo el país</p>
             </div>
             <button 
               onClick={() => { setView('publicitar'); window.scrollTo(0,0); }}
-              className="bg-[#2D6A6A] text-white px-4 py-2 md:px-8 md:py-3.5 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-widest relative z-10 shadow-lg hover:bg-[#3d8b8b] transition-all whitespace-nowrap"
+              className="bg-[#2D6A6A] text-white px-5 py-3 md:px-8 md:py-3.5 rounded-full text-[10px] md:text-[10px] font-bold uppercase tracking-widest relative z-10 shadow-lg hover:bg-[#3d8b8b] transition-all whitespace-nowrap"
             >
               <span className="md:hidden">Más Info</span>
               <span className="hidden md:inline">Más información</span>
@@ -1097,33 +1832,33 @@ export default function Repertorio() {
 
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-10 items-start">
             <div className="col-span-1 lg:col-span-2 flex flex-col gap-4 md:gap-6">
-              <h2 className="font-['Montserrat'] font-black text-[#2D6A6A] text-[9px] md:text-base uppercase tracking-[0.2em]">Seminarios</h2>
+              <h2 className="font-['Montserrat'] font-black text-[#2D6A6A] text-[11px] md:text-base uppercase tracking-[0.2em]">Seminarios</h2>
               
               {cursosFiltrados.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {cursosFiltrados.map(curso => (
                     <article key={curso.id} className="bg-white rounded-[16px] md:rounded-[32px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all group flex flex-col h-full">
-                      <div className="h-20 md:h-44 relative overflow-hidden cursor-pointer" onClick={() => handleCourseClick(curso)}>
+                      <div className="h-24 md:h-44 relative overflow-hidden cursor-pointer" onClick={() => handleCourseClick(curso)}>
                         <img src={curso.imagen} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={curso.titulo} />
                         <div className="absolute top-2 left-2 md:top-4 md:left-4">
-                          <span className="bg-[#1A3D3D] text-white text-[6px] md:text-[8px] font-bold px-2 py-1 md:px-3 md:py-1.5 rounded-full uppercase tracking-widest">{curso.badge}</span>
+                          <span className="bg-[#1A3D3D] text-white text-[9px] md:text-[8px] font-bold px-2 py-1 md:px-3 md:py-1.5 rounded-full uppercase tracking-widest">{curso.badge}</span>
                         </div>
                       </div>
-                      <div className="p-3 md:p-6 flex flex-col flex-grow">
-                        <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
-                          <img src={curso.logoMarca} className="w-4 h-4 md:w-5 md:h-5 rounded-full border border-gray-100" alt={`${curso.marca} logo`} />
-                          <span className="text-[7px] md:text-[9px] font-bold text-[#2D6A6A] uppercase tracking-widest truncate">{curso.marca}</span>
+                      <div className="p-4 md:p-6 flex flex-col flex-grow">
+                        <div className="flex items-center gap-2 mb-2 md:mb-3">
+                          <img src={curso.logoMarca} className="w-5 h-5 md:w-5 md:h-5 rounded-full border border-gray-100" alt={`${curso.marca} logo`} />
+                          <span className="text-[10px] md:text-[9px] font-bold text-[#2D6A6A] uppercase tracking-widest truncate">{curso.marca}</span>
                         </div>
                         <h3 
                           onClick={() => handleCourseClick(curso)}
-                          className="font-['Montserrat'] font-black text-[#1A3D3D] text-[10px] md:text-sm leading-tight mb-3 md:mb-6 group-hover:text-[#2D6A6A] transition-colors line-clamp-3 md:line-clamp-2 cursor-pointer"
+                          className="font-['Montserrat'] font-black text-[#1A3D3D] text-[13px] md:text-sm leading-tight mb-4 md:mb-6 group-hover:text-[#2D6A6A] transition-colors line-clamp-3 md:line-clamp-2 cursor-pointer"
                         >
                           {curso.titulo}
                         </h3>
                         <div className="mt-auto pt-3 md:pt-5 border-t border-gray-50 flex items-center justify-between">
-                          <span className="text-xs md:text-lg font-black text-[#1A3D3D] tracking-tight">${curso.precio.toLocaleString('es-AR')}</span>
-                          <button aria-label="Ver detalles del curso" onClick={() => handleCourseClick(curso)} className="bg-[#1A3D3D] text-white p-1.5 md:p-2.5 rounded-lg md:rounded-xl hover:bg-[#2D6A6A] transition-all">
-                            <ChevronRight className="w-3 h-3 md:w-4 md:h-4" aria-hidden="true" />
+                          <span className="text-sm md:text-lg font-black text-[#1A3D3D] tracking-tight">${curso.precio.toLocaleString('es-AR')}</span>
+                          <button aria-label="Ver detalles del curso" onClick={() => handleCourseClick(curso)} className="bg-[#1A3D3D] text-white p-2 md:p-2.5 rounded-lg md:rounded-xl hover:bg-[#2D6A6A] transition-all">
+                            <ChevronRight className="w-4 h-4 md:w-4 md:h-4" aria-hidden="true" />
                           </button>
                         </div>
                       </div>
@@ -1139,7 +1874,7 @@ export default function Repertorio() {
                   <p className="text-gray-500 text-sm">Intentá cambiar los filtros o el término de búsqueda.</p>
                   <button 
                     onClick={() => { setFiltroCategoria(null); setModalidadesSeleccionadas([]); setSearchTerm(''); }}
-                    className="mt-6 text-[#2D6A6A] font-bold text-[10px] uppercase tracking-widest hover:underline"
+                    className="mt-6 text-[#2D6A6A] font-bold text-xs md:text-[10px] uppercase tracking-widest hover:underline"
                   >
                     Limpiar filtros
                   </button>
@@ -1148,16 +1883,16 @@ export default function Repertorio() {
             </div>
 
             <aside className="col-span-1 flex flex-col gap-4 md:gap-6">
-              <h2 className="font-['Montserrat'] font-black text-gray-400 text-[9px] md:text-base uppercase tracking-[0.2em]">Insumos</h2>
+              <h2 className="font-['Montserrat'] font-black text-gray-400 text-[11px] md:text-base uppercase tracking-[0.2em]">Insumos</h2>
               {PARTNERS.map(ad => (
-                <article key={ad.id} className="bg-white rounded-[16px] md:rounded-[32px] overflow-hidden shadow-sm p-2 md:p-4 border border-gray-100 group">
-                  <div className="h-20 md:h-40 relative rounded-[12px] md:rounded-[24px] overflow-hidden mb-3 md:mb-5">
+                <article key={ad.id} className="bg-white rounded-[16px] md:rounded-[32px] overflow-hidden shadow-sm p-3 md:p-4 border border-gray-100 group cursor-pointer" onClick={() => handleInsumoClick(ad)}>
+                  <div className="h-24 md:h-40 relative rounded-[12px] md:rounded-[24px] overflow-hidden mb-3 md:mb-5 bg-gray-50">
                     <img src={ad.imagen} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={ad.titulo} />
                   </div>
-                  <div className="px-1 md:px-2 pb-1 md:pb-2 text-center md:text-left">
-                    <span className="text-[7px] md:text-[9px] font-black text-[#2D6A6A] uppercase tracking-[0.3em] block mb-1 md:mb-2 truncate">{ad.marca}</span>
-                    <h4 className="font-['Montserrat'] font-black text-[#1A3D3D] text-[9px] md:text-sm mb-2 md:mb-3 uppercase leading-tight line-clamp-2">{ad.titulo}</h4>
-                    <button className="w-full py-2 md:py-3.5 bg-gray-50 text-[#1A3D3D] rounded-[10px] md:rounded-[16px] text-[7px] md:text-[9px] font-bold uppercase tracking-[0.2em] hover:bg-[#2D6A6A] hover:text-white transition-all">
+                  <div className="px-1 md:px-2 pb-2 md:pb-2 text-center md:text-left">
+                    <span className="text-[9px] md:text-[9px] font-black text-[#2D6A6A] uppercase tracking-[0.3em] block mb-1 md:mb-2 truncate">{ad.marca}</span>
+                    <h4 className="font-['Montserrat'] font-black text-[#1A3D3D] text-xs md:text-sm mb-3 md:mb-3 uppercase leading-tight line-clamp-2">{ad.titulo}</h4>
+                    <button className="w-full py-2.5 md:py-3.5 bg-gray-50 text-[#1A3D3D] rounded-[10px] md:rounded-[16px] text-[10px] md:text-[9px] font-bold uppercase tracking-[0.2em] group-hover:bg-[#2D6A6A] group-hover:text-white transition-all">
                       Ver Catálogo
                     </button>
                   </div>
@@ -1170,168 +1905,6 @@ export default function Repertorio() {
       </div>
     </div>
   );
-
-  const renderDetail = () => {
-    if (!selectedCourse) {
-      // Esto previene un crash si la vista es 'detail' pero no hay curso seleccionado.
-      return null; 
-    }
-    return (
-    <article className="max-w-[1200px] mx-auto animate-in fade-in duration-500">
-      <button 
-        onClick={() => setView('grid')} 
-        className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-[10px] uppercase tracking-[0.3em] mb-8 transition-colors group"
-      >
-        <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver al Repertorio
-      </button>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-24">
-        <section className="lg:col-span-8">
-          <header className="mb-6">
-            <h1 className="text-3xl md:text-4xl lg:text-[40px] font-black font-['Montserrat'] text-[#1A3D3D] leading-[1.1] uppercase tracking-tighter">
-              {selectedCourse.titulo}
-            </h1>
-          </header>
-
-          <div className="w-full md:w-[95%] aspect-video md:max-h-[360px] rounded-[32px] overflow-hidden bg-black shadow-lg relative group cursor-pointer mb-10 border border-gray-100">
-            <img src={selectedCourse.imagen} className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-[2s]" alt="Portada del curso" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-16 h-16 md:w-20 md:h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 transition-all shadow-xl">
-                <PlayCircle className="w-8 h-8 md:w-10 md:h-10 text-white fill-white/80" />
-              </div>
-            </div>
-          </div>
-
-          <nav className="flex flex-wrap gap-x-6 gap-y-3 md:gap-12 border-b border-gray-200 mb-8" aria-label="Pestañas del curso">
-            <button 
-              onClick={() => setActiveTab('about')} 
-              aria-current={activeTab === 'about' ? 'page' : undefined}
-              className={`pb-3 md:pb-4 text-[11px] md:text-[13px] font-bold uppercase tracking-widest transition-all ${activeTab === 'about' ? 'border-b-2 border-[#2D6A6A] text-[#1A3D3D]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
-            >
-              Acerca del curso
-            </button>
-            <button 
-              onClick={() => setActiveTab('speaker')} 
-              aria-current={activeTab === 'speaker' ? 'page' : undefined}
-              className={`pb-3 md:pb-4 text-[11px] md:text-[13px] font-bold uppercase tracking-widest transition-all ${activeTab === 'speaker' ? 'border-b-2 border-[#2D6A6A] text-[#1A3D3D]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
-            >
-              Instructorxs
-            </button>
-            <button 
-              onClick={() => setActiveTab('reviews')} 
-              aria-current={activeTab === 'reviews' ? 'page' : undefined}
-              className={`pb-3 md:pb-4 text-[11px] md:text-[13px] font-bold uppercase tracking-widest transition-all ${activeTab === 'reviews' ? 'border-b-2 border-[#2D6A6A] text-[#1A3D3D]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
-            >
-              Reseñas (4.9)
-            </button>
-          </nav>
-
-          {activeTab === 'about' && (
-            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2">
-              <div>
-                <h3 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-4">Descripción del programa</h3>
-                <p className="text-gray-600 text-[15px] md:text-base leading-relaxed font-medium">
-                  {selectedCourse.descripcion}
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-6">¿Qué vas a aprender?</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {selectedCourse.incluye.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-4 bg-white px-5 py-4 rounded-[16px] border border-gray-100 shadow-sm">
-                      <div className="w-6 h-6 rounded-full bg-[#2D6A6A]/10 flex items-center justify-center shrink-0">
-                        <Check className="w-3.5 h-3.5 text-[#2D6A6A] stroke-[3]" />
-                      </div>
-                      <span className="text-[13px] font-bold text-[#1A3D3D] leading-tight">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'speaker' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-              <div className="bg-white p-5 md:p-8 rounded-[24px] md:rounded-[32px] border border-gray-100 shadow-sm flex flex-row gap-4 md:gap-6 items-start">
-                <img 
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedCourse.instructor}&backgroundColor=F4F7F7`} 
-                  className="w-16 h-16 md:w-24 md:h-24 rounded-full border border-gray-100 shrink-0 object-cover" 
-                  alt={selectedCourse.instructor} 
-                />
-                <div className="text-left flex-1 mt-1 md:mt-2">
-                  <h3 className="text-lg md:text-2xl font-black font-['Montserrat'] text-[#1A3D3D] leading-tight">{selectedCourse.instructor}</h3>
-                  <p className="text-[9px] md:text-[10px] font-bold text-[#2D6A6A] uppercase tracking-widest mb-3 md:mb-4 mt-1">Especialista Referente</p>
-                  <p className="text-gray-600 text-xs md:text-sm leading-relaxed font-medium">
-                    Profesional con más de 15 años de experiencia clínica especializada. Disertante internacional y autor de múltiples publicaciones científicas en la materia. Reconocido por su enfoque práctico y resolución de casos complejos.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'reviews' && (
-            <div className="animate-in fade-in slide-in-from-bottom-2 bg-white p-8 rounded-[32px] border border-gray-100 text-center">
-               <Star className="w-12 h-12 text-yellow-400 fill-yellow-400 mx-auto mb-4 opacity-50" />
-               <p className="text-[#1A3D3D] font-bold text-lg mb-2">Reseñas Excelentes</p>
-               <p className="text-gray-500 font-medium text-sm">Este curso mantiene un promedio de 4.9 estrellas en evaluaciones de profesionales.</p>
-            </div>
-          )}
-
-        </section>
-
-        <aside className="lg:col-span-4">
-          <div className="sticky top-28 bg-white p-8 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-gray-100 space-y-8">
-            <div>
-              <div className="flex items-baseline gap-3 mb-1">
-                <h4 className="text-4xl md:text-5xl font-black font-['Montserrat'] text-[#1A3D3D] tracking-tighter">
-                  ${selectedCourse.precio.toLocaleString('es-AR')}
-                </h4>
-                <span className="text-gray-400 line-through text-lg font-bold">${selectedCourse.precioOriginal.toLocaleString('es-AR')}</span>
-              </div>
-              <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mt-2 flex items-center gap-1.5">
-                <Clock className="w-3 h-3" /> Oferta por tiempo limitado
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <button className="w-full py-5 bg-[#2D6A6A] text-white rounded-[20px] font-black text-xs uppercase tracking-[0.2em] hover:bg-[#1A3D3D] transition-all shadow-lg shadow-[#2D6A6A]/20 flex items-center justify-center gap-2 active:scale-95">
-                Inscribirme Ahora
-              </button>
-              <button className="w-full py-4 bg-gray-50 text-[#1A3D3D] border border-gray-200 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-gray-100 transition-all flex items-center justify-center gap-2 active:scale-95">
-                Descargar Programa <FileText className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="space-y-5 pt-6 border-t border-gray-100">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-[14px] bg-gray-50 flex items-center justify-center border border-gray-100"><Clock className="w-5 h-5 text-[#2D6A6A]" /></div>
-                <div><p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Duración</p><p className="text-sm font-black text-[#1A3D3D]">{selectedCourse.duracion}</p></div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-[14px] bg-gray-50 flex items-center justify-center border border-gray-100"><Award className="w-5 h-5 text-[#2D6A6A]" /></div>
-                <div><p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Nivel</p><p className="text-sm font-black text-[#1A3D3D]">{selectedCourse.nivel}</p></div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-[14px] bg-gray-50 flex items-center justify-center border border-gray-100"><Monitor className="w-5 h-5 text-[#2D6A6A]" /></div>
-                <div><p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Modalidad</p><p className="text-sm font-black text-[#1A3D3D]">{selectedCourse.modalidad}</p></div>
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-gray-100 text-center">
-              <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-4">Certificación avalada por</p>
-              <div className="flex items-center justify-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                <img src={selectedCourse.logoMarca} className="w-8 h-8 rounded-full border border-gray-200" alt="Marca" />
-                <span className="text-xs font-black text-[#1A3D3D] uppercase tracking-wider">{selectedCourse.marca}</span>
-              </div>
-            </div>
-
-          </div>
-        </aside>
-      </div>
-    </article>
-    );
-  };
 
   return (
     <div className="bg-[#F4F7F7] min-h-screen font-['Inter'] antialiased relative">
@@ -1363,14 +1936,14 @@ export default function Repertorio() {
                   <div className="fixed inset-0 z-[-1]" onClick={() => setIsMenuOpen(false)}></div>
                   <nav className="absolute right-0 mt-4 w-64 bg-white rounded-[32px] shadow-[0_20px_50px_rgba(26,61,61,0.15)] border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
                     <div className="p-3">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 text-left">Navegación</p>
-                      <button onClick={() => { navigate('/inicio'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Home className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Inicio</span></button>
-                      <button onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Info className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Entrada</span></button>
-                      <button onClick={() => { navigate('/perfil'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><User className="w-4 h-4 text-[#2D6A6A]" /><span className="text-sm font-bold text-[#1A3D3D]">Mi Perfil Público</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                      <button onClick={() => { setView('grid'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Repertorio Clínico</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                      <button onClick={() => { navigate('/novedades'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Sparkles className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Novedades</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                      <button onClick={() => { navigate('/bolsa-de-trabajo'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><BriefcaseIcon className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Bolsa de Trabajo</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                      <button onClick={() => { navigate('/editor'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit3 className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Ir al Editor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <p className="text-[11px] md:text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 text-left">Navegación</p>
+                      <button onClick={() => { navigate('/inicio'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Home className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Inicio</span></button>
+                      <button onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Info className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Entrada</span></button>
+                      <button onClick={() => { navigate('/perfil'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><User className="w-4 h-4 text-[#2D6A6A]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Mi Perfil Público</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { setView('grid'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Repertorio Clínico</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { navigate('/novedades'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Sparkles className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Novedades</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { navigate('/bolsa-de-trabajo'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><BriefcaseIcon className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Bolsa de Trabajo</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { navigate('/editor'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit3 className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Ir al Editor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                     </div>
                   </nav>
                 </>
@@ -1381,7 +1954,7 @@ export default function Repertorio() {
       </nav>
 
       <main id="main-content" className="max-w-[1440px] mx-auto pt-6 px-6 md:px-12 lg:px-24">
-        {view === 'grid' ? renderGrid() : view === 'detail' ? renderDetail() : view === 'wizard' ? renderCourseWizard() : view === 'propuesta' ? renderPropuesta() : renderAdvertise()}
+        {view === 'grid' ? renderGrid() : view === 'detail' ? renderDetail() : view === 'insumoDetail' ? renderInsumoDetail() : view === 'wizard' ? renderCourseWizard() : view === 'insumoForm' ? renderInsumoForm() : view === 'checkout' ? renderCheckout() : view === 'success' ? renderSuccess() : view === 'propuesta' ? renderPropuesta() : renderAdvertise()}
       </main>
 
       <footer ref={footerRef} className="w-full bg-gradient-to-br from-[#1A3D3D] to-[#2D6A6A] relative overflow-hidden mt-12 pt-20 pb-12 text-left print:hidden">
@@ -1390,13 +1963,13 @@ export default function Repertorio() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16 text-left">
             <div className="md:col-span-1 text-left">
               <button onClick={() => navigate('/')} className="text-white font-['Montserrat'] font-bold text-2xl mb-6 text-left leading-none cursor-pointer block hover:opacity-80 transition-opacity">El Portal<span className="text-white/40">.</span></button>
-              <p className="text-white/50 text-[13px] leading-relaxed mb-6 font-medium text-left">La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.</p>
+              <p className="text-white/50 text-sm md:text-[13px] leading-relaxed mb-6 font-medium text-left">La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.</p>
               <div className="flex gap-4">
                 <a href="#" aria-label="Facebook de El Portal" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Facebook className="w-4 h-4" /></a>
                 <a href="#" aria-label="Instagram de El Portal" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Instagram className="w-4 h-4" /></a>
                 <a href="#" aria-label="Linkedin de El Portal" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Linkedin className="w-4 h-4" /></a>
               </div>
-              <div className="text-white/40 text-[10px] font-medium space-y-1.5 flex flex-col items-start mt-6">
+              <div className="text-white/40 text-[11px] md:text-[10px] font-medium space-y-1.5 flex flex-col items-start mt-6">
                 <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
                 <p className="flex items-center gap-2">
                   <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors focus:outline-none">Términos</button>
@@ -1406,21 +1979,21 @@ export default function Repertorio() {
               </div>
             </div>
             <div>
-              <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Repertorio</h4>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-6">Repertorio</h4>
               <ul className="space-y-4 text-white/40 text-sm">
                 <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
                 <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Insumos</button></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Comunidad</h4>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-6">Comunidad</h4>
               <ul className="space-y-4 text-white/40 text-sm">
                 <li><a href="#" className="hover:text-white transition-colors">Bolsa de Trabajo</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Foro de Discusión</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Contacto</h4>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-6">Contacto</h4>
               <ul className="space-y-4 mb-8 text-white/40 text-sm leading-none">
                 <li><a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors"><Mail className="w-4 h-4 shrink-0" /> <span>elportalveterinario.arg@gmail.com</span></a></li>
                 <li className="flex items-center gap-3"><Globe className="w-4 h-4" /> elportal.vet</li>
@@ -1428,15 +2001,15 @@ export default function Repertorio() {
             </div>
           </div>
           <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-white/40 font-bold text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
-            <div className="text-white/40 text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
+            <p className="text-white/40 font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
+            <div className="text-white/40 text-[11px] md:text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
               <span>Hecho con</span>
               <Heart className="w-3 h-3 text-red-400/50 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
               <span>en Argentina.</span>
             </div>
             <div className="flex items-center gap-2 text-white/40">
               <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
+              <span className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
             </div>
           </div>
         </div>

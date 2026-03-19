@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Update import paths to reflect the correct file locations
 import LandingPage from './pages/landing-page';
@@ -26,6 +26,7 @@ function App() {
         <Route path="/terminos-y-condiciones" element={<LegalPage />} />
         <Route path="/politica-de-privacidad" element={<LegalPage />} />
         <Route path="/inicio" element={<Inicio />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
     </div>

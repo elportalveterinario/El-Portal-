@@ -12,11 +12,11 @@ import {
 // ==========================================
 // COMPONENTE: ZIG-ZAG STORYTELLING
 // ==========================================
-const ZigZagSection = ({ title, subtitle, text, image, isReversed, icon: Icon, bgClass = "bg-white", badge, isDark = false }) => {
+const ZigZagSection = ({ title, subtitle, text, image, isReversed, icon: Icon, bgClass = "bg-white", badge, isDark = false, mobileMockup }) => {
   return (
-    <section className={`py-20 md:py-32 overflow-hidden ${bgClass} reveal-on-scroll`}>
+    <section className={`py-12 md:py-32 overflow-hidden ${bgClass} reveal-on-scroll`}>
       <div className="max-w-[1100px] mx-auto px-8 md:px-10">
-        <div className={`flex flex-col gap-12 lg:gap-20 items-center ${isReversed ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}>
+        <div className={`flex flex-col gap-8 lg:gap-20 items-center ${isReversed ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}>
           
           <div className="flex-1 flex flex-col items-start text-left">
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm ${isDark ? 'bg-white/10 text-white' : 'bg-[#2D6A6A]/10 text-[#2D6A6A]'}`}>
@@ -31,16 +31,26 @@ const ZigZagSection = ({ title, subtitle, text, image, isReversed, icon: Icon, b
             </p>
           </div>
 
-          <div className="flex-1 w-full relative group mt-8 lg:mt-0">
-            <div className={`absolute inset-0 bg-gradient-to-tr rounded-[40px] transform group-hover:scale-105 transition-transform duration-700 ${isDark ? 'from-black/40' : 'from-[#1A3D3D]/20'} to-transparent`}></div>
-            <img 
-              src={image} 
-              alt={title} 
-              className="w-full h-[400px] md:h-[500px] object-cover rounded-[40px] shadow-2xl transform group-hover:-translate-y-2 transition-transform duration-700 relative z-10"
-            />
-            {badge && (
-              <div className={`absolute ${isReversed ? '-left-6 md:-left-12' : '-right-6 md:-right-12'} -bottom-8 z-20 animate-float-delayed`}>
-                {badge}
+          <div className="flex-1 w-full relative group mt-4 lg:mt-0 flex justify-center">
+            {/* --- IMAGEN (Oculta en móviles si hay mockup móvil) --- */}
+            <div className={`relative w-full ${mobileMockup ? 'hidden md:block' : 'block'}`}>
+              <div className={`absolute inset-0 bg-gradient-to-tr rounded-[40px] transform group-hover:scale-105 transition-transform duration-700 ${isDark ? 'from-black/40' : 'from-[#1A3D3D]/20'} to-transparent`}></div>
+              <img 
+                src={image} 
+                alt={title} 
+                className="w-full h-[400px] md:h-[500px] object-cover rounded-[40px] shadow-2xl transform group-hover:-translate-y-2 transition-transform duration-700 relative z-10"
+              />
+              {badge && (
+                <div className={`absolute ${isReversed ? '-left-6 md:-left-12' : '-right-6 md:-right-12'} -bottom-8 z-20 animate-float-delayed`}>
+                  {badge}
+                </div>
+              )}
+            </div>
+
+            {/* --- MOCKUP (Solo visible en móviles) --- */}
+            {mobileMockup && (
+              <div className="block md:hidden w-full max-w-[400px]">
+                {mobileMockup}
               </div>
             )}
           </div>
@@ -97,6 +107,7 @@ function LandingPageContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showCookieBanner, setShowCookieBanner] = useState(true);
+  const [isFormExpanded, setIsFormExpanded] = useState(false); // NUEVO ESTADO PARA EL FORMULARIO
   const navigate = useNavigate();
   const footerRef = useRef(null);
 
@@ -234,7 +245,6 @@ function LandingPageContent() {
           
           <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
             <div className="absolute inset-0 bg-white"></div>
-            {/* Punto focal esmeralda superior derecho (solo móvil) */}
             <div className="absolute top-[-1%] right-[-25%] w-[70vw] h-[70vw] bg-[#2D6A6A]/[0.15] rounded-full blur-[100px] mix-blend-multiply md:hidden"></div>
             
             <div className="absolute bottom-[-30%] right-[-20%] w-[100vw] md:w-[60vw] h-[100vw] md:h-[60vw] bg-[#1A3D3D]/[0.23] rounded-full blur-[150px] mix-blend-multiply"></div>
@@ -242,7 +252,7 @@ function LandingPageContent() {
             <div className="absolute bottom-[10%] right-[10%] w-[70vw] md:w-[40vw] h-[70vw] md:h-[40vw] bg-[#4DB6AC]/[0.23] rounded-full blur-[130px] mix-blend-multiply opacity-80"></div>
           </div>
 
-          <div className="relative z-10 w-full pt-[110px] pb-16 md:pt-[150px] md:pb-24">
+          <div className="relative z-10 w-full pt-[110px] pb-10 md:pt-[150px] md:pb-24">
             <div className="max-w-[1100px] mx-auto px-8 md:px-10 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start reveal-on-scroll">
               
               {/* LADO IZQUIERDO: CONTENIDO */}
@@ -259,65 +269,85 @@ function LandingPageContent() {
                 </p>
               </div>
 
-              {/* LADO DERECHO: FORMULARIO DE REGISTRO */}
+              {/* LADO DERECHO: FORMULARIO DE REGISTRO CON LÓGICA DE EXPANSIÓN */}
               <div className="relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-[#2D6A6A]/20 to-transparent rounded-[44px] blur-xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
-                <div className="relative bg-white/95 backdrop-blur-xl border border-white/50 rounded-[44px] p-8 md:p-10 shadow-[0_40px_80px_rgba(26,61,61,0.1)] flex flex-col items-center">
-                  <h2 className="text-2xl font-black text-[#1A3D3D] mb-2 font-['Montserrat']">Crea tu cuenta, es gratis.</h2>
-                  <p className="text-gray-400 text-sm font-medium mb-8">Únete a la red profesional de Argentina.</p>
-
-                  <button className="flex items-center justify-center gap-3 w-full border border-gray-200 py-4 rounded-2xl hover:bg-gray-50 transition-all font-bold text-sm text-gray-700 mb-6 bg-white">
-                      <Chrome className="w-5 h-5 text-red-500" /> Continuar con Google
-                  </button>
-
-                  <div className="flex items-center gap-4 w-full mb-6 text-gray-300">
-                    <div className="h-px bg-gray-200 flex-1"></div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest">o con tu email</span>
-                    <div className="h-px bg-gray-200 flex-1"></div>
-                  </div>
-
-                  <div className="w-full space-y-4 mb-8">
-                    <div className="relative">
-                      <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input type="text" placeholder="Tu nombre completo" className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 focus:border-[#2D6A6A] focus:ring-4 focus:ring-[#2D6A6A]/5 outline-none font-medium text-sm transition-all bg-[#F9FBFA]" />
-                    </div>
-                    <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input type="email" placeholder="Tu email profesional" className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 focus:border-[#2D6A6A] focus:ring-4 focus:ring-[#2D6A6A]/5 outline-none font-medium text-sm transition-all bg-[#F9FBFA]" />
-                    </div>
-                    <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input 
-                        type={showPassword ? "text" : "password"} 
-                        placeholder="Crea una contraseña" 
-                        className="w-full pl-12 pr-12 py-4 rounded-2xl border border-gray-100 focus:border-[#2D6A6A] focus:ring-4 focus:ring-[#2D6A6A]/5 outline-none font-medium text-sm transition-all bg-[#F9FBFA]" 
-                      />
-                      <button 
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#2D6A6A] transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <button onClick={() => handleNav('editor')} className="w-full bg-[#2D6A6A] text-white py-5 rounded-[24px] font-black uppercase tracking-[0.2em] text-xs shadow-2xl hover:bg-[#1A3D3D] hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3">
-                    Crear mi cuenta <ChevronRight className="w-5 h-5" />
-                  </button>
+                <div className="relative bg-white/95 backdrop-blur-xl border border-white/5 rounded-[44px] p-8 md:p-10 shadow-[0_40px_80px_rgba(26,61,61,0.1)] flex flex-col items-center">
                   
-                  {/* Pequeño texto legal en el registro */}
-                  <p className="text-gray-400 text-[10px] text-center mt-5 w-full">
-                 Al registrarte, aceptás nuestros <span onClick={() => navigate('/terminos-y-condiciones')} className="underline cursor-pointer hover:text-[#2D6A6A]">Términos</span> y la <span onClick={() => navigate('/politica-de-privacidad')} className="underline cursor-pointer hover:text-[#2D6A6A]">Política de Privacidad</span>.
-                  </p>
+                  <h2 className="text-2xl font-black text-[#1A3D3D] mb-2 font-['Montserrat'] text-center">Crea tu cuenta, es gratis.</h2>
+                  <p className="text-gray-400 text-sm font-medium mb-6 text-center">Únete a la red profesional de Argentina.</p>
+
+                  {/* Botón inicial (Solo se muestra en móvil cuando el form NO está expandido) */}
+                  {!isFormExpanded && (
+                    <button 
+                      onClick={() => setIsFormExpanded(true)}
+                      className="md:hidden w-full bg-[#2D6A6A] text-white py-4 rounded-[24px] font-black uppercase tracking-[0.2em] text-xs shadow-xl hover:bg-[#1A3D3D] active:scale-95 transition-all flex items-center justify-center gap-3 mt-2"
+                    >
+                      Crear mi cuenta <ChevronRight className="w-5 h-5" />
+                    </button>
+                  )}
+
+                  {/* Contenedor del formulario completo (Desplegable en móvil, siempre visible en escritorio) */}
+                  <div className={`w-full grid transition-all duration-500 ease-in-out ${isFormExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 md:grid-rows-[1fr] md:opacity-100'}`}>
+                    <div className="overflow-hidden w-full flex flex-col items-center">
+                      <div className="w-full pt-2">
+                        <button className="flex items-center justify-center gap-3 w-full border border-gray-200 py-4 rounded-2xl hover:bg-gray-50 transition-all font-bold text-sm text-gray-700 mb-6 bg-white">
+                            <Chrome className="w-5 h-5 text-red-500" /> Continuar con Google
+                        </button>
+
+                        <div className="flex items-center gap-4 w-full mb-6 text-gray-300">
+                          <div className="h-px bg-gray-200 flex-1"></div>
+                          <span className="text-[10px] font-bold uppercase tracking-widest">o con tu email</span>
+                          <div className="h-px bg-gray-200 flex-1"></div>
+                        </div>
+
+                        <div className="w-full space-y-4 mb-8">
+                          <div className="relative">
+                            <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input type="text" placeholder="Tu nombre completo" className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 focus:border-[#2D6A6A] focus:ring-4 focus:ring-[#2D6A6A]/5 outline-none font-medium text-sm transition-all bg-[#F9FBFA]" />
+                          </div>
+                          <div className="relative">
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input type="email" placeholder="Tu email profesional" className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 focus:border-[#2D6A6A] focus:ring-4 focus:ring-[#2D6A6A]/5 outline-none font-medium text-sm transition-all bg-[#F9FBFA]" />
+                          </div>
+                          <div className="relative">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input 
+                              type={showPassword ? "text" : "password"} 
+                              placeholder="Crea una contraseña" 
+                              className="w-full pl-12 pr-12 py-4 rounded-2xl border border-gray-100 focus:border-[#2D6A6A] focus:ring-4 focus:ring-[#2D6A6A]/5 outline-none font-medium text-sm transition-all bg-[#F9FBFA]" 
+                            />
+                            <button 
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#2D6A6A] transition-colors"
+                            >
+                              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        <button onClick={() => handleNav('editor')} className="w-full bg-[#2D6A6A] text-white py-5 rounded-[24px] font-black uppercase tracking-[0.2em] text-xs shadow-2xl hover:bg-[#1A3D3D] hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3">
+                          Crear mi cuenta <ChevronRight className="w-5 h-5" />
+                        </button>
+                        
+                        {/* Pequeño texto legal en el registro */}
+                        <p className="text-gray-400 text-[10px] text-center mt-5 w-full">
+                      Al registrarte, aceptás nuestros <span onClick={() => navigate('/terminos-y-condiciones')} className="underline cursor-pointer hover:text-[#2D6A6A]">Términos</span> y la <span onClick={() => navigate('/politica-de-privacidad')} className="underline cursor-pointer hover:text-[#2D6A6A]">Política de Privacidad</span>.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
+
             </div>
           </div>
         </main>
 
-        {/* 1.5 MOCKUPS ÉPICOS (ESTILO LIMPIO Y PLANO) */}
-        <section className="relative w-full bg-white pb-[60px] md:pb-[140px] pt-8 md:pt-16">
+        {/* 1.5 MOCKUPS ÉPICOS (ESTILO LIMPIO Y PLANO) - AHORA OCULTO EN MÓVILES */}
+        <section className="relative w-full bg-white pb-[60px] md:pb-[140px] pt-8 md:pt-16 hidden md:block">
           <div className="max-w-[1200px] mx-auto px-8 reveal-on-scroll">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-center">
               
@@ -332,7 +362,7 @@ function LandingPageContent() {
 
                   <div className="flex items-center gap-2">
                     <div className="bg-gray-50 border border-gray-100 px-4 py-3 rounded-2xl flex items-center gap-2 flex-1 cursor-pointer hover:bg-gray-100 transition-colors">
-   4                   <MapPin className="w-4 h-4 text-[#2D6A6A]" />
+                      <MapPin className="w-4 h-4 text-[#2D6A6A]" />
                       <span className="text-xs font-bold text-gray-600">Capital Federal</span>
                     </div>
                     <div className="bg-gray-50 border border-gray-100 px-4 py-3 rounded-2xl flex items-center gap-2 flex-1 cursor-pointer hover:bg-gray-100 transition-colors">
@@ -360,7 +390,7 @@ function LandingPageContent() {
               </div>
 
               {/* Tarjeta 2: Perfil Central (Limpia y destacada) */}
-              <div className="z-20 animate-float">
+              <div className="z-20 animate-float hidden md:block">
                 <div className="bg-white border border-gray-100 rounded-[48px] p-10 shadow-[0_30px_80px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col items-center text-center">
                   
                   <div className="relative mb-8 mt-2">
@@ -463,7 +493,7 @@ function LandingPageContent() {
             subtitle="Atemporalidad"
             title="Foco en tu vocación, no en el algoritmo."
             text="El Portal está diseñado para que no pierdas tiempo en redes sociales que exigen creación constante y no están pensadas para profesionales de la salud. Aquí, tu perfil es atemporal: trabaja por vos 24/7. No necesitás publicar historias para que te deriven pacientes; si un colega o un tutor busca tu especialidad, te encuentra al instante, sin esfuerzo ni mantenimiento de tu parte."
-            image="/1. profesion.jpg"
+            image="/1.%20profesion.jpg"
             isReversed={false}
             badge={
               <div className="bg-white p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-gray-100">
@@ -473,6 +503,49 @@ function LandingPageContent() {
                 <div>
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Presencia 24/7</p>
                   <p className="text-sm font-black text-[#1A3D3D]">Sin depender del algoritmo</p>
+                </div>
+              </div>
+            }
+            mobileMockup={
+              <div className="z-20 animate-float">
+                <div className="bg-white border border-gray-100 rounded-[32px] p-6 md:p-10 shadow-[0_30px_80px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col items-center text-center w-full">
+                  
+                  <div className="relative mb-5 mt-1">
+                    <div className="w-28 h-28 rounded-[28px] bg-gray-100 overflow-hidden relative z-10 border border-gray-100 shadow-md">
+                      <img src="https://images.unsplash.com/photo-1594824436951-7f12bc3ac92e?auto=format&fit=crop&w=300&q=80" alt="Dra. Arenas" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="absolute -bottom-3 -right-3 bg-[#789A9A] p-2 rounded-xl border-[3px] border-white shadow-lg text-white z-20">
+                      <ShieldCheck className="w-5 h-5" />
+                    </div>
+                  </div>
+
+                  <div className="bg-yellow-50/80 text-yellow-700 text-[9px] font-black px-4 py-1.5 rounded-full flex items-center gap-1.5 mb-4 border border-yellow-100 shadow-sm uppercase tracking-widest">
+                      <Award className="w-3.5 h-3.5 fill-current" /> Referente Destacada
+                  </div>
+
+                  <h3 className="text-2xl font-bold text-[#1A3D3D] font-['Montserrat'] leading-tight mb-1">Dra. Mercedes Arenas</h3>
+                  <p className="text-[#2D6A6A] text-xs font-black uppercase tracking-[0.2em] mb-5">Cirujana Traumatóloga</p>
+                  
+                  <div className="flex flex-col gap-2 w-full mb-6">
+                    <div className="bg-[#F9FBFA] px-4 py-3 rounded-[20px] border border-gray-100 flex items-center gap-3">
+                      <div className="p-1.5 bg-white rounded-lg shadow-sm border border-gray-100"><MapPin className="w-4 h-4 text-[#2D6A6A]" /></div>
+                      <div className="text-left">
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Zona de atención</p>
+                        <p className="text-xs font-bold text-[#1A3D3D]">CABA y GBA Norte</p>
+                      </div>
+                    </div>
+                    <div className="bg-[#F9FBFA] px-4 py-3 rounded-[20px] border border-gray-100 flex items-center gap-3">
+                      <div className="p-1.5 bg-white rounded-lg shadow-sm border border-gray-100"><Stethoscope className="w-4 h-4 text-[#2D6A6A]" /></div>
+                      <div className="text-left">
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Modalidad</p>
+                        <p className="text-xs font-bold text-[#1A3D3D]">Derivaciones y Quirófano</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button className="w-full bg-[#1A3D3D] text-white font-black py-4 rounded-[20px] shadow-lg hover:bg-[#2D6A6A] transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-[10px]">
+                    Ver trayectoria <ArrowUpRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             }
@@ -525,10 +598,10 @@ function LandingPageContent() {
         </div>
 
         {/* 3. ECOSISTEMA BENTO GRID */}
-        <section id="ecosistema" className="py-24 md:py-32 bg-[#F4F7F7] relative overflow-hidden reveal-on-scroll">
+        <section id="ecosistema" className="py-16 md:py-32 bg-[#F4F7F7] relative overflow-hidden reveal-on-scroll">
           <div className="max-w-[1100px] mx-auto px-8 md:px-10 relative z-10 text-center">
             
-            <div className="text-center mb-16 md:mb-20">
+            <div className="text-center mb-10 md:mb-20">
               <h3 className="text-[#2D6A6A] font-bold text-[11px] uppercase tracking-[0.3em] mb-4 text-center">Contactos e información al instante</h3>
               <h2 className="text-3xl md:text-5xl font-black text-[#1A3D3D] font-['Montserrat'] leading-[1.1] tracking-tighter text-center">
                 Espacios diseñados para<br/>agilizar tu práctica diaria.
@@ -676,7 +749,7 @@ function LandingPageContent() {
         </section>
 
         {/* 4. CALL TO ACTION FINAL */}
-        <section className="py-24 md:py-32 bg-[#2D6A6A] relative overflow-hidden text-center">
+        <section className="py-16 md:py-32 bg-[#2D6A6A] relative overflow-hidden text-center">
           <div className="absolute inset-0 opacity-5" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
           <div className="max-w-[800px] mx-auto px-8 md:px-10 relative z-10 text-center">
             <h2 className="text-3xl md:text-5xl font-black text-white mb-6 font-['Montserrat'] tracking-tight">
@@ -692,7 +765,7 @@ function LandingPageContent() {
         </section>
 
         {/* FOOTER OPTIMIZADO */}
-        <footer ref={footerRef} className="w-full bg-[#1A3D3D] relative overflow-hidden pt-20 pb-12 text-left">
+        <footer ref={footerRef} className="w-full bg-[#1A3D3D] relative overflow-hidden pt-12 md:pt-20 pb-12 text-left">
           <div className="max-w-[1100px] mx-auto px-8 md:px-10 relative z-10 text-left">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16 text-left">
               

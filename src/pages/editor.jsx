@@ -5,7 +5,7 @@ import {
   ArrowUp, ArrowDown, MapPin, ShieldCheck, Check, Image as ImageIcon, ArrowLeft,
   Smartphone, Home, Mail, Award, ChevronDown, 
   ArrowRight, ChevronRight, Sparkles, Crop, Facebook, Instagram, Linkedin, Globe, ExternalLink, Heart,
-  Menu, User, LayoutGrid, Edit, Briefcase
+  Menu, User, LayoutGrid, Edit, Briefcase, FileText
 } from 'lucide-react';
 
 // ==========================================
@@ -22,14 +22,12 @@ const Tooltip = ({ text, isSection = false }) => {
       onMouseLeave={() => setIsVisible(false)}
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsVisible(!isVisible); }}
     >
-      {/* Icono unificado para todos */}
       <div className="bg-[#2D6A6A]/10 p-1 rounded-full border border-[#2D6A6A]/20 group-hover:bg-[#2D6A6A] transition-colors duration-300">
         <Info className="w-3 h-3 text-[#2D6A6A] group-hover:text-white transition-colors" />
       </div>
 
-      <div className={`transition-all duration-300 absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 text-left leading-relaxed transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+      <div className={`transition-all duration-300 absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 text-left leading-relaxed transform normal-case tracking-normal font-normal ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
         {isSection ? (
-           // Diseño "Insight Card" para secciones (Sin flecha, estilo tarjeta profesional)
            <div className="bg-white border border-gray-100 p-4 rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.15)] relative">
              <div className="flex items-center gap-2 mb-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-[#2D6A6A]"></div>
@@ -38,8 +36,7 @@ const Tooltip = ({ text, isSection = false }) => {
              <p className="text-sm text-gray-600 font-medium leading-relaxed">{text}</p>
            </div>
         ) : (
-           // Diseño estándar oscuro para inputs
-           <div className="bg-[#1A3D3D] text-white text-xs p-3 rounded-xl shadow-2xl relative">
+           <div className="bg-[#1A3D3D] text-white text-xs font-medium p-3 rounded-xl shadow-2xl relative">
              {text}
              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1A3D3D]"></div>
            </div>
@@ -100,27 +97,58 @@ const ToggleSwitch = ({ label, checked, onChange, tooltip }) => (
   </div>
 );
 
-const Accordion = ({ title, children, defaultOpen = false, tooltip }) => {
+// ACORDEÓN ADAPTATIVO (Móvil: Acordeón Integrado / Escritorio: Cajas o Acordeones)
+const Accordion = ({ title, icon: Icon, children, defaultOpen = false, tooltip, isBioWarning, bioLength, staticDesktop = false }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+
   return (
-    <div className="border border-gray-100 rounded-[24px] mb-6 bg-white shadow-sm transition-all duration-300 group group-[.active-mobile]:border-[#2D6A6A]/30 group-[.active-mobile]:shadow-md">
-      <button type="button" onClick={() => setIsOpen(!isOpen)} className="w-full px-6 py-5 flex justify-between items-center bg-gray-50/30 hover:bg-gray-50 transition-colors rounded-[24px]">
-        <div className="flex items-center text-left">
-          <h3 className="font-bold text-[#1A3D3D] text-sm uppercase tracking-wider">{title}</h3>
-          {tooltip && <Tooltip text={tooltip} isSection />}
-        </div>
-        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-      {isOpen && (
-        <div className="p-6 animate-in fade-in slide-in-from-top-2 duration-300">
-          {children}
-        </div>
+    <div className={`border-b border-gray-100 md:border-none last:border-0 ${staticDesktop ? 'md:bg-white md:p-8 md:rounded-[32px] md:shadow-sm md:border md:border-gray-100 md:mb-6 md:relative md:overflow-visible group' : 'md:bg-white md:shadow-sm md:border md:border-gray-100 md:rounded-[24px] md:mb-6 group'}`}>
+      
+      {/* Línea superior verde (Solo visible en escritorio para secciones específicas) */}
+      {staticDesktop && title === "Identidad Profesional" && (
+        <div className="hidden md:block absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#1A3D3D] to-[#2D6A6A] rounded-t-[32px]"></div>
       )}
+
+      <button 
+        type="button" 
+        onClick={() => setIsOpen(!isOpen)} 
+        className={`w-full flex justify-between items-center transition-colors ${staticDesktop ? 'py-5 md:py-0 md:mb-6 md:cursor-default md:pointer-events-none' : 'py-5 md:px-6 md:bg-gray-50/30 md:hover:bg-gray-50 md:rounded-[24px]'}`}
+      >
+        <div className="flex items-center text-left gap-2 md:gap-0">
+          {Icon && <Icon className="w-[18px] h-[18px] text-[#2D6A6A] md:hidden" />}
+          <h3 className={`font-black text-sm uppercase tracking-wider ${staticDesktop ? 'text-[#2D6A6A] md:text-[#1A3D3D] md:tracking-[0.2em]' : 'text-[#2D6A6A] md:text-[#1A3D3D]'}`}>
+            {title}
+          </h3>
+          {/* Tooltip solo visible si está abierto o en modo escritorio estático */}
+          {tooltip && (
+            <div className={isOpen ? 'block' : (staticDesktop ? 'hidden md:block' : 'hidden')}>
+              <Tooltip text={tooltip} isSection />
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4">
+          {/* Contador de bio solo visible si está abierto o en modo escritorio estático */}
+          {bioLength !== undefined && (
+            <span className={`text-xs font-bold ${isBioWarning ? 'text-red-500 animate-pulse' : 'text-gray-400'} ${isOpen ? 'block' : (staticDesktop ? 'hidden md:block' : 'hidden')}`}>
+              {bioLength} / 350
+            </span>
+          )}
+          
+          <div className={staticDesktop ? 'md:hidden' : 'block'}>
+            <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-0 text-[#2D6A6A]' : '-rotate-90 text-gray-300 group-hover:text-[#2D6A6A]'}`} />
+          </div>
+        </div>
+      </button>
+
+      <div className={`${isOpen ? 'block' : 'hidden'} ${staticDesktop ? 'md:block' : ''} pb-6 ${staticDesktop ? 'md:pb-0 md:px-0' : 'md:pb-6 md:px-6'} animate-in fade-in slide-in-from-top-2 duration-300`}>
+        {children}
+      </div>
     </div>
   );
 };
 
-export default function Editor() { // <--- CORRECCIÓN: Cambiado de App a Editor
+export default function Editor() { 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -304,7 +332,6 @@ export default function Editor() { // <--- CORRECCIÓN: Cambiado de App a Editor
       setErrors(newErrors);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      // Sanitización de URLs: Si falta el protocolo, agregamos https://
       const sanitizeUrl = (url) => {
         if (!url) return "";
         return url.startsWith('http') ? url : `https://${url}`;
@@ -330,7 +357,6 @@ export default function Editor() { // <--- CORRECCIÓN: Cambiado de App a Editor
     link.rel = 'stylesheet';
     document.head.appendChild(link);
 
-    // Inyectar Favicon (Escudo Verde)
     const favicon = document.createElement('link');
     favicon.rel = 'icon';
     favicon.href = "data:image/svg+xml,%3Csvg viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 18 85 V 45 A 32 32 0 0 1 82 45 V 85' stroke='%231A3D3D' stroke-width='12' stroke-linecap='round' fill='none'/%3E%3Cpath d='M 38 85 V 55 A 12 12 0 0 1 62 55 V 85' stroke='%232D6A6A' stroke-width='12' stroke-linecap='round' fill='none'/%3E%3C/svg%3E";
@@ -343,7 +369,8 @@ export default function Editor() { // <--- CORRECCIÓN: Cambiado de App a Editor
   }, []);
 
   return (
-    <div className="bg-[#F4F7F7] min-h-screen font-['Inter'] antialiased text-left text-[#1A3D3D] selection:bg-[#2D6A6A] selection:text-white relative">
+    <div className="bg-[#F4F7F7] min-h-screen font-['Inter'] antialiased text-left text-[#1A3D3D] selection:bg-[#2D6A6A] selection:text-white relative overflow-x-hidden w-full">
+      
       {/* MODAL DE RECORTE (Crop Overlay) */}
       {cropModal.isOpen && (
         <div className="fixed inset-0 bg-[#1A3D3D]/90 z-[99999] flex items-center justify-center p-4 backdrop-blur-sm">
@@ -419,288 +446,274 @@ export default function Editor() { // <--- CORRECCIÓN: Cambiado de App a Editor
         </div>
       </nav>
 
-      {/* AJUSTE DE PADDING: pt-8 en lugar de pt-[100px] porque ahora es sticky */}
       <div className="pt-[100px] max-w-[1100px] mx-auto px-8 md:px-10 flex flex-col lg:flex-row gap-8 items-start relative">
         
         {/* ========================================== */}
         {/* COLUMNA IZQUIERDA: FORMULARIO MAESTRO */}
         {/* ========================================== */}
-        <div className="w-full lg:w-[55%] flex flex-col gap-6 relative z-10">
+        <div className="w-full lg:w-[55%] flex flex-col relative z-10">
           
-          <div className="mb-2">
+          <div className="mb-4">
             <h1 className="text-3xl font-black font-['Montserrat'] uppercase tracking-tight mb-2 text-[#1A3D3D]">Configurar Perfil</h1>
             <p className="text-sm text-gray-500">Actualizá tu información para que te encuentren en El Portal.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <form onSubmit={handleSubmit} className="flex flex-col">
             
-            {/* 1. FOTO Y DATOS PERSONALES */}
-            <div className="bg-white p-8 rounded-[32px] shadow-sm border border-gray-100 relative overflow-visible group group-[.active-mobile]:shadow-md group-[.active-mobile]:border-[#2D6A6A]/20 transition-all">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#1A3D3D] to-[#2D6A6A]"></div>
-              <h2 className="font-black text-sm uppercase tracking-[0.2em] text-[#1A3D3D] mb-6">Identidad Profesional</h2>
+            {/* CAJA MAESTRA ÚNICA (En móvil envuelve todo. En compu es invisible) */}
+            <div className="bg-white md:bg-transparent px-5 sm:px-8 py-0 md:p-0 rounded-[32px] md:rounded-none shadow-sm md:shadow-none border border-gray-100 border-t-[6px] border-t-[#2D6A6A] md:border-t-0 md:border-none relative mb-6 overflow-hidden md:overflow-visible">
               
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 mb-8">
-                <div className="relative group cursor-pointer flex-shrink-0">
-                  <label htmlFor="perfil-upload" className={`w-32 h-32 rounded-[28px] overflow-hidden border-2 border-dashed ${formData.foto ? 'border-transparent' : 'border-gray-200 group-hover:border-[#2D6A6A]'} transition-all flex items-center justify-center bg-gray-50 relative block cursor-pointer`}>
-                    {formData.foto ? (
-                      <>
-                        <img src={formData.foto} alt="Preview" className="w-full h-full object-cover group-hover:opacity-40 transition-opacity" />
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                          <Crop className="w-8 h-8 text-white drop-shadow-md" />
+              <Accordion title="Identidad Profesional" defaultOpen={false} staticDesktop={true} icon={User}>
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 mb-8 mt-2 md:mt-0">
+                  <div className="relative group cursor-pointer flex-shrink-0">
+                    <label htmlFor="perfil-upload" className={`w-32 h-32 rounded-[28px] overflow-hidden border-2 border-dashed ${formData.foto ? 'border-transparent' : 'border-gray-200 group-hover:border-[#2D6A6A]'} transition-all flex items-center justify-center bg-gray-50 relative block cursor-pointer`}>
+                      {formData.foto ? (
+                        <>
+                          <img src={formData.foto} alt="Preview" className="w-full h-full object-cover group-hover:opacity-40 transition-opacity" />
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+                            <Crop className="w-8 h-8 text-white drop-shadow-md" />
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center text-gray-400 group-hover:text-[#2D6A6A]">
+                          <Camera className="w-8 h-8 mb-2" />
+                          <span className="text-xs font-bold uppercase tracking-widest">Subir</span>
                         </div>
-                      </>
-                    ) : (
-                      <div className="flex flex-col items-center text-gray-400 group-hover:text-[#2D6A6A]">
-                        <Camera className="w-8 h-8 mb-2" />
-                <span className="text-xs font-bold uppercase tracking-widest">Subir</span>
+                      )}
+                    </label>
+                    <input type="file" id="perfil-upload" className="hidden" onChange={(e) => handleFileSelect(e, 'perfil')} accept="image/*" />
+                  </div>
+                  <div className="flex-1 text-center sm:text-left pt-2">
+                    <h3 className="text-sm font-bold text-[#1A3D3D] mb-2 uppercase tracking-wide flex items-center justify-center sm:justify-start">
+                      Fotografía <span className="text-red-400 ml-1">*</span>
+                      <Tooltip text="Usa una foto vertical o cuadrada. Una buena iluminación transmite más confianza a los tutores y colegas." />
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4 leading-relaxed">Sube una imagen frontal, iluminada y profesional. (Formato JPG o PNG).</p>
+                    
+                    {/* Mini Galería de Fotos de Perfil */}
+                    {formData.fotosPerfil && formData.fotosPerfil.length > 0 && (
+                      <div className="flex flex-wrap gap-3 mt-2">
+                        {formData.fotosPerfil.map((url, idx) => (
+                          <div 
+                            key={idx} 
+                            className={`relative w-12 h-12 rounded-lg overflow-hidden cursor-pointer border-2 transition-all group ${formData.foto === url ? 'border-[#2D6A6A] ring-2 ring-[#2D6A6A]/20' : 'border-gray-200 hover:border-gray-300'}`}
+                            onClick={() => setFormData(prev => ({ ...prev, foto: url }))}
+                          >
+                            <img src={url} alt="Historial" className="w-full h-full object-cover" />
+                            <button 
+                              type="button"
+                              onClick={(e) => deleteProfilePhoto(url, e)}
+                              className="absolute top-0.5 right-0.5 bg-white/90 text-red-500 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-white"
+                              title="Eliminar foto"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     )}
-                  </label>
-                  <input type="file" id="perfil-upload" className="hidden" onChange={(e) => handleFileSelect(e, 'perfil')} accept="image/*" />
+                  </div>
                 </div>
-                <div className="flex-1 text-center sm:text-left pt-2">
-                  <h3 className="text-sm font-bold text-[#1A3D3D] mb-2 uppercase tracking-wide flex items-center justify-center sm:justify-start">
-                    Fotografía <span className="text-red-400 ml-1">*</span>
-                    <Tooltip text="Usa una foto vertical o cuadrada. Una buena iluminación transmite más confianza a los tutores y colegas." />
-                  </h3>
-          <p className="text-sm text-gray-500 mb-4 leading-relaxed">Sube una imagen frontal, iluminada y profesional. (Formato JPG o PNG).</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                  <InputGroup label="Nombre Completo" id="nombre" value={formData.nombre} onChange={handleChange} placeholder="Ej: Dra. Clara Valdez" required error={errors.nombre} tooltip="Asegúrate de usar correctamente las mayúsculas al inicio de tu nombre y apellido." />
+                  <InputGroup label="Especialidad" id="especialidad" value={formData.especialidad} onChange={handleChange} placeholder="Ej: Cirugía General" required error={errors.especialidad} tooltip="Escribe tu título principal. Es lo primero que verán los usuarios bajo tu nombre." />
+                  <InputGroup label="Matrícula" type="text" id="matricula" value={formData.matricula} onChange={handleChange} placeholder="Ej: 12345" tooltip="Ingresa únicamente los números de tu matrícula profesional." error={errors.matricula} required />
                   
-                  {/* Mini Galería de Fotos de Perfil */}
-                  {formData.fotosPerfil && formData.fotosPerfil.length > 0 && (
-                    <div className="flex flex-wrap gap-3 mt-2">
-                      {formData.fotosPerfil.map((url, idx) => (
-                        <div 
-                          key={idx} 
-                          className={`relative w-12 h-12 rounded-lg overflow-hidden cursor-pointer border-2 transition-all group ${formData.foto === url ? 'border-[#2D6A6A] ring-2 ring-[#2D6A6A]/20' : 'border-gray-200 hover:border-gray-300'}`}
-                          onClick={() => setFormData(prev => ({ ...prev, foto: url }))}
-                        >
-                          <img src={url} alt="Historial" className="w-full h-full object-cover" />
-                          <button 
-                            onClick={(e) => deleteProfilePhoto(url, e)}
-                            className="absolute top-0.5 right-0.5 bg-white/90 text-red-500 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-white"
-                            title="Eliminar foto"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <div className="mb-5">
+                    <label htmlFor="provincia" className="flex items-center text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Provincia Base <span className="text-red-400 ml-1">*</span></label>
+                    <select id="provincia" value={formData.provincia} onChange={handleChange} className="w-full bg-gray-50/50 border border-gray-200 rounded-2xl px-5 py-3.5 text-sm font-medium focus:outline-none focus:border-[#2D6A6A] transition-all text-[#1A3D3D] appearance-none cursor-pointer">
+                      <option value="" disabled>Seleccionar provincia...</option>
+                      {provincias.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  </div>
                 </div>
-              </div>
+              </Accordion>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-                <InputGroup label="Nombre Completo" id="nombre" value={formData.nombre} onChange={handleChange} placeholder="Ej: Dra. Clara Valdez" required error={errors.nombre} tooltip="Asegúrate de usar correctamente las mayúsculas al inicio de tu nombre y apellido." />
-                <InputGroup label="Especialidad" id="especialidad" value={formData.especialidad} onChange={handleChange} placeholder="Ej: Cirugía General" required error={errors.especialidad} tooltip="Escribe tu título principal. Es lo primero que verán los usuarios bajo tu nombre." />
-                <InputGroup label="Matrícula" type="text" id="matricula" value={formData.matricula} onChange={handleChange} placeholder="Ej: 12345" tooltip="Ingresa únicamente los números de tu matrícula profesional." error={errors.matricula} required />
-                
-                <div className="mb-5">
-                  <label htmlFor="provincia" className="flex items-center text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Provincia Base <span className="text-red-400 ml-1">*</span></label>
-                  <select id="provincia" value={formData.provincia} onChange={handleChange} className="w-full bg-gray-50/50 border border-gray-200 rounded-2xl px-5 py-3.5 text-sm font-medium focus:outline-none focus:border-[#2D6A6A] transition-all text-[#1A3D3D] appearance-none cursor-pointer">
-                    <option value="" disabled>Seleccionar provincia...</option>
-                    {provincias.map(p => <option key={p} value={p}>{p}</option>)}
-                  </select>
-                </div>
-              </div>
-            </div>
+              <Accordion title="Sobre Mí" tooltip="Resume tu experiencia y pasión. Tienes 350 caracteres para contar qué te hace especial en tu rubro." bioLength={formData.bio.length} isBioWarning={isBioWarning} staticDesktop={true} icon={Sparkles}>
+                <InputGroup type="textarea" label="Resumen Profesional" id="bio" value={formData.bio} onChange={handleChange} maxLength={350} placeholder="Cuenta brevemente tu experiencia..." />
+              </Accordion>
 
-            {/* 2. SOBRE MÍ */}
-            <div className="bg-white p-8 rounded-[32px] shadow-sm border border-gray-100 group group-[.active-mobile]:shadow-md group-[.active-mobile]:border-[#2D6A6A]/20 transition-all">
-              <div className="flex justify-between items-end mb-6">
-                <h2 className="font-black text-sm uppercase tracking-[0.2em] text-[#1A3D3D] flex items-center">
-                  Sobre Mí
-                  <Tooltip text="Resume tu experiencia y pasión. Tienes 350 caracteres para contar qué te hace especial en tu rubro." isSection />
-                </h2>
-                <span className={`text-xs font-bold ${isBioWarning ? 'text-red-500 animate-pulse' : 'text-gray-400'}`}>
-                  {formData.bio.length} / 350
-                </span>
-              </div>
-              <InputGroup type="textarea" label="Resumen Profesional" id="bio" value={formData.bio} onChange={handleChange} maxLength={350} placeholder="Cuenta brevemente tu experiencia..." />
-            </div>
-
-            {/* 3. TRAYECTORIA ACADÉMICA */}
-            <Accordion title="Títulos y Trayectoria" defaultOpen={false} tooltip="Los títulos que agregues se mostrarán en formato de línea de tiempo en tu perfil público.">
-              <p className="text-sm text-gray-500 mb-6 font-medium">Añade tus especializaciones. Usa las flechas para reordenar la importancia.</p>
-              <div className="space-y-4">
-                {formData.trayectoria.map((item, index) => (
-                  <div key={item.id} className="flex gap-3 items-start bg-gray-50/50 p-4 rounded-2xl border border-gray-100 group transition-all group-[.active-mobile]:bg-white group-[.active-mobile]:shadow-sm">
-                    <div className="flex flex-col gap-1 mt-1">
-                      <button type="button" onClick={() => handleArrayMove('trayectoria', index, 'up')} disabled={index === 0} className="p-1 text-gray-300 hover:text-[#1A3D3D] disabled:opacity-30"><ArrowUp className="w-4 h-4" /></button>
-                      <button type="button" onClick={() => handleArrayMove('trayectoria', index, 'down')} disabled={index === formData.trayectoria.length - 1} className="p-1 text-gray-300 hover:text-[#1A3D3D] disabled:opacity-30"><ArrowDown className="w-4 h-4" /></button>
-                    </div>
-                    <div className="flex-1 flex flex-col gap-3">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <input type="text" placeholder="Ej: Posgrado en Cirugía" value={item.titulo} onChange={(e) => handleArrayUpdate('trayectoria', item.id, 'titulo', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-base focus:border-[#2D6A6A] outline-none font-bold text-[#1A3D3D]" />
-                        <input type="text" placeholder="Institución y Año (Ej: UBA - 2020)" value={item.desc} onChange={(e) => handleArrayUpdate('trayectoria', item.id, 'desc', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-base focus:border-[#2D6A6A] outline-none" />
+              <Accordion title="Títulos y Trayectoria" tooltip="Los títulos que agregues se mostrarán en formato de línea de tiempo en tu perfil público." icon={Award}>
+                <p className="text-sm text-gray-500 mb-6 font-medium mt-2 md:mt-0">Añade tus especializaciones. Usa las flechas para reordenar la importancia.</p>
+                <div className="space-y-4">
+                  {formData.trayectoria.map((item, index) => (
+                    <div key={item.id} className="flex gap-3 items-start bg-gray-50/50 p-4 rounded-2xl border border-gray-100 group transition-all md:hover:bg-white md:hover:shadow-sm">
+                      <div className="flex flex-col gap-1 mt-1">
+                        <button type="button" onClick={() => handleArrayMove('trayectoria', index, 'up')} disabled={index === 0} className="p-1 text-gray-300 hover:text-[#1A3D3D] disabled:opacity-30"><ArrowUp className="w-4 h-4" /></button>
+                        <button type="button" onClick={() => handleArrayMove('trayectoria', index, 'down')} disabled={index === formData.trayectoria.length - 1} className="p-1 text-gray-300 hover:text-[#1A3D3D] disabled:opacity-30"><ArrowDown className="w-4 h-4" /></button>
                       </div>
-                      <input type="text" placeholder="Información adicional opcional (Ej: Graduada con Honores)" value={item.extra || ""} onChange={(e) => handleArrayUpdate('trayectoria', item.id, 'extra', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-500 focus:border-[#2D6A6A] outline-none italic" />
+                      <div className="flex-1 flex flex-col gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <input type="text" placeholder="Ej: Posgrado en Cirugía" value={item.titulo} onChange={(e) => handleArrayUpdate('trayectoria', item.id, 'titulo', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-base focus:border-[#2D6A6A] outline-none font-bold text-[#1A3D3D]" />
+                          <input type="text" placeholder="Institución y Año (Ej: UBA - 2020)" value={item.desc} onChange={(e) => handleArrayUpdate('trayectoria', item.id, 'desc', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-base focus:border-[#2D6A6A] outline-none" />
+                        </div>
+                        <input type="text" placeholder="Información adicional opcional (Ej: Graduada con Honores)" value={item.extra || ""} onChange={(e) => handleArrayUpdate('trayectoria', item.id, 'extra', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-500 focus:border-[#2D6A6A] outline-none italic" />
+                      </div>
+                      <button type="button" onClick={() => handleArrayRemove('trayectoria', item.id)} className="mt-1 p-2 text-gray-300 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
                     </div>
-                    <button type="button" onClick={() => handleArrayRemove('trayectoria', item.id)} className="mt-1 p-2 text-gray-300 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
-                  </div>
-                ))}
-              </div>
-              <button type="button" onClick={() => handleArrayAdd('trayectoria', { titulo: "", desc: "", extra: "" })} className="mt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#2D6A6A] hover:bg-gray-50 py-2.5 px-4 rounded-xl transition-colors border border-[#2D6A6A]/20 border-dashed">
-                <Plus className="w-4 h-4" /> Agregar Diploma
-              </button>
-            </Accordion>
+                  ))}
+                </div>
+                <button type="button" onClick={() => handleArrayAdd('trayectoria', { titulo: "", desc: "", extra: "" })} className="mt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#2D6A6A] hover:bg-gray-50 py-2.5 px-4 rounded-xl transition-colors border border-[#2D6A6A]/20 border-dashed">
+                  <Plus className="w-4 h-4" /> Agregar Diploma
+                </button>
+              </Accordion>
 
-            {/* 4. ACTUALMENTE (SERVICIOS) */}
-            <Accordion title="Servicios Actuales" defaultOpen={false}>
-              <p className="text-sm text-gray-500 mb-6 font-medium">¿Qué servicios médicos o consultorías ofreces hoy?</p>
-              <div className="space-y-4">
-                {formData.servicios.map((item, index) => (
-                  <div key={item.id} className="flex gap-3 items-start bg-gray-50/50 p-4 rounded-2xl border border-gray-100 group transition-all group-[.active-mobile]:bg-white group-[.active-mobile]:shadow-sm">
-                    <div className="flex flex-col gap-1 mt-1">
-                      <button type="button" onClick={() => handleArrayMove('servicios', index, 'up')} disabled={index === 0} className="p-1 text-gray-300 hover:text-[#1A3D3D] disabled:opacity-30"><ArrowUp className="w-4 h-4" /></button>
-                      <button type="button" onClick={() => handleArrayMove('servicios', index, 'down')} disabled={index === formData.servicios.length - 1} className="p-1 text-gray-300 hover:text-[#1A3D3D] disabled:opacity-30"><ArrowDown className="w-4 h-4" /></button>
+              <Accordion title="Servicios Actuales" icon={Briefcase}>
+                <p className="text-sm text-gray-500 mb-6 font-medium mt-2 md:mt-0">¿Qué servicios médicos o consultorías ofreces hoy?</p>
+                <div className="space-y-4">
+                  {formData.servicios.map((item, index) => (
+                    <div key={item.id} className="flex gap-3 items-start bg-gray-50/50 p-4 rounded-2xl border border-gray-100 group transition-all md:hover:bg-white md:hover:shadow-sm">
+                      <div className="flex flex-col gap-1 mt-1">
+                        <button type="button" onClick={() => handleArrayMove('servicios', index, 'up')} disabled={index === 0} className="p-1 text-gray-300 hover:text-[#1A3D3D] disabled:opacity-30"><ArrowUp className="w-4 h-4" /></button>
+                        <button type="button" onClick={() => handleArrayMove('servicios', index, 'down')} disabled={index === formData.servicios.length - 1} className="p-1 text-gray-300 hover:text-[#1A3D3D] disabled:opacity-30"><ArrowDown className="w-4 h-4" /></button>
+                      </div>
+                      <div className="flex-1 flex flex-col gap-3">
+                        <input type="text" placeholder="Nombre del servicio (Ej: Cirugía Preventiva)" value={item.titulo} onChange={(e) => handleArrayUpdate('servicios', item.id, 'titulo', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-base focus:border-[#2D6A6A] outline-none font-bold text-[#1A3D3D]" />
+                        <textarea placeholder="Breve descripción del servicio..." value={item.desc} onChange={(e) => handleArrayUpdate('servicios', item.id, 'desc', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-base focus:border-[#2D6A6A] outline-none resize-none" rows="2" />
+                      </div>
+                      <button type="button" onClick={() => handleArrayRemove('servicios', item.id)} className="mt-1 p-2 text-gray-300 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
                     </div>
-                    <div className="flex-1 flex flex-col gap-3">
-                      <input type="text" placeholder="Nombre del servicio (Ej: Cirugía Preventiva)" value={item.titulo} onChange={(e) => handleArrayUpdate('servicios', item.id, 'titulo', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-base focus:border-[#2D6A6A] outline-none font-bold text-[#1A3D3D]" />
-                      <textarea placeholder="Breve descripción del servicio..." value={item.desc} onChange={(e) => handleArrayUpdate('servicios', item.id, 'desc', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-base focus:border-[#2D6A6A] outline-none resize-none" rows="2" />
-                    </div>
-                    <button type="button" onClick={() => handleArrayRemove('servicios', item.id)} className="mt-1 p-2 text-gray-300 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
-                  </div>
-                ))}
-              </div>
-              <button type="button" onClick={() => handleArrayAdd('servicios', { titulo: "", desc: "" })} className="mt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#2D6A6A] hover:bg-gray-50 py-2.5 px-4 rounded-xl transition-colors border border-[#2D6A6A]/20 border-dashed">
-                <Plus className="w-4 h-4" /> Agregar Actividad
-              </button>
-            </Accordion>
+                  ))}
+                </div>
+                <button type="button" onClick={() => handleArrayAdd('servicios', { titulo: "", desc: "" })} className="mt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#2D6A6A] hover:bg-gray-50 py-2.5 px-4 rounded-xl transition-colors border border-[#2D6A6A]/20 border-dashed">
+                  <Plus className="w-4 h-4" /> Agregar Actividad
+                </button>
+              </Accordion>
 
-            {/* 5. CASOS DE ÉXITO (Múltiples Fotos) */}
-            <Accordion title="Casos de Éxito" defaultOpen={false} tooltip="Los casos reales con fotos del antes y después generan muchísima confianza. Puedes subir varias fotos por caso.">
-              <p className="text-sm text-gray-500 mb-6 font-medium">Sube fotos clínicas y describe el desafío. (Máximo 500 caracteres).</p>
-              <div className="space-y-6">
-                {formData.casos.map((caso, index) => (
-                  <div key={caso.id} className="bg-gray-50/50 p-5 rounded-2xl border border-gray-100 flex flex-col gap-4 relative group transition-all group-[.active-mobile]:bg-white group-[.active-mobile]:shadow-sm">
-                    <div className="flex justify-between items-center border-b border-gray-200/50 pb-3 mb-1">
-                      <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Caso #{index + 1}</span>
-                      <button type="button" onClick={() => handleArrayRemove('casos', caso.id)} className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                    </div>
-                    
-                    <div className="flex flex-col md:flex-row gap-5">
-                      <div className="w-full md:w-40 flex flex-col gap-2">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Galería Visual</label>
-                        <div className="flex flex-wrap gap-2">
-                          {caso.fotos.map((imgUrl, fIdx) => (
-                            <div key={fIdx} className="w-12 h-12 bg-white rounded-lg border border-gray-200 overflow-hidden relative group">
-                              <img src={imgUrl} className="w-full h-full object-cover" alt="Thumb" />
-                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
-                                <button type="button" onClick={() => removeCasoFoto(caso.id, fIdx)} className="text-red-400 hover:text-red-500"><X className="w-3 h-3" /></button>
-                                <div className="flex gap-1">
-                                  <button type="button" onClick={() => moveCasoFoto(caso.id, fIdx, 'left')} disabled={fIdx === 0} className="text-white disabled:opacity-30">
-                                    <ArrowLeft className="w-3 h-3" />
-                                  </button>
-                                  <button type="button" onClick={() => moveCasoFoto(caso.id, fIdx, 'right')} disabled={fIdx === caso.fotos.length - 1} className="text-white disabled:opacity-30"><ArrowRight className="w-3 h-3" /></button>
+              <Accordion title="Casos de Éxito" tooltip="Los casos reales con fotos del antes y después generan muchísima confianza. Puedes subir varias fotos por caso." icon={Camera}>
+                <p className="text-sm text-gray-500 mb-6 font-medium mt-2 md:mt-0">Sube fotos clínicas y describe el desafío. (Máximo 500 caracteres).</p>
+                <div className="space-y-6">
+                  {formData.casos.map((caso, index) => (
+                    <div key={caso.id} className="bg-gray-50/50 p-5 rounded-2xl border border-gray-100 flex flex-col gap-4 relative group transition-all md:hover:bg-white md:hover:shadow-sm">
+                      <div className="flex justify-between items-center border-b border-gray-200/50 pb-3 mb-1">
+                        <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Caso #{index + 1}</span>
+                        <button type="button" onClick={() => handleArrayRemove('casos', caso.id)} className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                      
+                      <div className="flex flex-col md:flex-row gap-5">
+                        <div className="w-full md:w-40 flex flex-col gap-2">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Galería Visual</label>
+                          <div className="flex flex-wrap gap-2">
+                            {caso.fotos.map((imgUrl, fIdx) => (
+                              <div key={fIdx} className="w-12 h-12 bg-white rounded-lg border border-gray-200 overflow-hidden relative group/img">
+                                <img src={imgUrl} className="w-full h-full object-cover" alt="Thumb" />
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+                                  <button type="button" onClick={() => removeCasoFoto(caso.id, fIdx)} className="text-red-400 hover:text-red-500"><X className="w-3 h-3" /></button>
+                                  <div className="flex gap-1">
+                                    <button type="button" onClick={() => moveCasoFoto(caso.id, fIdx, 'left')} disabled={fIdx === 0} className="text-white disabled:opacity-30">
+                                      <ArrowLeft className="w-3 h-3" />
+                                    </button>
+                                    <button type="button" onClick={() => moveCasoFoto(caso.id, fIdx, 'right')} disabled={fIdx === caso.fotos.length - 1} className="text-white disabled:opacity-30"><ArrowRight className="w-3 h-3" /></button>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
-                          
-                          <label htmlFor={`file-caso-${caso.id}`} className="w-12 h-12 bg-white rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:text-[#2D6A6A] hover:border-[#2D6A6A] cursor-pointer transition-colors">
-                            <Plus className="w-5 h-5" />
-                          </label>
-                          <input type="file" id={`file-caso-${caso.id}`} className="hidden" accept="image/*" onChange={(e) => handleFileSelect(e, 'caso', caso.id)} />
+                            ))}
+                            
+                            <label htmlFor={`file-caso-${caso.id}`} className="w-12 h-12 bg-white rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:text-[#2D6A6A] hover:border-[#2D6A6A] cursor-pointer transition-colors">
+                              <Plus className="w-5 h-5" />
+                            </label>
+                            <input type="file" id={`file-caso-${caso.id}`} className="hidden" accept="image/*" onChange={(e) => handleFileSelect(e, 'caso', caso.id)} />
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="flex-1 flex flex-col gap-3">
-                        <div className="flex gap-3">
-                          <input type="text" placeholder="Nombre (Ej: Luna)" value={caso.nombre} onChange={(e) => handleArrayUpdate('casos', caso.id, 'nombre', e.target.value)} className="w-1/3 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#2D6A6A] outline-none font-bold" />
-                          <input type="text" placeholder="Tag Médico (Ej: Displasia)" value={caso.patologia} onChange={(e) => handleArrayUpdate('casos', caso.id, 'patologia', e.target.value)} className="w-2/3 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#2D6A6A] outline-none text-[#2D6A6A]" />
-                        </div>
-                        <div className="relative">
-                          <textarea placeholder="Describe el desafío médico y cómo lo resolviste..." maxLength={500} value={caso.desc} onChange={(e) => handleArrayUpdate('casos', caso.id, 'desc', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#2D6A6A] outline-none resize-none pb-6" rows="3" />
-                          <span className="absolute bottom-2 right-3 text-[10px] font-bold text-gray-400">{caso.desc.length}/500</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <button type="button" onClick={() => handleArrayAdd('casos', { nombre: "", patologia: "", desc: "", fotos: [] })} className="mt-5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#2D6A6A] hover:bg-gray-50 py-2.5 px-4 rounded-xl transition-colors border border-[#2D6A6A]/20 border-dashed">
-                <Plus className="w-4 h-4" /> Agregar Caso Clínico
-              </button>
-            </Accordion>
-
-            {/* 6. LUGARES DE ATENCIÓN (ZONAS ESTRUCTURADAS) */}
-            <Accordion title="Lugares de Atención (Zonas)" defaultOpen={false} tooltip="Permite que los tutores encuentren tu clínica en Google Maps rápidamente. Organízalas por zonas geográficas.">
-              <p className="text-xs text-gray-500 mb-6 font-medium">Agrupa tus clínicas por zona. Añade la dirección exacta para generar el mapa.</p>
-              <div className="space-y-6">
-                {formData.zonas.map((zona) => (
-                  <div key={zona.id} className="bg-gray-50/50 p-5 rounded-2xl border border-gray-100 relative pt-10 group transition-all group-[.active-mobile]:bg-white group-[.active-mobile]:shadow-sm">
-                    <button type="button" onClick={() => handleArrayRemove('zonas', zona.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
-                    
-                    <div className="mb-4">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Nombre de la Zona</label>
-                      <input type="text" placeholder="Ej: Zona Oeste, o Capital Federal" value={zona.nombre} onChange={(e) => handleArrayUpdate('zonas', zona.id, 'nombre', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#2D6A6A] outline-none font-black text-[#1A3D3D]" />
-                    </div>
-
-                    <div className="pl-4 border-l-2 border-[#2D6A6A]/20 space-y-4">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Clínicas en esta zona</label>
-                      
-                      {zona.clinicas.map((clinica, cIdx) => (
-                        <div key={clinica.id} className="bg-white p-4 rounded-xl border border-gray-200 relative group">
-                          <button type="button" onClick={() => removeClinica(zona.id, clinica.id)} className="absolute top-2 right-2 text-gray-300 hover:text-red-500"><X className="w-4 h-4" /></button>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 pr-6">
-                            <input type="text" placeholder="Nombre (Ej: Hospital Patitos)" value={clinica.nombre} onChange={(e) => updateClinica(zona.id, clinica.id, 'nombre', e.target.value)} className="w-full border-b border-gray-100 px-2 py-1.5 text-sm focus:border-[#2D6A6A] outline-none font-bold text-[#1A3D3D]" />
-                            <input type="text" placeholder="Barrio/Dirección corta" value={clinica.direccion} onChange={(e) => updateClinica(zona.id, clinica.id, 'direccion', e.target.value)} className="w-full border-b border-gray-100 px-2 py-1.5 text-sm focus:border-[#2D6A6A] outline-none text-gray-600" />
+                        <div className="flex-1 flex flex-col gap-3">
+                          <div className="flex gap-3">
+                            <input type="text" placeholder="Nombre (Ej: Luna)" value={caso.nombre} onChange={(e) => handleArrayUpdate('casos', caso.id, 'nombre', e.target.value)} className="w-1/3 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#2D6A6A] outline-none font-bold" />
+                            <input type="text" placeholder="Tag Médico (Ej: Displasia)" value={caso.patologia} onChange={(e) => handleArrayUpdate('casos', caso.id, 'patologia', e.target.value)} className="w-2/3 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#2D6A6A] outline-none text-[#2D6A6A]" />
                           </div>
                           <div className="relative">
-                            <MapPin className="w-4 h-4 absolute left-2 top-2 text-gray-400" />
-                            <input type="url" placeholder="Pega el link de Google Maps aquí..." value={clinica.linkMaps} onChange={(e) => updateClinica(zona.id, clinica.id, 'linkMaps', e.target.value)} className="w-full bg-gray-50 border border-gray-100 rounded-lg pl-8 pr-3 py-2 text-xs focus:border-[#2D6A6A] outline-none" />
+                            <textarea placeholder="Describe el desafío médico y cómo lo resolviste..." maxLength={500} value={caso.desc} onChange={(e) => handleArrayUpdate('casos', caso.id, 'desc', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#2D6A6A] outline-none resize-none pb-6" rows="3" />
+                            <span className="absolute bottom-2 right-3 text-[10px] font-bold text-gray-400">{caso.desc.length}/500</span>
                           </div>
                         </div>
-                      ))}
-
-                      <button type="button" onClick={() => addClinicaToZona(zona.id)} className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-[#2D6A6A] transition-colors mt-2">
-                        <Plus className="w-3 h-3" /> Añadir Clínica a {zona.nombre || "esta zona"}
-                      </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-              <button type="button" onClick={() => handleArrayAdd('zonas', { nombre: "", clinicas: [] })} className="mt-5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white bg-[#1A3D3D] hover:bg-[#2D6A6A] py-2.5 px-4 rounded-xl transition-colors shadow-sm">
-                <Plus className="w-4 h-4" /> Crear Nueva Zona
-              </button>
-            </Accordion>
-
-            {/* 7. CONTACTO Y DISPONIBILIDAD */}
-            <div className="bg-white p-8 rounded-[32px] shadow-sm border border-gray-100 group group-[.active-mobile]:shadow-md group-[.active-mobile]:border-[#2D6A6A]/20 transition-all">
-              <h2 className="font-black text-sm uppercase tracking-[0.2em] text-[#1A3D3D] mb-6">Contacto & Modalidad</h2>
-              
-              <InputGroup label="Email de Contacto Profesional" id="emailContacto" type="email" value={formData.emailContacto} onChange={handleChange} placeholder="Ej: dr@clinica.com" required error={errors.emailContacto} tooltip="Aquí llegarán los emails que te envíen desde el formulario de contacto." />
-              
-              <div className="flex items-center gap-2 mb-4 mt-6 border-t border-gray-100 pt-6">
-                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Redes Sociales (Opcional)</h3>
-                <Tooltip text="Entra a tu perfil, copia el link (URL) y pégalo aquí. O usa la opción 'Compartir perfil' de la app para obtener el enlace." />
-              </div>
-              
-              <InputGroup label="Instagram" id="instagram" value={formData.instagram} onChange={handleChange} placeholder="Ej: https://instagram.com/dra.clara" canTest />
-              <InputGroup label="LinkedIn" id="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="Ej: https://linkedin.com/in/clara-valdez" canTest />
-              <InputGroup label="Facebook" id="facebook" value={formData.facebook} onChange={handleChange} placeholder="Ej: https://facebook.com/draclara" canTest />
-
-              <div className="w-full h-px bg-gray-100 my-6"></div>
-
-              <div className="mb-6">
-                <ToggleSwitch label="Hago visitas a domicilio" checked={formData.atiendeDomicilio} onChange={(val) => setFormData(prev => ({...prev, atiendeDomicilio: val}))} tooltip="Añadirá un distintivo (badge) especial en tu perfil público." />
-              </div>
-
-              <div className="mb-6">
-                  <ToggleSwitch label="Habilitar botón de WhatsApp" checked={formData.whatsappActivo} onChange={(val) => {
-                    setFormData(prev => ({...prev, whatsappActivo: val}));
-                    if (!val) setErrors(prev => ({...prev, whatsappNum: null})); 
-                  }} tooltip="Si lo activas, aparecerá un gran botón verde en tu perfil para chats rápidos." />
-                
-                <div className={`transition-all duration-300 overflow-hidden ${formData.whatsappActivo ? 'max-h-40 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
-                    <InputGroup label="Número (con código de país, sin +)" id="whatsappNum" type="tel" value={formData.whatsappNum} onChange={handleChange} placeholder="Ej: 5491122334455" error={errors.whatsappNum} required={formData.whatsappActivo} />
+                  ))}
                 </div>
-              </div>
+                <button type="button" onClick={() => handleArrayAdd('casos', { nombre: "", patologia: "", desc: "", fotos: [] })} className="mt-5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#2D6A6A] hover:bg-gray-50 py-2.5 px-4 rounded-xl transition-colors border border-[#2D6A6A]/20 border-dashed">
+                  <Plus className="w-4 h-4" /> Agregar Caso Clínico
+                </button>
+              </Accordion>
+
+              <Accordion title="Lugares de Atención (Zonas)" tooltip="Permite que los tutores encuentren tu clínica en Google Maps rápidamente. Organízalas por zonas geográficas." icon={MapPin}>
+                <p className="text-xs text-gray-500 mb-6 font-medium mt-2 md:mt-0">Agrupa tus clínicas por zona. Añade la dirección exacta para generar el mapa.</p>
+                <div className="space-y-6">
+                  {formData.zonas.map((zona) => (
+                    <div key={zona.id} className="bg-gray-50/50 p-5 rounded-2xl border border-gray-100 relative pt-10 group transition-all md:hover:bg-white md:hover:shadow-sm">
+                      <button type="button" onClick={() => handleArrayRemove('zonas', zona.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                      
+                      <div className="mb-4">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Nombre de la Zona</label>
+                        <input type="text" placeholder="Ej: Zona Oeste, o Capital Federal" value={zona.nombre} onChange={(e) => handleArrayUpdate('zonas', zona.id, 'nombre', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#2D6A6A] outline-none font-black text-[#1A3D3D]" />
+                      </div>
+
+                      <div className="pl-4 border-l-2 border-[#2D6A6A]/20 space-y-4">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Clínicas en esta zona</label>
+                        
+                        {zona.clinicas.map((clinica, cIdx) => (
+                          <div key={clinica.id} className="bg-white p-4 rounded-xl border border-gray-200 relative group/clinica">
+                            <button type="button" onClick={() => removeClinica(zona.id, clinica.id)} className="absolute top-2 right-2 text-gray-300 hover:text-red-500"><X className="w-4 h-4" /></button>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 pr-6">
+                              <input type="text" placeholder="Nombre (Ej: Hospital Patitos)" value={clinica.nombre} onChange={(e) => updateClinica(zona.id, clinica.id, 'nombre', e.target.value)} className="w-full border-b border-gray-100 px-2 py-1.5 text-sm focus:border-[#2D6A6A] outline-none font-bold text-[#1A3D3D]" />
+                              <input type="text" placeholder="Barrio/Dirección corta" value={clinica.direccion} onChange={(e) => updateClinica(zona.id, clinica.id, 'direccion', e.target.value)} className="w-full border-b border-gray-100 px-2 py-1.5 text-sm focus:border-[#2D6A6A] outline-none text-gray-600" />
+                            </div>
+                            <div className="relative">
+                              <MapPin className="w-4 h-4 absolute left-2 top-2 text-gray-400" />
+                              <input type="url" placeholder="Pega el link de Google Maps aquí..." value={clinica.linkMaps} onChange={(e) => updateClinica(zona.id, clinica.id, 'linkMaps', e.target.value)} className="w-full bg-gray-50 border border-gray-100 rounded-lg pl-8 pr-3 py-2 text-xs focus:border-[#2D6A6A] outline-none" />
+                            </div>
+                          </div>
+                        ))}
+
+                        <button type="button" onClick={() => addClinicaToZona(zona.id)} className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-[#2D6A6A] transition-colors mt-2">
+                          <Plus className="w-3 h-3" /> Añadir Clínica a {zona.nombre || "esta zona"}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button type="button" onClick={() => handleArrayAdd('zonas', { nombre: "", clinicas: [] })} className="mt-5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white bg-[#1A3D3D] hover:bg-[#2D6A6A] py-2.5 px-4 rounded-xl transition-colors shadow-sm">
+                  <Plus className="w-4 h-4" /> Crear Nueva Zona
+                </button>
+              </Accordion>
+
+              <Accordion title="Contacto & Modalidad" staticDesktop={true} icon={Smartphone}>
+                <div className="mt-2 md:mt-0">
+                  <InputGroup label="Email de Contacto Profesional" id="emailContacto" type="email" value={formData.emailContacto} onChange={handleChange} placeholder="Ej: dr@clinica.com" required error={errors.emailContacto} tooltip="Aquí llegarán los emails que te envíen desde el formulario de contacto." />
+                </div>
+                
+                <div className="flex items-center gap-2 mb-4 mt-6 border-t border-gray-100 pt-6">
+                  <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Redes Sociales (Opcional)</h3>
+                  <Tooltip text="Entra a tu perfil, copia el link (URL) y pégalo aquí. O usa la opción 'Compartir perfil' de la app para obtener el enlace." />
+                </div>
+                
+                <InputGroup label="Instagram" id="instagram" value={formData.instagram} onChange={handleChange} placeholder="Ej: https://instagram.com/dra.clara" canTest />
+                <InputGroup label="LinkedIn" id="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="Ej: https://linkedin.com/in/clara-valdez" canTest />
+                <InputGroup label="Facebook" id="facebook" value={formData.facebook} onChange={handleChange} placeholder="Ej: https://facebook.com/draclara" canTest />
+
+                <div className="w-full h-px bg-gray-100 my-6"></div>
+
+                <div className="mb-6">
+                  <ToggleSwitch label="Hago visitas a domicilio" checked={formData.atiendeDomicilio} onChange={(val) => setFormData(prev => ({...prev, atiendeDomicilio: val}))} tooltip="Añadirá un distintivo (badge) especial en tu perfil público." />
+                </div>
+
+                <div className="mb-6">
+                    <ToggleSwitch label="Habilitar botón de WhatsApp" checked={formData.whatsappActivo} onChange={(val) => {
+                      setFormData(prev => ({...prev, whatsappActivo: val}));
+                      if (!val) setErrors(prev => ({...prev, whatsappNum: null})); 
+                    }} tooltip="Si lo activas, aparecerá un gran botón verde en tu perfil para chats rápidos." />
+                  
+                  <div className={`transition-all duration-300 overflow-hidden ${formData.whatsappActivo ? 'max-h-40 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
+                      <InputGroup label="Número (con código de país, sin +)" id="whatsappNum" type="tel" value={formData.whatsappNum} onChange={handleChange} placeholder="Ej: 5491122334455" error={errors.whatsappNum} required={formData.whatsappActivo} />
+                  </div>
+                </div>
+              </Accordion>
+
             </div>
 
-            {/* BOTONES DE ACCIÓN */}
-            <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-4 pt-6 border-t border-gray-200 mt-4">
+            {/* BOTONES DE ACCIÓN (Fuera de la caja en móvil, integrados en compu) */}
+            <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-4 md:border-t border-gray-200 pt-2 md:pt-6">
               <button type="button" onClick={() => window.location.reload()} className="text-[11px] font-bold text-gray-400 uppercase tracking-widest hover:text-red-500 transition-colors px-4 py-3">
                 Descartar Cambios
               </button>
@@ -734,7 +747,7 @@ export default function Editor() { // <--- CORRECCIÓN: Cambiado de App a Editor
             <div className="bg-[#1A3D3D] p-10 flex flex-col items-center text-center relative overflow-hidden">
               <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
               
-              {/* REDES SOCIALES PREVIEW (Solo aparecen si hay datos) */}
+              {/* REDES SOCIALES PREVIEW */}
               <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
                 {formData.instagram && (
                   <div className="text-white/40 p-1.5 bg-white/5 rounded-lg border border-white/10">
@@ -780,20 +793,15 @@ export default function Editor() { // <--- CORRECCIÓN: Cambiado de App a Editor
                 "{formData.bio || "Tu biografía profesional aparecerá aquí para que los clientes te conozcan..."}"
               </p>
 
-              <div className="grid grid-cols-2 gap-3 mb-8">
-                <div className="bg-[#F4F7F7] p-3 rounded-2xl flex flex-col items-center text-center justify-center gap-2 border border-gray-50">
+              <div className="flex gap-3 mb-8 justify-center">
+                <div className="flex-1 bg-[#F4F7F7] p-3 rounded-2xl flex flex-col items-center text-center justify-center gap-2 border border-gray-50">
                   <MapPin className="w-5 h-5 text-[#2D6A6A]" />
                   <span className="text-[10px] font-bold text-[#1A3D3D] uppercase tracking-wider leading-tight">{formData.provincia || "Ubicación"}</span>
                 </div>
-                {formData.atiendeDomicilio ? (
-                  <div className="bg-blue-50 p-3 rounded-2xl flex flex-col items-center text-center justify-center gap-2 border border-blue-100">
+                {formData.atiendeDomicilio && (
+                  <div className="flex-1 bg-blue-50 p-3 rounded-2xl flex flex-col items-center text-center justify-center gap-2 border border-blue-100">
                     <Home className="w-5 h-5 text-blue-600" />
                     <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider leading-tight">A Domicilio</span>
-                  </div>
-                ) : (
-                  <div className="bg-yellow-50 p-3 rounded-2xl flex flex-col items-center text-center justify-center gap-2 border border-yellow-100">
-                    <Award className="w-5 h-5 text-yellow-600" />
-                    <span className="text-[10px] font-bold text-yellow-700 uppercase tracking-wider leading-tight">Destacado</span>
                   </div>
                 )}
               </div>
