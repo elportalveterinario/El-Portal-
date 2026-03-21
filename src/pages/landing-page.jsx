@@ -4,8 +4,8 @@ import {
   Menu, X, ChevronRight, Clock, Users, Globe, Target,
   BookOpen, Briefcase, Package, Newspaper,
   Star, Search, Building2, ShieldCheck, ArrowUpRight, Sparkles,
-  Award, Bell, Facebook, Instagram, Linkedin, Mail, Calendar, Truck, Heart,
-  Home, User, Edit, LayoutGrid, MapPin, Activity, ArrowRight,
+  Award, Bell, Facebook, Instagram, Linkedin, Mail, Calendar, Heart,
+  Building, Truck, Home, User, Edit, LayoutGrid, MapPin, Activity, ArrowRight,
   Chrome, Eye, EyeOff, Lock, Filter, Stethoscope, Info
 } from 'lucide-react';
 
@@ -107,7 +107,7 @@ function LandingPageContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showCookieBanner, setShowCookieBanner] = useState(true);
-  const [isFormExpanded, setIsFormExpanded] = useState(false); // NUEVO ESTADO PARA EL FORMULARIO
+  const [isFormExpanded, setIsFormExpanded] = useState(false);
   const navigate = useNavigate();
   const footerRef = useRef(null);
 
@@ -137,7 +137,6 @@ function LandingPageContent() {
       .animate-float-delayed { animation: float-delayed 8s ease-in-out infinite; animation-delay: 2s; }
       .animate-float-fast { animation: float-fast 4s ease-in-out infinite; animation-delay: 1s; }
       
-      /* Animación suave para el cartel de cookies */
       @keyframes slideUp {
         from { transform: translateY(100%); opacity: 0; }
         to { transform: translateY(0); opacity: 1; }
@@ -225,11 +224,17 @@ function LandingPageContent() {
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 text-left">Navegación</p>
                         <button onClick={() => handleNav('inicio')} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Home className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Inicio</span></button>
                         <button onClick={() => handleNav('landing')} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Info className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Entrada</span></button>
-                        <button onClick={() => handleNav('perfil')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><User className="w-4 h-4 text-[#2D6A6A]" /><span className="text-sm font-bold text-[#1A3D3D]">Mi Perfil Público</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                         <button onClick={() => handleNav('ecosistema')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Repertorio Clínico</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                         <button onClick={() => handleNav('novedades')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Sparkles className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Novedades</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                         <button onClick={() => handleNav('bolsa-de-trabajo')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Briefcase className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Bolsa de Trabajo</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                        <button onClick={() => handleNav('editor')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Ir al Editor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 mt-2 text-left">Perfiles</p>
+                        <button onClick={() => handleNav('perfil-clinica')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Building className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Perfil Clínica</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        <button onClick={() => handleNav('perfil-proveedor')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Truck className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Perfil Proveedor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 mt-2 text-left">Editores</p>
+                        <button onClick={() => handleNav('editor-clinica')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Clínica</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        <button onClick={() => handleNav('editor-insumos')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Insumos</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                       </div>
                     </div>
                   </>
@@ -259,7 +264,7 @@ function LandingPageContent() {
               <div className="flex flex-col items-start text-left lg:pt-8">
                 <div className="mb-6 md:mb-8 inline-flex items-center gap-2 bg-white/80 backdrop-blur-md border border-gray-200/50 px-5 py-2.5 rounded-full shadow-sm">
                   <span className="flex h-2.5 w-2.5 rounded-full bg-[#2D6A6A] animate-pulse"></span>
-                  <span className="text-[#1A3D3D] font-bold text-[11px] uppercase tracking-[0.2em] leading-none">Red exclusiva de veterinarios</span>
+                  <span className="text-[#1A3D3D] font-bold text-[11px] uppercase tracking-[0.2em] leading-none">Red exclusiva de veterinarixs argentinxs</span>
                 </div>
 
                 <TypewriterTitle />
@@ -610,7 +615,7 @@ function LandingPageContent() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
-              {/* Widget: Bolsa de trabajo */}
+              {/* Widget 1: Bolsa de trabajo */}
               <div className="md:col-span-2 bg-white border border-gray-100 p-8 md:p-10 rounded-[32px] hover:shadow-[0_20px_40px_rgba(26,61,61,0.06)] transition-all duration-300 group flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-4 text-left">
@@ -645,30 +650,32 @@ function LandingPageContent() {
                 </div>
               </div>
 
-              {/* Widget: Noticias */}
-              <div className="md:col-span-1 md:row-span-2 bg-[#1A3D3D] p-8 rounded-[32px] hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] transition-all duration-300 flex flex-col group overflow-hidden border border-white/5 text-left">
+              {/* Widget 2: Servicios Complementarios (Ahora en la antigua posición de Noticias para mantener la grilla Bento) */}
+              <div className="md:col-span-1 md:row-span-2 bg-[#2D6A6A]/5 border border-[#2D6A6A]/10 p-8 rounded-[32px] hover:bg-[#2D6A6A]/10 transition-all duration-300 flex flex-col group overflow-hidden text-left">
                 <div className="flex items-center gap-3 mb-4 text-left">
-                  <Newspaper className="w-6 h-6 text-white" />
-                  <h3 className="text-2xl font-bold font-['Montserrat'] text-white">Noticias</h3>
+                  <Activity className="w-6 h-6 text-[#2D6A6A]" />
+                  <h3 className="text-2xl font-bold font-['Montserrat'] text-[#1A3D3D] leading-tight">Servicios & Terapias</h3>
                 </div>
-                <p className="text-white/70 leading-relaxed font-medium mb-8 text-sm text-left">
-                  Mantenete al día con los avances de la medicina veterinaria en Argentina. Un feed exclusivo para descubrir procedimientos innovadores y celebrar las hazañas de tus colegas.
+                <p className="text-gray-600 leading-relaxed font-medium text-sm text-left mb-8">
+                  Damos visibilidad a profesionales y servicios especializados difíciles de hallar: fisioterapia, terapias holísticas, etología y nutrición natural. Conectamos todo el ecosistema de bienestar.
                 </p>
-                <div className="mt-auto space-y-3 relative z-10 text-left">
-                  <div className="bg-gray-100 p-4 rounded-2xl shadow-lg transform group-hover:-translate-y-1 transition-transform duration-300 text-left">
-                    <div className="flex gap-2 items-center mb-2 text-left">
-                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                      <span className="text-[9px] text-[#2D6A6A] uppercase tracking-widest font-black text-left">Tendencia</span>
-                    </div>
-                    <p className="font-bold text-sm leading-tight text-[#1A3D3D] text-left">Nueva técnica en cirugía de tejidos blandos.</p>
+                <div className="mt-auto flex flex-col gap-3 relative z-10 text-left">
+                  <div className="bg-white p-4 rounded-2xl shadow-sm border border-[#2D6A6A]/10 hover:shadow-md transition-all group-hover:-translate-y-1 transform duration-300 flex justify-between items-center cursor-pointer">
+                    <span className="text-[#2D6A6A] font-bold text-sm">Rehabilitación</span>
+                    <ChevronRight className="w-4 h-4 text-[#2D6A6A]/50" />
                   </div>
-                  <div className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/5 text-left transition-all duration-500">
-                    <p className="font-bold text-sm leading-tight text-white/40 text-left">El Portal llega a los 10k miembros activos.</p>
+                  <div className="bg-white p-4 rounded-2xl shadow-sm border border-[#2D6A6A]/10 hover:shadow-md transition-all group-hover:-translate-y-1 transform duration-300 flex justify-between items-center cursor-pointer delay-75">
+                    <span className="text-[#2D6A6A] font-bold text-sm">Etología Clínica</span>
+                    <ChevronRight className="w-4 h-4 text-[#2D6A6A]/50" />
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl shadow-sm border border-[#2D6A6A]/10 hover:shadow-md transition-all group-hover:-translate-y-1 transform duration-300 flex justify-between items-center cursor-pointer delay-150">
+                    <span className="text-[#2D6A6A] font-bold text-sm">Fisioterapia</span>
+                    <ChevronRight className="w-4 h-4 text-[#2D6A6A]/50" />
                   </div>
                 </div>
               </div>
 
-              {/* Widget: Cursos */}
+              {/* Widget 3: Cursos */}
               <div className="md:col-span-1 bg-white border border-gray-100 p-8 rounded-[32px] hover:shadow-[0_20px_40px_rgba(26,61,61,0.06)] transition-all duration-300 group text-left">
                 <div className="flex items-center gap-3 mb-4 text-left">
                   <BookOpen className="w-6 h-6 text-[#2D6A6A]" />
@@ -689,7 +696,7 @@ function LandingPageContent() {
                 </p>
               </div>
 
-              {/* Widget: Insumos */}
+              {/* Widget 4: Insumos */}
               <div className="md:col-span-1 bg-white border border-gray-100 p-8 rounded-[32px] hover:shadow-[0_20px_40px_rgba(26,61,61,0.06)] transition-all duration-300 group text-left">
                 <div className="flex items-center gap-3 mb-4 text-left">
                   <Package className="w-6 h-6 text-[#2D6A6A]" />
@@ -709,7 +716,7 @@ function LandingPageContent() {
                 </p>
               </div>
 
-              {/* Widget: Grandes Animales */}
+              {/* Widget 5: Grandes Animales */}
               <div className="md:col-span-1 bg-[#1A3D3D] border border-white/5 p-8 rounded-[32px] hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] transition-all duration-300 group flex flex-col justify-between text-left">
                 <div className="text-left">
                   <div className="flex items-center gap-3 mb-4 text-left">
@@ -726,21 +733,29 @@ function LandingPageContent() {
                 </div>
               </div>
 
-              {/* Widget: Servicios Complementarios */}
-              <div className="md:col-span-2 bg-[#2D6A6A]/5 border border-[#2D6A6A]/10 p-8 md:p-10 rounded-[32px] hover:bg-[#2D6A6A]/10 transition-all duration-300 flex flex-col md:flex-row gap-8 items-center text-left">
+              {/* Widget 6: Noticias (Ahora horizontal en la antigua posición de Servicios para mantener la grilla Bento) */}
+              <div className="md:col-span-2 bg-[#1A3D3D] p-8 md:p-10 rounded-[32px] hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] transition-all duration-300 flex flex-col md:flex-row gap-8 items-center border border-white/5 text-left overflow-hidden group">
                 <div className="flex-1 text-left">
-                  <div className="flex items-center gap-4 mb-4 text-left">
-                    <Activity className="w-6 h-6 text-[#2D6A6A]" />
-                    <h3 className="text-2xl font-bold font-['Montserrat'] text-[#1A3D3D]">Servicios & terapias complementarias</h3>
+                  <div className="flex items-center gap-3 mb-4 text-left">
+                    <Newspaper className="w-6 h-6 text-white" />
+                    <h3 className="text-2xl font-bold font-['Montserrat'] text-white">Noticias</h3>
                   </div>
-                  <p className="text-gray-600 leading-relaxed font-medium text-sm text-left">
-                    Damos visibilidad a esos profesionales y servicios especializados difíciles de hallar: fisioterapia, terapias holísticas, etología clínica, rehabilitación y nutrición natural. Conectamos todo el ecosistema de bienestar.
+                  <p className="text-white/70 leading-relaxed font-medium text-sm text-left">
+                    Mantenete al día con los avances de la medicina veterinaria en Argentina. Un feed exclusivo para descubrir procedimientos innovadores y celebrar las hazañas de tus colegas.
                   </p>
                 </div>
-                <div className="w-full md:w-auto flex flex-wrap md:flex-col gap-3 text-left">
-                  <span className="bg-white text-[#2D6A6A] px-4 py-2 rounded-xl text-xs font-bold border border-[#2D6A6A]/20 hover:bg-[#2D6A6A] hover:text-white transition-colors cursor-pointer shadow-sm text-center">Rehabilitación</span>
-                  <span className="bg-white text-[#2D6A6A] px-4 py-2 rounded-xl text-xs font-bold border border-[#2D6A6A]/20 hover:bg-[#2D6A6A] hover:text-white transition-colors cursor-pointer shadow-sm text-center">Etología</span>
-                  <span className="bg-white text-[#2D6A6A] px-4 py-2 rounded-xl text-xs font-bold border border-[#2D6A6A]/20 hover:bg-[#2D6A6A] hover:text-white transition-colors cursor-pointer shadow-sm text-center">Fisioterapia</span>
+                <div className="w-full md:w-[50%] flex flex-col gap-4 relative z-10 text-left mt-2 md:mt-0">
+                  <div className="bg-white p-5 rounded-2xl shadow-lg transform group-hover:-translate-y-1 transition-transform duration-300 text-left w-full">
+                    <div className="flex gap-2 items-center mb-2 text-left">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                      <span className="text-[10px] text-[#2D6A6A] uppercase tracking-widest font-black text-left">Tendencia</span>
+                    </div>
+                    <p className="font-bold text-[15px] leading-tight text-[#1A3D3D] text-left">Nueva técnica en cirugía de tejidos blandos. Casos de éxito.</p>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/5 text-left transition-all duration-500 w-full flex items-center justify-between cursor-pointer hover:bg-white/20">
+                    <p className="font-medium text-sm leading-tight text-white/80 text-left">El Portal llega a los 10k miembros activos.</p>
+                    <ArrowRight className="w-4 h-4 text-white/40 shrink-0 ml-4" />
+                  </div>
                 </div>
               </div>
 

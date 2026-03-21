@@ -8,7 +8,7 @@ import {
   Menu, X, Edit, LayoutGrid, User, Sparkles, Briefcase as BriefcaseIcon,
   ChevronLeft
 } from 'lucide-react';
- 
+
 // ==========================================
 // DATOS DEL PERFIL
 // ==========================================
@@ -49,8 +49,8 @@ const data = {
   ]
 };
 
-function Perfil() {
-  const [activeTab, setActiveTab] = useState('perfil'); // Estado para la versión móvil
+function App() {
+  const [activeTab, setActiveTab] = useState('perfil');
   const [mostrarTodosLogros, setMostrarTodosLogros] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -68,20 +68,18 @@ function Perfil() {
     link.rel = 'stylesheet';
     document.head.appendChild(link);
 
-    // Inyectar Favicon (Escudo Verde)
     const favicon = document.createElement('link');
     favicon.rel = 'icon';
     favicon.href = "data:image/svg+xml,%3Csvg viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 18 85 V 45 A 32 32 0 0 1 82 45 V 85' stroke='%231A3D3D' stroke-width='12' stroke-linecap='round' fill='none'/%3E%3Cpath d='M 38 85 V 55 A 12 12 0 0 1 62 55 V 85' stroke='%232D6A6A' stroke-width='12' stroke-linecap='round' fill='none'/%3E%3C/svg%3E";
     document.head.appendChild(favicon);
 
-    // Inyectar Estilos de Animación para Scroll Spy
     const style = document.createElement('style');
     style.innerHTML = `
       .group.active-mobile { transition-duration: 0.5s; }
+      html, body { overflow-x: hidden; width: 100%; position: relative; }
     `;
     document.head.appendChild(style);
 
-    // Observer para "Hover en Móvil" (Scroll Spy) para la versión Desktop
     const mobileHoverObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) entry.target.classList.add('active-mobile');
@@ -92,19 +90,19 @@ function Perfil() {
     setTimeout(() => document.querySelectorAll('.group').forEach(el => mobileHoverObserver.observe(el)), 500);
 
     return () => {
-      document.head.removeChild(link);
-      document.head.removeChild(favicon);
-      document.head.removeChild(style);
+      if (document.head.contains(link)) document.head.removeChild(link);
+      if (document.head.contains(favicon)) document.head.removeChild(favicon);
+      if (document.head.contains(style)) document.head.removeChild(style);
     };
   }, []);
 
   return (
-    <div className="font-['Inter'] antialiased min-h-screen flex justify-center bg-gray-200 md:bg-[#F4F7F7]">
+    <div className="font-['Inter'] antialiased min-h-screen flex justify-center bg-gray-200 md:bg-[#F4F7F7] overflow-x-hidden w-full">
       
       {/* =========================================================================
           VERSIÓN MÓVIL (APP STYLE) - Solo visible en pantallas pequeñas (md:hidden)
           ========================================================================= */}
-      <div className="w-full max-w-[412px] bg-[#F4F7F7] min-h-screen relative shadow-2xl flex flex-col md:hidden shrink-0">
+      <div className="w-full max-w-[412px] bg-[#F4F7F7] min-h-screen relative shadow-2xl flex flex-col md:hidden shrink-0 overflow-x-hidden">
         
         {/* NAVBAR FIJO */}
         <nav className="sticky top-0 z-50 h-[60px] bg-white/95 backdrop-blur-md border-b border-gray-100 flex items-center px-5 justify-between shrink-0">
@@ -151,8 +149,6 @@ function Perfil() {
 
         {/* CONTENIDO PRINCIPAL MÓVIL */}
         <div className="p-4 flex-1">
-          
-          {/* TAB 1: PERFIL */}
           {activeTab === 'perfil' && (
             <div className="space-y-5">
               <div className="bg-white p-6 rounded-[28px] shadow-sm border border-gray-50 text-center">
@@ -190,7 +186,6 @@ function Perfil() {
             </div>
           )}
 
-          {/* TAB 2: ESPECIALIDAD */}
           {activeTab === 'especialidad' && (
             <div className="space-y-8">
               <div>
@@ -243,7 +238,6 @@ function Perfil() {
             </div>
           )}
 
-          {/* TAB 3: CASOS CLÍNICOS */}
           {activeTab === 'casos' && (
             <div className="space-y-4">
               {data.casos.map((c) => (
@@ -279,7 +273,7 @@ function Perfil() {
         </div>
 
         {/* FOOTER MÓVIL */}
-        <footer className="w-full bg-[#1A3D3D] pt-12 pb-8 px-8 text-left shrink-0">
+        <footer className="w-full bg-[#1A3D3D] pt-12 pb-8 px-8 text-left shrink-0 overflow-x-hidden">
           <div className="mb-10">
             <div className="text-white font-['Montserrat'] font-extrabold text-[26px] tracking-tight mb-5 leading-none cursor-pointer" onClick={() => navigate('/')}>
               El Portal<span className="text-[#3b7979]">.</span>
@@ -377,9 +371,12 @@ function Perfil() {
                           <button onClick={() => { navigate('/inicio'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Home className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Inicio</span></button>
                           <button onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Info className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Entrada</span></button>
                           <button onClick={() => { navigate('/perfil'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><User className="w-4 h-4 text-[#2D6A6A]" /><span className="text-sm font-bold text-[#1A3D3D]">Mi Perfil Público</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                          <button onClick={() => { navigate('/ecosistema'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Repertorio Clínico</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                          
+                          {/* SECCIÓN INTERCAMBIADA: NOTICIAS PRIMERO, SERVICIOS (ÚLTIMA CAJITA) */}
                           <button onClick={() => { navigate('/novedades'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Sparkles className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Novedades</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                           <button onClick={() => { navigate('/bolsa-de-trabajo'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><BriefcaseIcon className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Bolsa de Trabajo</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                          <button onClick={() => { navigate('/ecosistema'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Repertorio Clínico</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                          
                           <button onClick={() => { navigate('/editor'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Ir al Editor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                         </div>
                       </div>
@@ -387,7 +384,6 @@ function Perfil() {
                   )}
                 </div>
               </div>
-
           </div>
         </nav>
 
@@ -640,9 +636,10 @@ function Perfil() {
               <div>
                 <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Ecosistema</h4>
                 <ul className="space-y-4 text-white/40 text-sm">
-                  <li><button onClick={() => navigate('/ecosistema')} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
-                  <li><button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
+                  {/* SECCIÓN INTERCAMBIADA: NOVEDADES PRIMERO, REPERTORIO (SERVICIOS) ÚLTIMO */}
                   <li><button onClick={() => navigate('/novedades')} className="hover:text-white transition-colors">Novedades</button></li>
+                  <li><button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
+                  <li><button onClick={() => navigate('/ecosistema')} className="hover:text-white transition-colors">Repertorio Clínico</button></li>
                 </ul>
               </div>
 
@@ -674,4 +671,4 @@ function Perfil() {
   );
 }
 
-export default Perfil;
+export default App;
