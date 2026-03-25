@@ -6,7 +6,8 @@ import {
   Star, Search, Building2, ShieldCheck, ArrowUpRight, Sparkles,
   Award, Bell, Facebook, Instagram, Linkedin, Mail, Calendar, Heart,
   Building, Truck, Home, User, Edit, LayoutGrid, MapPin, Activity, ArrowRight,
-  Chrome, Eye, EyeOff, Lock, Filter, Stethoscope, Info
+  Chrome, Eye, EyeOff, Lock, Filter, Stethoscope, Info, Tag, ShoppingCart,
+  CheckCircle2, PlusCircle
 } from 'lucide-react';
 
 // ==========================================
@@ -14,42 +15,42 @@ import {
 // ==========================================
 const ZigZagSection = ({ title, subtitle, text, image, isReversed, icon: Icon, bgClass = "bg-white", badge, isDark = false, mobileMockup }) => {
   return (
-    <section className={`py-12 md:py-32 overflow-hidden ${bgClass} reveal-on-scroll`}>
+    <section className={`py-12 md:py-20 overflow-hidden ${bgClass}`}>
       <div className="max-w-[1100px] mx-auto px-8 md:px-10">
-        <div className={`flex flex-col gap-8 lg:gap-20 items-center ${isReversed ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}>
+        <div className={`flex flex-col gap-8 lg:gap-16 items-center ${isReversed ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}>
           
           <div className="flex-1 flex flex-col items-start text-left">
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm ${isDark ? 'bg-white/10 text-white' : 'bg-[#2D6A6A]/10 text-[#2D6A6A]'}`}>
-              <Icon className="w-7 h-7" />
+            <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center mb-5 md:mb-6 shadow-sm ${isDark ? 'bg-white/10 text-white' : 'bg-[#2D6A6A]/10 text-[#2D6A6A]'}`}>
+              <Icon className="w-5 h-5 md:w-6 md:h-6" />
             </div>
-            <h3 className={`${isDark ? 'text-white/60' : 'text-[#2D6A6A]'} font-bold text-[11px] uppercase tracking-[0.2em] mb-3`}>{subtitle}</h3>
-            <h2 className={`text-3xl md:text-5xl font-black mb-6 tracking-tighter font-['Montserrat'] leading-[1.1] ${isDark ? 'text-white' : 'text-[#1A3D3D]'}`}>
+            <h3 className={`${isDark ? 'text-white/60' : 'text-[#2D6A6A]'} font-bold text-[10px] md:text-[11px] uppercase tracking-[0.2em] mb-3`}>{subtitle}</h3>
+            <h2 className={`text-3xl md:text-4xl lg:text-5xl font-black mb-5 tracking-tighter font-['Montserrat'] leading-[1.1] ${isDark ? 'text-white' : 'text-[#1A3D3D]'}`}>
               {title}
             </h2>
-            <p className={`${isDark ? 'text-white/70' : 'text-gray-600'} text-base md:text-lg leading-relaxed font-medium`}>
+            <p className={`${isDark ? 'text-white/70' : 'text-gray-600'} text-[15px] md:text-base leading-relaxed font-medium`}>
               {text}
             </p>
           </div>
 
           <div className="flex-1 w-full relative group mt-4 lg:mt-0 flex justify-center">
-            {/* --- IMAGEN (Oculta en móviles si hay mockup móvil) --- */}
+            {/* --- IMAGEN --- */}
             <div className={`relative w-full ${mobileMockup ? 'hidden md:block' : 'block'}`}>
-              <div className={`absolute inset-0 bg-gradient-to-tr rounded-[40px] transform group-hover:scale-105 transition-transform duration-700 ${isDark ? 'from-black/40' : 'from-[#1A3D3D]/20'} to-transparent`}></div>
+              <div className={`absolute inset-0 bg-gradient-to-tr rounded-[32px] md:rounded-[40px] transform group-hover:scale-105 transition-transform duration-700 ${isDark ? 'from-black/40' : 'from-[#1A3D3D]/20'} to-transparent`}></div>
               <img 
                 src={image} 
                 alt={title} 
-                className="w-full h-[400px] md:h-[500px] object-cover rounded-[40px] shadow-2xl transform group-hover:-translate-y-2 transition-transform duration-700 relative z-10"
+                className="w-full h-[320px] md:h-[380px] object-cover rounded-[32px] md:rounded-[40px] shadow-2xl transform group-hover:-translate-y-2 transition-transform duration-700 relative z-10"
               />
               {badge && (
-                <div className={`absolute ${isReversed ? '-left-6 md:-left-12' : '-right-6 md:-right-12'} -bottom-8 z-20 animate-float-delayed`}>
+                <div className={`absolute ${isReversed ? '-left-4 md:-left-8' : '-right-4 md:-right-8'} -bottom-6 z-20 animate-float-delayed`}>
                   {badge}
                 </div>
               )}
             </div>
 
-            {/* --- MOCKUP (Solo visible en móviles) --- */}
+            {/* --- MOCKUP MÓVIL --- */}
             {mobileMockup && (
-              <div className="block md:hidden w-full max-w-[400px]">
+              <div className="block md:hidden w-full max-w-[360px]">
                 {mobileMockup}
               </div>
             )}
@@ -84,17 +85,17 @@ const TypewriterTitle = () => {
   const displayedText2 = charIndex > text1.length ? text2.slice(0, charIndex - text1.length) : "";
   
   return (
-    <h1 className="text-5xl md:text-6xl lg:text-[64px] font-black text-[#1A3D3D] leading-[1.05] mb-6 tracking-tighter font-['Montserrat'] min-h-[110px] md:min-h-[140px]">
+    <h1 className="text-[42px] sm:text-[46px] md:text-[52px] lg:text-[69px] font-black text-[#1A3D3D] leading-[1.05] mb-4 tracking-tighter font-['Montserrat'] min-h-[100px] md:min-h-[125px]">
       {displayedText1}
       {charIndex <= text1.length && (
-        <span className="inline-block w-[4px] h-[0.9em] bg-[#1A3D3D] animate-pulse ml-1 align-baseline -mb-1"></span>
+        <span className="inline-block w-[3px] h-[0.9em] bg-[#1A3D3D] animate-pulse ml-1 align-baseline -mb-1"></span>
       )}
       <br />
       <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1A3D3D] to-[#2D6A6A]">
         {displayedText2}
       </span>
       {charIndex > text1.length && (
-        <span className="inline-block w-[4px] h-[0.9em] bg-[#2D6A6A] animate-pulse ml-1 align-baseline -mb-1"></span>
+        <span className="inline-block w-[3px] h-[0.9em] bg-[#2D6A6A] animate-pulse ml-1 align-baseline -mb-1"></span>
       )}
     </h1>
   );
@@ -108,6 +109,8 @@ function LandingPageContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [showCookieBanner, setShowCookieBanner] = useState(true);
   const [isFormExpanded, setIsFormExpanded] = useState(false);
+  const [activeRole, setActiveRole] = useState('profesional');
+  const [isFooterVisible, setIsFooterVisible] = useState(false);
   const navigate = useNavigate();
   const footerRef = useRef(null);
 
@@ -119,19 +122,17 @@ function LandingPageContent() {
 
     const style = document.createElement('style');
     style.innerHTML = `
-      .reveal-on-scroll { opacity: 0; transform: translateY(60px); transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
-      .reveal-on-scroll.in-view { opacity: 1; transform: translateY(0); }
       @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-20px); }
-      }
-      @keyframes float-delayed {
         0%, 100% { transform: translateY(0px); }
         50% { transform: translateY(-15px); }
       }
-      @keyframes float-fast {
+      @keyframes float-delayed {
         0%, 100% { transform: translateY(0px); }
         50% { transform: translateY(-10px); }
+      }
+      @keyframes float-fast {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
       }
       .animate-float { animation: float 6s ease-in-out infinite; }
       .animate-float-delayed { animation: float-delayed 8s ease-in-out infinite; animation-delay: 2s; }
@@ -145,20 +146,22 @@ function LandingPageContent() {
     `;
     document.head.appendChild(style);
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in-view');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.15, rootMargin: "0px 0px -50px 0px" });
+    // Lógica para que las cookies no "pisen" el footer
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFooterVisible(entry.isIntersecting);
+      },
+      { threshold: 0.5 } 
+    );
 
-    setTimeout(() => document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el)), 500);
+    if (footerRef.current) {
+      observer.observe(footerRef.current);
+    }
 
     return () => {
       document.head.removeChild(link);
       document.head.removeChild(style);
+      if (footerRef.current) observer.unobserve(footerRef.current);
     };
   }, []);
 
@@ -185,6 +188,12 @@ function LandingPageContent() {
     navigate(path);
   };
 
+  const getRoleSubtext = () => {
+    if (activeRole === 'clinica') return "Mostrá tu infraestructura y recibí derivaciones.";
+    if (activeRole === 'proveedor') return "Conectá tu catálogo directo con los profesionales.";
+    return "Únete a la red profesional de Argentina.";
+  };
+
   return (
     <div className="min-h-screen bg-[#F4F7F7] font-['Inter'] text-[#333333] overflow-x-hidden relative selection:bg-[#2D6A6A] selection:text-white antialiased">
       
@@ -193,13 +202,13 @@ function LandingPageContent() {
       </div>
 
       {/* NAVBAR */}
-      <nav className="fixed top-0 left-0 w-full z-[100] h-[80px] bg-white/90 backdrop-blur-lg border-b border-gray-100 flex items-center px-8 md:px-10">
+      <nav className="fixed top-0 left-0 w-full z-[100] h-[72px] bg-white/90 backdrop-blur-lg border-b border-gray-100 flex items-center px-8 md:px-10">
         <div className="max-w-[1100px] mx-auto w-full flex justify-between items-center">
             <div className="text-[#1A3D3D] font-['Montserrat'] font-extrabold text-2xl tracking-tighter cursor-pointer" onClick={() => handleNav('landing')}>
                 El Portal<span className="text-[#2D6A6A]">.</span>
             </div>
 
-            <div className="hidden lg:flex items-center gap-10 text-gray-500 font-medium text-[13px] uppercase tracking-wider">
+            <div className="hidden lg:flex items-center gap-8 text-gray-500 font-medium text-[12px] uppercase tracking-wider">
                 <a href="#historia" className="hover:text-[#2D6A6A] transition-colors">¿Por qué unirte?</a>
                 <a href="#ecosistema" className="hover:text-[#2D6A6A] transition-colors">Ecosistema</a>
             </div>
@@ -207,34 +216,34 @@ function LandingPageContent() {
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => handleNav('editor')}
-                className="hidden md:block bg-[#1A3D3D] text-white rounded-full px-8 py-3 font-semibold shadow-lg hover:bg-[#2D6A6A] transition-all hover:-translate-y-0.5"
+                className="hidden md:block bg-[#1A3D3D] text-white rounded-full px-7 py-2.5 text-[13px] font-semibold shadow-lg hover:bg-[#2D6A6A] transition-all hover:-translate-y-0.5"
               >
                 Crear mi perfil
               </button>
 
               <div className="relative">
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-12 h-12 bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center text-[#1A3D3D] hover:bg-[#F4F7F7] transition-all active:scale-95">
-                  {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-10 h-10 md:w-11 md:h-11 bg-white rounded-xl border border-gray-100 shadow-sm flex items-center justify-center text-[#1A3D3D] hover:bg-[#F4F7F7] transition-all active:scale-95">
+                  {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </button>
                 {isMenuOpen && (
                   <>
                     <div className="fixed inset-0 z-[-1]" onClick={() => setIsMenuOpen(false)}></div>
-                    <div className="absolute right-0 mt-4 w-64 bg-white rounded-[32px] shadow-[0_20px_50px_rgba(26,61,61,0.15)] border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
+                      <div className="absolute right-0 mt-3 w-64 bg-white rounded-[24px] shadow-[0_20px_50px_rgba(26,61,61,0.15)] border border-gray-100 overflow-y-auto max-h-[80vh] animate-in fade-in slide-in-from-top-4 duration-300">
                       <div className="p-3">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 text-left">Navegación</p>
-                        <button onClick={() => handleNav('inicio')} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Home className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Inicio</span></button>
-                        <button onClick={() => handleNav('landing')} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Info className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Entrada</span></button>
-                        <button onClick={() => handleNav('ecosistema')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Repertorio Clínico</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                        <button onClick={() => handleNav('novedades')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Sparkles className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Novedades</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                        <button onClick={() => handleNav('bolsa-de-trabajo')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Briefcase className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Bolsa de Trabajo</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        <button onClick={() => handleNav('inicio')} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#F4F7F7] rounded-xl transition-colors group"><Home className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Inicio</span></button>
+                        <button onClick={() => handleNav('landing')} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#F4F7F7] rounded-xl transition-colors group"><Info className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Entrada</span></button>
+                        <button onClick={() => handleNav('ecosistema')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F7F7] rounded-xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Repertorio Clínico</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        <button onClick={() => handleNav('novedades')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F7F7] rounded-xl transition-colors group"><div className="flex items-center gap-3"><Sparkles className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Novedades</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        <button onClick={() => handleNav('bolsa-de-trabajo')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F7F7] rounded-xl transition-colors group"><div className="flex items-center gap-3"><Briefcase className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Bolsa de Trabajo</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                         
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 mt-2 text-left">Perfiles</p>
-                        <button onClick={() => handleNav('perfil-clinica')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Building className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Perfil Clínica</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                        <button onClick={() => handleNav('perfil-proveedor')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Truck className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Perfil Proveedor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        <button onClick={() => handleNav('perfil-clinica')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F7F7] rounded-xl transition-colors group"><div className="flex items-center gap-3"><Building className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Perfil Clínica</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        <button onClick={() => handleNav('perfil-proveedor')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F7F7] rounded-xl transition-colors group"><div className="flex items-center gap-3"><Truck className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Perfil Proveedor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                         
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 mt-2 text-left">Editores</p>
-                        <button onClick={() => handleNav('editor-clinica')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Clínica</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                        <button onClick={() => handleNav('editor-insumos')} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Insumos</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        <button onClick={() => handleNav('editor-clinica')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F7F7] rounded-xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Clínica</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        <button onClick={() => handleNav('editor-insumos')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F7F7] rounded-xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Insumos</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                       </div>
                     </div>
                   </>
@@ -251,94 +260,130 @@ function LandingPageContent() {
           <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
             <div className="absolute inset-0 bg-white"></div>
             <div className="absolute top-[-1%] right-[-25%] w-[70vw] h-[70vw] bg-[#2D6A6A]/[0.15] rounded-full blur-[100px] mix-blend-multiply md:hidden"></div>
-            
             <div className="absolute bottom-[-30%] right-[-20%] w-[100vw] md:w-[60vw] h-[100vw] md:h-[60vw] bg-[#1A3D3D]/[0.23] rounded-full blur-[150px] mix-blend-multiply"></div>
             <div className="absolute bottom-[-10%] right-[-10%] w-[80vw] md:w-[45vw] h-[80vw] md:h-[45vw] bg-[#2D6A6A]/[0.23] rounded-full blur-[120px] mix-blend-multiply"></div>
             <div className="absolute bottom-[10%] right-[10%] w-[70vw] md:w-[40vw] h-[70vw] md:h-[40vw] bg-[#4DB6AC]/[0.23] rounded-full blur-[130px] mix-blend-multiply opacity-80"></div>
           </div>
 
-          <div className="relative z-10 w-full pt-[110px] pb-10 md:pt-[150px] md:pb-24">
-            <div className="max-w-[1100px] mx-auto px-8 md:px-10 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start reveal-on-scroll">
+          <div className="relative z-10 w-full pt-[96px] pb-10 md:pt-[100px] md:pb-12">
+            <div className="max-w-[1100px] mx-auto px-8 md:px-10 grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-12 items-center">
               
               {/* LADO IZQUIERDO: CONTENIDO */}
-              <div className="flex flex-col items-start text-left lg:pt-8">
-                <div className="mb-6 md:mb-8 inline-flex items-center gap-2 bg-white/80 backdrop-blur-md border border-gray-200/50 px-5 py-2.5 rounded-full shadow-sm">
-                  <span className="flex h-2.5 w-2.5 rounded-full bg-[#2D6A6A] animate-pulse"></span>
-                  <span className="text-[#1A3D3D] font-bold text-[11px] uppercase tracking-[0.2em] leading-none">Red exclusiva de veterinarixs argentinxs</span>
+              <div className="flex flex-col items-start text-left lg:pt-2">
+                <div className="mb-4 inline-flex items-center gap-2 bg-white/80 backdrop-blur-md border border-gray-200/50 px-3 py-1.5 rounded-full shadow-sm">
+                  <span className="flex h-2 w-2 rounded-full bg-[#2D6A6A] animate-pulse"></span>
+                  <span className="text-[#1A3D3D] font-bold text-[10px] md:text-[10px] uppercase tracking-[0.2em] leading-none">Red exclusiva de veterinarixs argentinxs</span>
                 </div>
 
                 <TypewriterTitle />
                 
-                <p className="text-base md:text-lg lg:text-xl text-gray-600 font-medium leading-relaxed mb-8 max-w-[550px]">
+                <p className="text-[15px] md:text-[15px] lg:text-[17px] text-gray-600 font-medium leading-relaxed mb-2 lg:mb-6 max-w-[500px]">
                   Tu perfil profesional, siempre vigente. Que clínicas y colegas te encuentren por tu talento, sin la presión de crear contenido diario.
                 </p>
+
+                <div className="hidden lg:flex items-center gap-3 text-[10px] md:text-[11px] font-bold text-[#2D6A6A] uppercase tracking-widest cursor-pointer group">
+                  <a href="#ecosistema-completo" className="flex items-center gap-2 group-hover:text-[#1A3D3D] transition-colors">
+                    Conocer más sobre Clínicas y Empresas <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                </div>
               </div>
 
-              {/* LADO DERECHO: FORMULARIO DE REGISTRO CON LÓGICA DE EXPANSIÓN */}
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#2D6A6A]/20 to-transparent rounded-[44px] blur-xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
-                <div className="relative bg-white/95 backdrop-blur-xl border border-white/5 rounded-[44px] p-8 md:p-10 shadow-[0_40px_80px_rgba(26,61,61,0.1)] flex flex-col items-center">
+              {/* LADO DERECHO: FORMULARIO DE REGISTRO */}
+              <div className="relative group max-w-[420px] mx-auto w-full">
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#2D6A6A]/20 to-transparent rounded-[32px] blur-xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
+                <div className="relative bg-white/95 backdrop-blur-xl border border-white/5 rounded-[32px] p-6 md:px-8 md:py-7 shadow-[0_30px_60px_rgba(26,61,61,0.08)] flex flex-col items-center">
                   
-                  <h2 className="text-2xl font-black text-[#1A3D3D] mb-2 font-['Montserrat'] text-center">Crea tu cuenta, es gratis.</h2>
-                  <p className="text-gray-400 text-sm font-medium mb-6 text-center">Únete a la red profesional de Argentina.</p>
+                  <h2 className="text-[22px] md:text-[22px] font-black text-[#1A3D3D] mb-1 font-['Montserrat'] text-center leading-tight">Crea tu cuenta, es gratis.</h2>
+                  <p className="text-gray-400 text-[13px] md:text-[13px] font-medium mb-4 text-center transition-all duration-300">{getRoleSubtext()}</p>
 
-                  {/* Botón inicial (Solo se muestra en móvil cuando el form NO está expandido) */}
+                  {/* Selector de Perfil */}
+                  <div className="w-full bg-[#F4F7F7] p-1 rounded-[14px] flex items-center mb-4 border border-gray-100">
+                    <button 
+                      onClick={() => setActiveRole('profesional')}
+                      className={`flex-1 py-1.5 text-[10px] md:text-[10px] font-bold uppercase tracking-wider rounded-xl transition-all ${activeRole === 'profesional' ? 'bg-white text-[#1A3D3D] shadow-sm' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+                    >
+                      <User className="w-3 h-3 inline-block mr-1 -mt-0.5" /> Profesional
+                    </button>
+                    <button 
+                      onClick={() => setActiveRole('clinica')}
+                      className={`flex-1 py-1.5 text-[10px] md:text-[10px] font-bold uppercase tracking-wider rounded-xl transition-all ${activeRole === 'clinica' ? 'bg-white text-[#1A3D3D] shadow-sm' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+                    >
+                      <Building2 className="w-3 h-3 inline-block mr-1 -mt-0.5" /> Clínica
+                    </button>
+                    <button 
+                      onClick={() => setActiveRole('proveedor')}
+                      className={`flex-1 py-1.5 text-[10px] md:text-[10px] font-bold uppercase tracking-wider rounded-xl transition-all ${activeRole === 'proveedor' ? 'bg-white text-[#1A3D3D] shadow-sm' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+                    >
+                      <Package className="w-3 h-3 inline-block mr-1 -mt-0.5" /> Empresa
+                    </button>
+                  </div>
+
                   {!isFormExpanded && (
                     <button 
                       onClick={() => setIsFormExpanded(true)}
-                      className="md:hidden w-full bg-[#2D6A6A] text-white py-4 rounded-[24px] font-black uppercase tracking-[0.2em] text-xs shadow-xl hover:bg-[#1A3D3D] active:scale-95 transition-all flex items-center justify-center gap-3 mt-2"
+                      className="md:hidden w-full bg-[#2D6A6A] text-white py-3 rounded-xl font-black uppercase tracking-[0.2em] text-[12px] shadow-lg hover:bg-[#1A3D3D] active:scale-95 transition-all flex items-center justify-center gap-2 mt-1"
                     >
-                      Crear mi cuenta <ChevronRight className="w-5 h-5" />
+                      Continuar registro <ChevronRight className="w-4 h-4" />
                     </button>
                   )}
 
-                  {/* Contenedor del formulario completo (Desplegable en móvil, siempre visible en escritorio) */}
                   <div className={`w-full grid transition-all duration-500 ease-in-out ${isFormExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 md:grid-rows-[1fr] md:opacity-100'}`}>
                     <div className="overflow-hidden w-full flex flex-col items-center">
-                      <div className="w-full pt-2">
-                        <button className="flex items-center justify-center gap-3 w-full border border-gray-200 py-4 rounded-2xl hover:bg-gray-50 transition-all font-bold text-sm text-gray-700 mb-6 bg-white">
-                            <Chrome className="w-5 h-5 text-red-500" /> Continuar con Google
+                      <div className="w-full pt-1">
+                        
+                        <button className="flex items-center justify-center gap-2.5 w-full border border-gray-200 py-2.5 rounded-[12px] hover:bg-gray-50 transition-all font-bold text-[14px] text-gray-700 mb-4 bg-white">
+                            <Chrome className="w-4 h-4 text-red-500" /> Continuar con Google
                         </button>
 
-                        <div className="flex items-center gap-4 w-full mb-6 text-gray-300">
+                        <div className="flex items-center gap-3 w-full mb-4 text-gray-300">
                           <div className="h-px bg-gray-200 flex-1"></div>
-                          <span className="text-[10px] font-bold uppercase tracking-widest">o con tu email</span>
+                          <span className="text-[9px] font-bold uppercase tracking-widest">o con tu email</span>
                           <div className="h-px bg-gray-200 flex-1"></div>
                         </div>
 
-                        <div className="w-full space-y-4 mb-8">
+                        <div className="w-full space-y-2.5 mb-5">
                           <div className="relative">
-                            <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input type="text" placeholder="Tu nombre completo" className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 focus:border-[#2D6A6A] focus:ring-4 focus:ring-[#2D6A6A]/5 outline-none font-medium text-sm transition-all bg-[#F9FBFA]" />
+                            <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input 
+                              type="text" 
+                              placeholder={activeRole === 'profesional' ? "Tu nombre completo" : "Nombre de la institución/empresa"} 
+                              className="w-full pl-10 pr-4 py-2.5 rounded-[12px] border border-gray-100 focus:border-[#2D6A6A] focus:ring-4 focus:ring-[#2D6A6A]/5 outline-none font-medium text-[14px] transition-all bg-[#F9FBFA]" 
+                            />
                           </div>
                           <div className="relative">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input type="email" placeholder="Tu email profesional" className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 focus:border-[#2D6A6A] focus:ring-4 focus:ring-[#2D6A6A]/5 outline-none font-medium text-sm transition-all bg-[#F9FBFA]" />
+                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input 
+                              type="email" 
+                              placeholder={activeRole === 'profesional' ? "Tu email profesional" : "Email de contacto"} 
+                              className="w-full pl-10 pr-4 py-2.5 rounded-[12px] border border-gray-100 focus:border-[#2D6A6A] focus:ring-4 focus:ring-[#2D6A6A]/5 outline-none font-medium text-[14px] transition-all bg-[#F9FBFA]" 
+                            />
                           </div>
                           <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input 
                               type={showPassword ? "text" : "password"} 
                               placeholder="Crea una contraseña" 
-                              className="w-full pl-12 pr-12 py-4 rounded-2xl border border-gray-100 focus:border-[#2D6A6A] focus:ring-4 focus:ring-[#2D6A6A]/5 outline-none font-medium text-sm transition-all bg-[#F9FBFA]" 
+                              className="w-full pl-10 pr-10 py-2.5 rounded-[12px] border border-gray-100 focus:border-[#2D6A6A] focus:ring-4 focus:ring-[#2D6A6A]/5 outline-none font-medium text-[14px] transition-all bg-[#F9FBFA]" 
                             />
                             <button 
                               type="button"
                               onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#2D6A6A] transition-colors"
+                              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#2D6A6A] transition-colors"
                             >
                               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </button>
                           </div>
                         </div>
 
-                        <button onClick={() => handleNav('editor')} className="w-full bg-[#2D6A6A] text-white py-5 rounded-[24px] font-black uppercase tracking-[0.2em] text-xs shadow-2xl hover:bg-[#1A3D3D] hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3">
-                          Crear mi cuenta <ChevronRight className="w-5 h-5" />
+                        <button 
+                          onClick={() => handleNav(activeRole === 'profesional' ? 'editor' : activeRole === 'clinica' ? 'editor-clinica' : 'editor-insumos')} 
+                          className="w-full bg-[#2D6A6A] text-white py-3 md:py-3.5 rounded-[12px] font-black uppercase tracking-[0.2em] text-[11px] md:text-[11px] shadow-xl hover:bg-[#1A3D3D] hover:-translate-y-0.5 transition-all active:scale-95 flex items-center justify-center gap-2"
+                        >
+                          Crear cuenta de {activeRole} <ChevronRight className="w-4 h-4" />
                         </button>
                         
-                        {/* Pequeño texto legal en el registro */}
-                        <p className="text-gray-400 text-[10px] text-center mt-5 w-full">
-                      Al registrarte, aceptás nuestros <span onClick={() => navigate('/terminos-y-condiciones')} className="underline cursor-pointer hover:text-[#2D6A6A]">Términos</span> y la <span onClick={() => navigate('/politica-de-privacidad')} className="underline cursor-pointer hover:text-[#2D6A6A]">Política de Privacidad</span>.
+                        <p className="text-gray-400 text-[10px] md:text-[10px] text-center mt-3 w-full">
+                          Al registrarte, aceptás nuestros <span onClick={() => navigate('/terminos-y-condiciones')} className="underline cursor-pointer hover:text-[#2D6A6A]">Términos</span> y la <span onClick={() => navigate('/politica-de-privacidad')} className="underline cursor-pointer hover:text-[#2D6A6A]">Política de Privacidad</span>.
                         </p>
                       </div>
                     </div>
@@ -351,138 +396,146 @@ function LandingPageContent() {
           </div>
         </main>
 
-        {/* 1.5 MOCKUPS ÉPICOS (ESTILO LIMPIO Y PLANO) - AHORA OCULTO EN MÓVILES */}
-        <section className="relative w-full bg-white pb-[60px] md:pb-[140px] pt-8 md:pt-16 hidden md:block">
-          <div className="max-w-[1200px] mx-auto px-8 reveal-on-scroll">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-center">
+        {/* 1.5 MOCKUPS ÉPICOS (Solo PC) */}
+        <section className="relative w-full bg-[#F4F7F7] py-12 md:py-12 hidden md:block">
+          <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-white to-transparent"></div>
+          <div className="max-w-[1050px] mx-auto px-8 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
               
-              {/* Tarjeta 1: Buscador Inteligente (Plana, limpia) */}
-              <div className="hidden md:block animate-float-fast">
-                <div className="bg-white border border-gray-100 p-8 rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.06)] relative overflow-hidden flex flex-col gap-6">
+              {/* Tarjeta 1 (Izquierda): CLÍNICAS */}
+              <div className="animate-float-fast h-full">
+                <div className="bg-white border border-gray-100 p-6 md:p-6 rounded-[32px] shadow-[0_15px_30px_rgba(45,106,106,0.05)] h-full relative flex flex-col">
                   
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Filtros de Búsqueda</span>
-                    <Filter className="w-4 h-4 text-gray-300" />
+                  <div className="flex items-center justify-between mb-5">
+                    <span className="text-[10px] font-bold text-[#2D6A6A] uppercase tracking-widest flex items-center gap-2">
+                      <Building2 className="w-3.5 h-3.5" /> Para Clínicas
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <div className="bg-gray-50 border border-gray-100 px-4 py-3 rounded-2xl flex items-center gap-2 flex-1 cursor-pointer hover:bg-gray-100 transition-colors">
-                      <MapPin className="w-4 h-4 text-[#2D6A6A]" />
-                      <span className="text-xs font-bold text-gray-600">Capital Federal</span>
+                  <h3 className="text-lg font-bold text-[#1A3D3D] font-['Montserrat'] leading-tight mb-4">
+                    Buscador de<br/>Derivaciones
+                  </h3>
+
+                  <div className="flex flex-col gap-2.5 mb-5">
+                    <div className="flex items-center gap-2 bg-[#F9FBFA] p-3 rounded-xl border border-gray-200">
+                      <Search className="w-4 h-4 text-gray-400 shrink-0" />
+                      <span className="text-[12px] text-gray-500 font-medium whitespace-nowrap overflow-hidden text-ellipsis">Buscar: "Tomógrafo", "Cardiólogo"...</span>
                     </div>
-                    <div className="bg-gray-50 border border-gray-100 px-4 py-3 rounded-2xl flex items-center gap-2 flex-1 cursor-pointer hover:bg-gray-100 transition-colors">
-                      <Stethoscope className="w-4 h-4 text-[#2D6A6A]" />
-                      <span className="text-xs font-bold text-gray-600">Especialidad</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      <span className="bg-blue-50 text-blue-600 border border-blue-100 text-[9px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><Activity className="w-3 h-3" /> Guardia 24hs</span>
+                      <span className="bg-gray-50 text-gray-600 border border-gray-200 text-[9px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><MapPin className="w-3 h-3" /> GBA Norte</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
-                    <Search className="w-5 h-5 text-gray-400" />
-                    <span className="text-sm text-gray-400 font-medium">Buscar veterinario...</span>
+                  <div className="mt-auto bg-white rounded-xl border border-green-100 shadow-sm overflow-hidden group hover:border-green-200 transition-colors">
+                    <div className="p-3 bg-green-50/50 flex items-start gap-2.5 border-b border-green-100/50">
+                      <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-green-600 shrink-0"><Building className="w-4 h-4" /></div>
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <p className="text-[12px] font-bold text-[#1A3D3D]">Hospital San Marcos</p>
+                          <CheckCircle2 className="w-3 h-3 text-green-500" />
+                        </div>
+                        <p className="text-[9px] text-gray-500 font-medium leading-tight">Equipamiento: Tomógrafo, Quirófano, UTI.</p>
+                      </div>
+                    </div>
+                    <div className="p-2 bg-white">
+                      <button className="w-full bg-white border border-gray-200 text-[#1A3D3D] font-bold py-2 rounded-lg text-[10px] uppercase tracking-widest hover:bg-[#F9FBFA] transition-colors flex items-center justify-center gap-1.5">
+                        Derivar Paciente <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm cursor-pointer hover:-translate-y-1 transition-transform">
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500"><Star className="w-5 h-5" /></div>
-                      <div className="text-left"><p className="text-xs font-bold text-[#1A3D3D]">Neurología Clínica</p><p className="text-[10px] text-gray-400 font-medium">Dr. Pablo Rossi • A 5km</p></div>
-                    </div>
-                    <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm opacity-60 cursor-pointer">
-                      <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-green-500"><Activity className="w-5 h-5" /></div>
-                      <div className="text-left"><p className="text-xs font-bold text-[#1A3D3D]">Oncología</p><p className="text-[10px] text-gray-400 font-medium">Dra. Ana Silva • Derivaciones</p></div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
-              {/* Tarjeta 2: Perfil Central (Limpia y destacada) */}
-              <div className="z-20 animate-float hidden md:block">
-                <div className="bg-white border border-gray-100 rounded-[48px] p-10 shadow-[0_30px_80px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col items-center text-center">
+              {/* Tarjeta 2 (Centro): PROFESIONALES */}
+              <div className="z-20 animate-float h-full">
+                <div className="bg-white border border-gray-100 rounded-[32px] p-6 md:p-6 shadow-[0_15px_30px_rgba(45,106,106,0.05)] h-full relative flex flex-col items-center text-center">
                   
-                  <div className="relative mb-8 mt-2">
-                    <div className="w-36 h-36 rounded-[40px] bg-gray-100 overflow-hidden relative z-10 border border-gray-100 shadow-md">
+                  <div className="w-full flex items-center justify-start mb-5">
+                    <span className="text-[10px] font-bold text-[#2D6A6A] uppercase tracking-widest flex items-center gap-2">
+                      <User className="w-3.5 h-3.5" /> Profesionales
+                    </span>
+                  </div>
+
+                  <div className="relative mb-4">
+                    <div className="w-20 h-20 rounded-[20px] bg-gray-100 overflow-hidden relative z-10 border border-gray-100 shadow-sm mx-auto">
                       <img src="https://images.unsplash.com/photo-1594824436951-7f12bc3ac92e?auto=format&fit=crop&w=300&q=80" alt="Dra. Arenas" className="w-full h-full object-cover" />
                     </div>
-                    <div className="absolute -bottom-4 -right-4 bg-[#789A9A] p-3 rounded-2xl border-4 border-white shadow-lg text-white z-20">
-                      <ShieldCheck className="w-6 h-6" />
+                    <div className="absolute -bottom-2 -right-2 bg-[#789A9A] p-1.5 rounded-lg border-[3px] border-white shadow-sm text-white z-20">
+                      <ShieldCheck className="w-3 h-3" />
                     </div>
                   </div>
 
-                  <div className="bg-yellow-50/80 text-yellow-700 text-[10px] font-black px-5 py-2.5 rounded-full flex items-center gap-2 mb-6 border border-yellow-100 shadow-sm uppercase tracking-widest">
-                      <Award className="w-4 h-4 fill-current" /> Referente Destacada
+                  <div className="bg-yellow-50/80 text-yellow-700 text-[8px] font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 mb-2.5 border border-yellow-100 uppercase tracking-widest mx-auto">
+                      <Award className="w-3 h-3 fill-current" /> Referente Destacada
                   </div>
 
-                  <h3 className="text-3xl font-bold text-[#1A3D3D] font-['Montserrat'] leading-tight mb-2">Dra. Mercedes Arenas</h3>
-                  <p className="text-[#2D6A6A] text-sm font-black uppercase tracking-[0.2em] mb-8">Cirujana Traumatóloga</p>
+                  <h3 className="text-lg font-bold text-[#1A3D3D] font-['Montserrat'] leading-tight mb-1">Dra. Mercedes Arenas</h3>
+                  <p className="text-[#2D6A6A] text-[9px] font-black uppercase tracking-[0.2em] mb-4">Cirujana Traumatóloga</p>
                   
-                  <div className="flex flex-col gap-3 w-full mb-10">
-                    <div className="bg-[#F9FBFA] px-5 py-4 rounded-2xl border border-gray-100 flex items-center gap-4">
-                      <div className="p-2 bg-white rounded-xl shadow-sm border border-gray-100"><MapPin className="w-5 h-5 text-[#2D6A6A]" /></div>
+                  <div className="flex flex-col gap-2 w-full mt-auto mb-4">
+                    <div className="bg-[#F9FBFA] px-3 py-2 rounded-xl border border-gray-100 flex items-center gap-2.5">
+                      <div className="p-1.5 bg-white rounded-md shadow-sm border border-gray-50"><MapPin className="w-3.5 h-3.5 text-[#2D6A6A]" /></div>
                       <div className="text-left">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Zona de atención</p>
-                        <p className="text-sm font-bold text-[#1A3D3D]">CABA y GBA Norte</p>
+                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-0.5">Zona de atención</p>
+                        <p className="text-[11px] font-bold text-[#1A3D3D] leading-none">CABA y GBA Norte</p>
                       </div>
                     </div>
-                    <div className="bg-[#F9FBFA] px-5 py-4 rounded-2xl border border-gray-100 flex items-center gap-4">
-                      <div className="p-2 bg-white rounded-xl shadow-sm border border-gray-100"><Stethoscope className="w-5 h-5 text-[#2D6A6A]" /></div>
+                    <div className="bg-[#F9FBFA] px-3 py-2 rounded-xl border border-gray-100 flex items-center gap-2.5">
+                      <div className="p-1.5 bg-white rounded-md shadow-sm border border-gray-50"><Stethoscope className="w-3.5 h-3.5 text-[#2D6A6A]" /></div>
                       <div className="text-left">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Modalidad</p>
-                        <p className="text-sm font-bold text-[#1A3D3D]">Derivaciones y Quirófano</p>
+                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-0.5">Modalidad</p>
+                        <p className="text-[11px] font-bold text-[#1A3D3D] leading-none">Derivaciones y Quirófano</p>
                       </div>
                     </div>
                   </div>
 
-                  <button className="w-full bg-[#1A3D3D] text-white font-black py-5 rounded-[24px] shadow-lg hover:bg-[#2D6A6A] transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs">
-                    Ver trayectoria <ArrowUpRight className="w-5 h-5" />
+                  <button className="w-full bg-[#1A3D3D] text-white font-black py-2.5 rounded-xl shadow-sm hover:bg-[#2D6A6A] transition-all flex items-center justify-center gap-1.5 uppercase tracking-widest text-[9px]">
+                    Ver trayectoria <ArrowUpRight className="w-3 h-3" />
                   </button>
                 </div>
               </div>
 
-              {/* Tarjeta 3: Bolsa de Trabajo / Oportunidades (Sólida, sin 3D) */}
-              <div className="hidden md:block animate-float-delayed">
-                <div className="bg-[#1A3D3D] text-white p-8 rounded-[40px] shadow-[0_30px_80px_rgba(26,61,61,0.2)] border border-[#2D6A6A]/30 relative overflow-hidden flex flex-col gap-6">
+              {/* Tarjeta 3 (Derecha): PROVEEDORES */}
+              <div className="animate-float-delayed h-full">
+                <div className="bg-white border border-gray-100 p-6 md:p-6 rounded-[32px] shadow-[0_15px_30px_rgba(45,106,106,0.05)] h-full relative flex flex-col">
                   
-                  <div className="flex items-center gap-4 mb-2">
-                    <div className="bg-white/10 p-4 rounded-2xl text-white backdrop-blur-md border border-white/10"><Briefcase className="w-6 h-6" /></div>
-                    <div className="text-left">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="flex h-2 w-2 rounded-full bg-green-400"></span>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-white/60 leading-none">Búsquedas Activas</p>
-                      </div>
-                      <p className="font-bold text-xl font-['Montserrat'] leading-tight">Bolsa de Trabajo</p>
+                  <div className="flex items-center justify-between mb-5">
+                    <span className="text-[10px] font-bold text-[#2D6A6A] uppercase tracking-widest flex items-center gap-2">
+                      <Package className="w-3.5 h-3.5" /> Proveedores
+                    </span>
+                  </div>
+
+                  <h3 className="text-lg font-bold text-[#1A3D3D] font-['Montserrat'] leading-tight mb-5">
+                    Catálogo Mayorista<br/>B2B
+                  </h3>
+
+                  <div className="bg-[#F9FBFA] rounded-xl p-3 relative border border-gray-200 mb-5 text-left">
+                    <div className="absolute top-2 right-2 bg-red-500 text-white text-[8px] font-bold px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">Oferta</div>
+                    <div className="w-full h-16 bg-white rounded-lg mb-2.5 flex items-center justify-center border border-gray-100 shadow-sm">
+                       <ShoppingCart className="w-5 h-5 text-gray-300" />
+                    </div>
+                    <span className="text-[8px] font-bold text-[#2D6A6A] uppercase tracking-widest">Aparatología</span>
+                    <h4 className="text-[#1A3D3D] font-bold font-['Montserrat'] text-[12px] mt-1 leading-tight">Ecógrafo Doppler Mindray</h4>
+                    <p className="text-[#2D6A6A] text-[9px] font-black mt-1">Consultar precio matriculado</p>
+                  </div>
+
+                  <div className="space-y-2 mt-auto mb-4">
+                    <div className="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm">
+                      <Tag className="w-3 h-3 text-[#2D6A6A]" />
+                      <span className="text-[10px] font-bold text-gray-600">Venta directa de fábrica</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm">
+                      <Truck className="w-3 h-3 text-[#2D6A6A]" />
+                      <span className="text-[10px] font-bold text-gray-600">Envíos a todo el país</span>
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="bg-[#2D6A6A]/20 border border-white/10 p-5 rounded-3xl cursor-pointer text-left">
-                      <div className="flex justify-between items-start mb-3">
-                        <p className="text-xs font-bold text-white">Especialista en Diagnóstico</p>
-                        <span className="bg-green-500/20 text-green-300 text-[9px] px-2.5 py-1 rounded font-bold uppercase tracking-wider">Urgente</span>
-                      </div>
-                      <p className="text-[11px] text-white/60 mb-4 leading-relaxed font-medium">Manejo de ecógrafo Doppler. Turnos rotativos de 6hs. Honorarios a convenir.</p>
-                      <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                        <span className="text-[10px] font-bold text-white/70 flex items-center gap-2"><MapPin className="w-3 h-3 text-[#2D6A6A]" /> Hospital Norte</span>
-                        <ArrowRight className="w-4 h-4 text-white/40" />
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white/5 border border-white/10 p-5 rounded-3xl opacity-60 cursor-pointer text-left">
-                       <p className="text-xs font-bold text-white mb-3">Médico de Guardia (Domingos)</p>
-                       <p className="text-[11px] text-white/60 mb-4 leading-relaxed font-medium">Guardias pasivas 24hs. Excluyente: 2 años de experiencia clínica comprobable.</p>
-                       <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                         <span className="text-[10px] font-bold text-white/70 flex items-center gap-2"><MapPin className="w-3 h-3 text-[#2D6A6A]" /> Clínica Los Alerces</span>
-                         <ArrowRight className="w-4 h-4 text-white/40" />
-                       </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-6 flex items-center justify-between">
-                    <div className="flex -space-x-2">
-                      <div className="w-8 h-8 rounded-full bg-gray-500 border-2 border-[#1A3D3D]"></div>
-                      <div className="w-8 h-8 rounded-full bg-gray-400 border-2 border-[#1A3D3D]"></div>
-                      <div className="w-8 h-8 rounded-full bg-[#2D6A6A] border-2 border-[#1A3D3D] flex items-center justify-center text-[9px] font-bold">+12</div>
-                    </div>
-                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Empresas buscando hoy</p>
-                  </div>
+                  <button className="w-full bg-[#F4F7F7] border border-gray-200 text-[#1A3D3D] font-bold py-2.5 rounded-xl text-[9px] uppercase tracking-widest hover:bg-[#1A3D3D] hover:text-white transition-colors flex items-center justify-center gap-1.5">
+                    Contactar Distribuidor
+                  </button>
+                  
                 </div>
               </div>
 
@@ -602,11 +655,108 @@ function LandingPageContent() {
           />
         </div>
 
+        {/* 2.5 SECCIÓN SPLIT SCREEN (Fondo Oscuro y Compacto) */}
+        <section id="ecosistema-completo" className="py-10 md:py-16 bg-[#1A3D3D] relative overflow-hidden border-t border-white/5">
+          
+          <div className="max-w-[1200px] mx-auto px-8 md:px-10 relative z-10 text-center mb-8 md:mb-10">
+            <h3 className="text-[#4DB6AC] font-bold text-[11px] uppercase tracking-[0.3em] mb-3 text-center">Socios Estratégicos</h3>
+            <h2 className="text-3xl md:text-5xl font-black text-white font-['Montserrat'] leading-[1.1] tracking-tighter text-center">
+              Un ecosistema donde<br/>todos crecen.
+            </h2>
+          </div>
+
+          <div className="max-w-[1000px] mx-auto px-8 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 relative z-10">
+            
+            {/* Split Izquierdo: Clínicas */}
+            <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[32px] shadow-sm hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] hover:bg-white/10 transition-all duration-300 group flex flex-col items-start text-left relative overflow-hidden">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center mb-6 shadow-sm border border-white/5">
+                <Building2 className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl md:text-2xl font-black text-white font-['Montserrat'] mb-3">Centros Veterinarios</h3>
+              <p className="text-white/70 text-sm leading-relaxed font-medium mb-8 flex-1">
+                Visibilidad institucional inteligente. Mostrá tu infraestructura, capacidad de internación y equipamiento tecnológico para captar derivaciones de casos complejos. Encontrá y reclutá a los mejores especialistas directamente desde nuestra Bolsa de Trabajo.
+              </p>
+              <button onClick={() => navigate('/editor-clinica')} className="bg-transparent border border-white/40 text-white px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-white hover:text-[#1A3D3D] transition-colors flex items-center gap-2 shadow-sm w-full md:w-auto justify-center">
+                Unir mi clínica <ArrowRight className="w-4 h-4" />
+              </button>
+
+              {/* MOCKUP CLÍNICAS (SOLO MÓVIL) */}
+              <div className="block md:hidden w-full mt-8 animate-slide-up">
+                <div className="bg-white rounded-[24px] p-5 shadow-xl relative text-left w-full border border-gray-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[10px] font-bold text-[#2D6A6A] uppercase tracking-widest flex items-center gap-2">
+                      <Building2 className="w-3.5 h-3.5" /> Buscador
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-2 mb-4">
+                    <div className="flex items-center gap-2 bg-[#F9FBFA] p-2.5 rounded-xl border border-gray-200">
+                      <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                      <span className="text-[11px] text-gray-500 font-medium whitespace-nowrap overflow-hidden text-ellipsis">Buscar: "Tomógrafo"...</span>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl border border-green-100 shadow-sm overflow-hidden">
+                    <div className="p-3 bg-green-50/50 flex items-start gap-2 border-b border-green-100/50">
+                      <div className="w-7 h-7 rounded-lg bg-white shadow-sm flex items-center justify-center text-green-600 shrink-0"><Building className="w-3.5 h-3.5" /></div>
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <p className="text-[11px] font-bold text-[#1A3D3D]">Hospital San Marcos</p>
+                          <CheckCircle2 className="w-3 h-3 text-green-500" />
+                        </div>
+                        <p className="text-[8px] text-gray-500 font-medium leading-tight">Equipamiento: Tomógrafo, Quirófano, UTI.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Split Derecho: Proveedores */}
+            <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[32px] shadow-sm hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] hover:bg-white/10 transition-all duration-300 group flex flex-col items-start text-left relative overflow-hidden">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center mb-6 shadow-sm border border-white/5">
+                <Package className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl md:text-2xl font-black text-white font-['Montserrat'] mb-3">Proveedores B2B</h3>
+              <p className="text-white/70 text-sm leading-relaxed font-medium mb-8 flex-1">
+                Tu catálogo en el lugar correcto. Dejá de invertir en publicidad masiva; conectá directamente con los directores médicos y profesionales matriculados que toman las decisiones de compra en los quirófanos y consultorios del país.
+              </p>
+              <button onClick={() => navigate('/editor-insumos')} className="bg-[#4DB6AC] text-[#1A3D3D] px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[11px] hover:bg-white transition-all flex items-center gap-2 shadow-lg hover:-translate-y-0.5 w-full md:w-auto justify-center">
+                Unir mi empresa <ArrowRight className="w-4 h-4" />
+              </button>
+
+              {/* MOCKUP PROVEEDORES (SOLO MÓVIL) */}
+              <div className="block md:hidden w-full mt-8 animate-slide-up">
+                <div className="bg-white rounded-[24px] p-5 shadow-xl relative text-left w-full border border-gray-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[10px] font-bold text-[#2D6A6A] uppercase tracking-widest flex items-center gap-2">
+                      <Package className="w-3.5 h-3.5" /> Catálogo
+                    </span>
+                  </div>
+                  <div className="bg-[#F9FBFA] rounded-xl p-3 relative border border-gray-200 text-left">
+                    <div className="absolute top-2 right-2 bg-red-500 text-white text-[8px] font-bold px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">Oferta</div>
+                    <div className="w-full h-12 bg-white rounded-lg mb-2 flex items-center justify-center border border-gray-100 shadow-sm">
+                       <ShoppingCart className="w-4 h-4 text-gray-300" />
+                    </div>
+                    <span className="text-[8px] font-bold text-[#2D6A6A] uppercase tracking-widest">Aparatología</span>
+                    <h4 className="text-[#1A3D3D] font-bold font-['Montserrat'] text-[11px] mt-1 leading-tight">Ecógrafo Doppler Mindray</h4>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2 bg-white p-2 rounded-lg border border-gray-100 shadow-sm">
+                    <Tag className="w-3 h-3 text-[#2D6A6A]" />
+                    <span className="text-[9px] font-bold text-gray-600">Venta directa de fábrica</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
         {/* 3. ECOSISTEMA BENTO GRID */}
-        <section id="ecosistema" className="py-16 md:py-32 bg-[#F4F7F7] relative overflow-hidden reveal-on-scroll">
+        <section id="ecosistema" className="py-16 md:py-24 bg-[#F4F7F7] relative overflow-hidden">
           <div className="max-w-[1100px] mx-auto px-8 md:px-10 relative z-10 text-center">
             
-            <div className="text-center mb-10 md:mb-20">
+            <div className="text-center mb-10 md:mb-16">
               <h3 className="text-[#2D6A6A] font-bold text-[11px] uppercase tracking-[0.3em] mb-4 text-center">Contactos e información al instante</h3>
               <h2 className="text-3xl md:text-5xl font-black text-[#1A3D3D] font-['Montserrat'] leading-[1.1] tracking-tighter text-center">
                 Espacios diseñados para<br/>agilizar tu práctica diaria.
@@ -650,11 +800,11 @@ function LandingPageContent() {
                 </div>
               </div>
 
-              {/* Widget 2: Servicios Complementarios (Ahora en la antigua posición de Noticias para mantener la grilla Bento) */}
+              {/* Widget 2: Servicios Complementarios */}
               <div className="md:col-span-1 md:row-span-2 bg-[#2D6A6A]/5 border border-[#2D6A6A]/10 p-8 rounded-[32px] hover:bg-[#2D6A6A]/10 transition-all duration-300 flex flex-col group overflow-hidden text-left">
                 <div className="flex items-center gap-3 mb-4 text-left">
                   <Activity className="w-6 h-6 text-[#2D6A6A]" />
-                  <h3 className="text-2xl font-bold font-['Montserrat'] text-[#1A3D3D] leading-tight">Servicios & Terapias</h3>
+                  <h3 className="text-2xl font-bold font-['Montserrat'] text-[#1A3D3D] leading-tight">Servicios & Terapias holísticas</h3>
                 </div>
                 <p className="text-gray-600 leading-relaxed font-medium text-sm text-left mb-8">
                   Damos visibilidad a profesionales y servicios especializados difíciles de hallar: fisioterapia, terapias holísticas, etología y nutrición natural. Conectamos todo el ecosistema de bienestar.
@@ -733,7 +883,7 @@ function LandingPageContent() {
                 </div>
               </div>
 
-              {/* Widget 6: Noticias (Ahora horizontal en la antigua posición de Servicios para mantener la grilla Bento) */}
+              {/* Widget 6: Noticias */}
               <div className="md:col-span-2 bg-[#1A3D3D] p-8 md:p-10 rounded-[32px] hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] transition-all duration-300 flex flex-col md:flex-row gap-8 items-center border border-white/5 text-left overflow-hidden group">
                 <div className="flex-1 text-left">
                   <div className="flex items-center gap-3 mb-4 text-left">
@@ -779,92 +929,115 @@ function LandingPageContent() {
           </div>
         </section>
 
-        {/* FOOTER OPTIMIZADO */}
-        <footer ref={footerRef} className="w-full bg-[#1A3D3D] relative overflow-hidden pt-12 md:pt-20 pb-12 text-left">
+        {/* FOOTER COMPACTO (Definitivo) */}
+        <footer ref={footerRef} className="w-full bg-gradient-to-br from-[#1A3D3D] to-[#2D6A6A] relative overflow-hidden pt-12 pb-8 text-left print:hidden">
+          <div className="absolute top-0 left-0 w-full h-px bg-white/10"></div>
           <div className="max-w-[1100px] mx-auto px-8 md:px-10 relative z-10 text-left">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16 text-left">
+            
+            {/* BLOQUE DE CONTENIDO SUPERIOR */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-8 mb-6 text-left">
               
-              {/* Columna 1: Logo, Descripción, Redes y Legal */}
-              <div className="md:col-span-1 text-left flex flex-col h-full">
-                <div className="text-white font-['Montserrat'] font-bold text-2xl mb-6 text-left leading-none cursor-pointer" onClick={() => handleNav('landing')}>El Portal<span className="text-[#2D6A6A]">.</span></div>
-                <p className="text-white/50 text-[13px] leading-relaxed mb-8 font-medium text-left">La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.</p>
-                
-                <div className="mt-auto">
-                  {/* Redes Sociales */}
-                  <div className="flex gap-3 text-left mb-5">
-                    <a href="#" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Facebook className="w-4 h-4" /></a>
-                    <a href="#" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Instagram className="w-4 h-4" /></a>
-                    <a href="#" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Linkedin className="w-4 h-4" /></a>
-                  </div>
-                  
-                  {/* Textos Legales y Derechos (Integrado aquí) */}
-                  <div className="text-white/40 text-[10px] font-medium space-y-1.5 flex flex-col items-start">
-                    <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
-                    <p className="flex items-center gap-2">
-                      <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors focus:outline-none">Términos</button>
-                      <span>•</span>
-                      <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors focus:outline-none">Privacidad</button>
-                    </p>
-                  </div>
-                </div>
+              {/* COLUMNA 1: Branding */}
+              <div className="md:col-span-1 text-left">
+                <button onClick={() => handleNav('landing')} className="text-white font-['Montserrat'] font-bold text-2xl mb-4 text-left leading-none cursor-pointer block hover:opacity-80 transition-opacity">
+                  El Portal<span className="text-white/40">.</span>
+                </button>
+                <p className="text-white/50 text-sm md:text-[13px] leading-relaxed font-medium text-left">
+                  La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.
+                </p>
               </div>
 
-              {/* Columna 2 */}
-              <div className="text-left">
-                <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6 text-left">Navegación</h4>
-                <ul className="space-y-4 text-white/40 text-sm text-left">
-                  <li className="text-left"><a href="#" className="hover:text-white transition-colors font-medium text-left">Inicio</a></li>
-                  <li className="text-left"><a href="#historia" className="hover:text-white transition-colors font-medium text-left">¿Por qué unirte?</a></li>
+              {/* COLUMNA 2: Repertorio */}
+              <div>
+                <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Repertorio</h4>
+                <ul className="space-y-2 text-white/40 text-sm">
+                  <li><button onClick={() => handleNav('ecosistema')} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
+                  <li><button onClick={() => handleNav('ecosistema')} className="hover:text-white transition-colors">Insumos</button></li>
                 </ul>
               </div>
 
-              {/* Columna 3 */}
-              <div className="text-left">
-                <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6 text-left">Red Profesional</h4>
-                <ul className="space-y-4 text-white/40 text-sm text-left">
-                  <li className="text-left"><a href="#ecosistema" className="hover:text-white transition-colors font-medium text-left">Bolsa de Trabajo</a></li>
-                  <li className="text-left"><a href="#ecosistema" className="hover:text-white transition-colors font-medium text-left">Cursos e Insumos</a></li>
+              {/* COLUMNA 3: Comunidad */}
+              <div>
+                <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Comunidad</h4>
+                <ul className="space-y-2 text-white/40 text-sm">
+                  <li><button onClick={() => handleNav('bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
+                  <li><button onClick={() => handleNav('inicio')} className="hover:text-white transition-colors">Foro de Discusión</button></li>
                 </ul>
               </div>
 
-              {/* Columna 4 */}
-              <div className="text-left">
-                <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6 text-left">Contacto</h4>
-                <ul className="space-y-4 text-white/40 text-sm leading-none text-left">
-                  <li className="text-left"><a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors"><Mail className="w-4 h-4 shrink-0" /> <span>elportalveterinario.arg@gmail.com</span></a></li>
-                  <li className="flex items-center gap-3 text-left"><Globe className="w-4 h-4 text-left" /> elportal.vet</li>
+              {/* COLUMNA 4: Contacto */}
+              <div>
+                <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Contacto</h4>
+                <ul className="space-y-2 text-white/40 text-sm leading-none">
+                  <li>
+                    <a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors">
+                      <Mail className="w-4 h-4 shrink-0" /> 
+                      <span className="truncate">elportalveterinario.arg@gmail.com</span>
+                    </a>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <Globe className="w-4 h-4" /> elportal.vet
+                  </li>
                 </ul>
               </div>
             </div>
 
-            <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-left">
-              <p className="text-white/40 font-bold text-[10px] uppercase tracking-[0.3em] text-left">creado por Belén M. Arenas</p>
-              <div className="text-white/40 text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default text-left">
-                <span className="text-left">Hecho con</span>
-                <Heart className="w-3 h-3 text-red-400/50 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current text-left" />
-                <span className="text-left">en Argentina.</span>
+            {/* FILA DE CRÉDITOS UNIFICADA */}
+            <div className="flex flex-row items-center justify-center gap-x-8 mb-10 pt-4">
+              
+              {/* Iconos Redes */}
+              <div className="flex gap-3 shrink-0">
+                <a href="#" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a href="#" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                  <Instagram className="w-4 h-4" />
+                </a>
+                <a href="#" aria-label="Linkedin" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                  <Linkedin className="w-4 h-4" />
+                </a>
               </div>
-              <div className="flex items-center gap-2 text-white/40 text-left">
-                <ShieldCheck className="w-3.5 h-3.5 text-left" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.3em] leading-none text-left">Única plataforma veterinaria oficial</span>
+              
+              {/* Copyright */}
+              <div className="text-white/40 text-[11px] md:text-xs font-medium leading-relaxed whitespace-nowrap shrink-0">
+                <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
+              </div>
+
+              {/* Legales */}
+              <div className="text-white/40 text-[11px] md:text-xs font-medium flex items-center gap-2 shrink-0">
+                <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors">Términos</button>
+                <span className="opacity-20">•</span>
+                <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors">Privacidad</button>
+              </div>
+            </div>
+
+            {/* BARRA INFERIOR FINAL - Letras en blanco */}
+            <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
+              <div className="text-white text-[11px] md:text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
+                <span>Hecho con</span>
+                <Heart className="w-3 h-3 text-red-400/80 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
+                <span>en Argentina.</span>
+              </div>
+              <div className="flex items-center gap-2 text-white">
+                <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
+                <span className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
               </div>
             </div>
           </div>
         </footer>
       </div>
 
-      {/* CARTEL DE COOKIES (FLOTANTE ABAJO) */}
-      {showCookieBanner && (
-        <div className="fixed bottom-0 left-0 w-full bg-[#0a1e1e]/95 backdrop-blur-md border-t border-white/10 z-[100] py-3 px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-4 animate-slide-up shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
-          <div className="flex items-start md:items-center gap-3 text-white/80 text-[11px] md:text-xs font-medium max-w-[900px]">
-            <Info className="w-4 h-4 text-[#2D6A6A] shrink-0 mt-0.5 md:mt-0" />
-            <p>
-              Utilizamos cookies para mejorar tu experiencia en El Portal. Al continuar navegando, aceptás nuestros <button onClick={() => navigate('/terminos-y-condiciones')} className="text-white font-bold underline hover:text-[#4DB6AC] transition-colors focus:outline-none">Términos</button> y nuestra <button onClick={() => navigate('/politica-de-privacidad')} className="text-white font-bold underline hover:text-[#4DB6AC] transition-colors focus:outline-none">Política de Privacidad</button>.
-            </p>
+      {/* BANNER DE COOKIES */}
+      {showCookieBanner && !isFooterVisible && (
+        <div className="fixed bottom-0 left-0 w-full bg-[#0a1e1e]/95 backdrop-blur-md border-t border-white/10 z-[100] py-4 px-8 flex flex-col md:flex-row items-center justify-between gap-4 animate-slide-up shadow-2xl">
+          <div className="flex items-center gap-3 text-white/60 text-[11px] font-medium text-center md:text-left">
+            <Info size={14} className="text-[#2D6A6A] shrink-0" />
+            <p>Utilizamos cookies para mejorar tu experiencia. Al continuar navegando, aceptás nuestros términos.</p>
           </div>
           <button 
             onClick={() => setShowCookieBanner(false)}
-            className="bg-[#2D6A6A] hover:bg-white text-white hover:text-[#1A3D3D] px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap shadow-md"
+            className="bg-[#2D6A6A] hover:bg-white text-white hover:text-[#1A3D3D] px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
           >
             Entendido
           </button>
@@ -875,9 +1048,6 @@ function LandingPageContent() {
   );
 }
 
-// ==========================================
-// EXPORTACIÓN PRINCIPAL (WRAPPER CON ROUTER)
-// ==========================================
 export default function LandingPage() {
   return (
     <LandingPageContent />

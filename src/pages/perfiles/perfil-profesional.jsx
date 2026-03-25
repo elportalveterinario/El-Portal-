@@ -273,58 +273,93 @@ function App() {
         </div>
 
         {/* FOOTER MÓVIL */}
-        <footer className="w-full bg-[#1A3D3D] pt-12 pb-8 px-8 text-left shrink-0 overflow-x-hidden">
-          <div className="mb-10">
-            <div className="text-white font-['Montserrat'] font-extrabold text-[26px] tracking-tight mb-5 leading-none cursor-pointer" onClick={() => navigate('/')}>
-              El Portal<span className="text-[#3b7979]">.</span>
-            </div>
-            <p className="text-[#8BA4A4] text-[13.5px] leading-[1.6] mb-6 font-medium pr-2">
-              La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.
-            </p>
-            <div className="flex gap-3.5 mb-8">
-              <a href={data.profesional.redes.facebook} target="_blank" rel="noreferrer" className="w-[42px] h-[42px] bg-[#224A4A] rounded-2xl flex items-center justify-center text-[#8BA4A4] hover:bg-white hover:text-[#1A3D3D] transition-all"><Facebook className="w-5 h-5" /></a>
-              <a href={data.profesional.redes.instagram} target="_blank" rel="noreferrer" className="w-[42px] h-[42px] bg-[#224A4A] rounded-2xl flex items-center justify-center text-[#8BA4A4] hover:bg-white hover:text-[#1A3D3D] transition-all"><Instagram className="w-5 h-5" /></a>
-              <a href={data.profesional.redes.linkedin} target="_blank" rel="noreferrer" className="w-[42px] h-[42px] bg-[#224A4A] rounded-2xl flex items-center justify-center text-[#8BA4A4] hover:bg-white hover:text-[#1A3D3D] transition-all"><Linkedin className="w-5 h-5" /></a>
-            </div>
-            <div className="text-[#658888] text-[11px] font-medium space-y-2">
-              <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
-              <p className="flex items-center gap-2">
-                <button onClick={() => navigate('/terminos-y-condiciones')} className="underline underline-offset-2 hover:text-[#8BA4A4] transition-colors focus:outline-none">Términos</button>
-                <span className="text-[#658888] text-[8px]">•</span>
-                <button onClick={() => navigate('/politica-de-privacidad')} className="underline underline-offset-2 hover:text-[#8BA4A4] transition-colors focus:outline-none">Privacidad</button>
+        <footer className="w-full bg-gradient-to-br from-[#1A3D3D] to-[#2D6A6A] relative overflow-hidden pt-12 pb-8 px-8 text-left shrink-0 overflow-x-hidden print:hidden">
+          <div className="absolute top-0 left-0 w-full h-px bg-white/10"></div>
+          
+          {/* BLOQUE DE CONTENIDO SUPERIOR */}
+          <div className="grid grid-cols-1 gap-y-8 mb-6 text-left">
+            
+            {/* Branding */}
+            <div className="text-left">
+              <button onClick={() => navigate('/')} className="text-white font-['Montserrat'] font-bold text-2xl mb-4 text-left leading-none cursor-pointer block hover:opacity-80 transition-opacity">
+                El Portal<span className="text-white/40">.</span>
+              </button>
+              <p className="text-white/50 text-sm leading-relaxed font-medium text-left">
+                La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.
               </p>
             </div>
+
+            {/* Repertorio */}
+            <div>
+              <h4 className="text-white font-bold text-[11px] uppercase tracking-[0.3em] mb-4">Repertorio</h4>
+              <ul className="space-y-2 text-white/40 text-sm">
+                <li><button onClick={() => navigate('/ecosistema')} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
+                <li><button onClick={() => navigate('/ecosistema')} className="hover:text-white transition-colors">Insumos</button></li>
+              </ul>
+            </div>
+
+            {/* Comunidad */}
+            <div>
+              <h4 className="text-white font-bold text-[11px] uppercase tracking-[0.3em] mb-4">Comunidad</h4>
+              <ul className="space-y-2 text-white/40 text-sm">
+                <li><button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
+                <li><button onClick={() => navigate('/inicio')} className="hover:text-white transition-colors">Foro de Discusión</button></li>
+              </ul>
+            </div>
+
+            {/* Contacto */}
+            <div>
+              <h4 className="text-white font-bold text-[11px] uppercase tracking-[0.3em] mb-4">Contacto</h4>
+              <ul className="space-y-2 text-white/40 text-sm leading-none">
+                <li>
+                  <a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors">
+                    <Mail className="w-4 h-4 shrink-0" /> 
+                    <span className="truncate">elportalveterinario.arg@gmail.com</span>
+                  </a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Globe className="w-4 h-4" /> elportal.vet
+                </li>
+              </ul>
+            </div>
           </div>
-          <div className="mb-8">
-            <h4 className="text-white font-extrabold text-[11px] uppercase tracking-[0.25em] mb-5">Navegación</h4>
-            <ul className="space-y-4 text-[#8BA4A4] text-[15px] font-medium">
-              <li><button onClick={() => navigate('/')} className="hover:text-white transition-colors focus:outline-none">Inicio</button></li>
-              <li><button onClick={() => navigate('/unirte')} className="hover:text-white transition-colors focus:outline-none">¿Por qué unirte?</button></li>
-            </ul>
+
+          {/* FILA DE CRÉDITOS UNIFICADA */}
+          <div className="flex flex-col items-center justify-center gap-y-4 mb-8 pt-4 border-t border-white/5">
+            
+            {/* Iconos Redes */}
+            <div className="flex gap-3 shrink-0">
+              <a href="#" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a href="#" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a href="#" aria-label="Linkedin" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Linkedin className="w-4 h-4" />
+              </a>
+            </div>
+            
+            {/* Legales */}
+            <div className="text-white/40 text-[11px] font-medium flex items-center gap-2 shrink-0">
+              <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors">Términos</button>
+              <span className="opacity-20">•</span>
+              <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors">Privacidad</button>
+            </div>
+
+            {/* Copyright */}
+            <div className="text-white/40 text-[11px] font-medium leading-relaxed whitespace-nowrap shrink-0">
+              <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
+            </div>
           </div>
-          <div className="mb-8">
-            <h4 className="text-white font-extrabold text-[11px] uppercase tracking-[0.25em] mb-5">Red Profesional</h4>
-            <ul className="space-y-4 text-[#8BA4A4] text-[15px] font-medium">
-              <li><button onClick={() => navigate('/bolsa')} className="hover:text-white transition-colors focus:outline-none">Bolsa de Trabajo</button></li>
-              <li><button onClick={() => navigate('/cursos')} className="hover:text-white transition-colors focus:outline-none">Cursos e Insumos</button></li>
-            </ul>
-          </div>
-          <div className="mb-12">
-            <h4 className="text-white font-extrabold text-[11px] uppercase tracking-[0.25em] mb-5">Contacto</h4>
-            <ul className="space-y-4 text-[#8BA4A4] text-[15px] font-medium">
-              <li><a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors"><Mail className="w-5 h-5 shrink-0 opacity-80" strokeWidth={1.5} /> <span>elportalveterinario.arg@gmail.com</span></a></li>
-              <li><a href="https://elportal.vet" target="_blank" rel="noreferrer" className="flex items-center gap-3 hover:text-white transition-colors"><Globe className="w-5 h-5 shrink-0 opacity-80" strokeWidth={1.5} /> <span>elportal.vet</span></a></li>
-            </ul>
-          </div>
-          <div className="w-full h-px bg-[#264D4D] mb-8"></div>
-          <div className="flex flex-col items-center justify-center gap-3 pb-4">
-            <p className="text-[#658888] font-bold text-[10px] uppercase tracking-[0.25em] text-center">Creado por Belén M. Arenas</p>
-            <p className="text-[#658888] font-bold text-[10px] uppercase tracking-[0.25em] flex items-center justify-center gap-1.5 group cursor-default">
-              Hecho con <Heart className="w-3.5 h-3.5 text-[#C96B6B] fill-[#C96B6B] group-hover:scale-110 transition-all duration-300" /> en Argentina.
-            </p>
-            <div className="flex items-center gap-2 text-[#658888] mt-1.5">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] leading-none text-center">Única plataforma veterinaria oficial</span>
+
+          {/* BARRA INFERIOR FINAL */}
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-white font-bold text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
+            <div className="text-white text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
+              <span>Hecho con</span>
+              <Heart className="w-3 h-3 text-red-400/80 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
+              <span>en Argentina.</span>
             </div>
           </div>
         </footer>
@@ -596,72 +631,98 @@ function App() {
         </main>
 
         {/* FOOTER DESKTOP */}
-        <footer className="w-full bg-[#1A3D3D] pt-20 pb-12 text-left relative overflow-hidden">
+        <footer className="w-full bg-gradient-to-br from-[#1A3D3D] to-[#2D6A6A] relative overflow-hidden pt-12 pb-8 text-left print:hidden">
           <div className="absolute top-0 left-0 w-full h-px bg-white/10"></div>
           <div className="max-w-[1100px] mx-auto px-8 md:px-10 relative z-10">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            
+            {/* BLOQUE DE CONTENIDO SUPERIOR */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-8 mb-6 text-left">
               
-              <div className="md:col-span-1">
-                <div onClick={() => navigate('/')} className="text-white font-['Montserrat'] font-bold text-2xl mb-6 leading-none cursor-pointer block hover:opacity-80 transition-opacity">
+              {/* COLUMNA 1: Branding */}
+              <div className="md:col-span-1 text-left">
+                <button onClick={() => navigate('/')} className="text-white font-['Montserrat'] font-bold text-2xl mb-4 text-left leading-none cursor-pointer block hover:opacity-80 transition-opacity">
                   El Portal<span className="text-white/40">.</span>
-                </div>
-                <p className="text-white/50 text-[13px] leading-relaxed mb-6 font-medium">La red profesional exclusiva para medicina veterinaria de alta complejidad.</p>
-                <div className="flex gap-3">
-                  {data.profesional.redes?.instagram && (
-                    <a href={data.profesional.redes.instagram} target="_blank" rel="noreferrer" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Instagram className="w-4 h-4" /></a>
-                  )}
-                  {data.profesional.redes?.linkedin && (
-                    <a href={data.profesional.redes.linkedin} target="_blank" rel="noreferrer" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Linkedin className="w-4 h-4" /></a>
-                  )}
-                </div>
-                <div className="text-white/40 text-[10px] font-medium space-y-1.5 flex flex-col items-start mt-6">
-                  <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
-                  <p className="flex items-center gap-2">
-                    <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors focus:outline-none">Términos</button>
-                    <span>•</span>
-                    <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors focus:outline-none">Privacidad</button>
-                  </p>
-                </div>
+                </button>
+                <p className="text-white/50 text-sm md:text-[13px] leading-relaxed font-medium text-left">
+                  La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.
+                </p>
               </div>
 
+              {/* COLUMNA 2: Repertorio */}
               <div>
-                <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Navegación</h4>
-                <ul className="space-y-4 text-white/40 text-sm">
-                  <li><button onClick={() => navigate('/')} className="hover:text-white transition-colors">Inicio</button></li>
-                  <li><button onClick={() => navigate('/perfil')} className="hover:text-white transition-colors">Mi Perfil</button></li>
-                  <li><button onClick={() => navigate('/editor')} className="hover:text-white transition-colors">Editor de Perfil</button></li>
+                <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Repertorio</h4>
+                <ul className="space-y-2 text-white/40 text-sm">
+                  <li><button onClick={() => navigate('/ecosistema')} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
+                  <li><button onClick={() => navigate('/ecosistema')} className="hover:text-white transition-colors">Insumos</button></li>
                 </ul>
               </div>
 
+              {/* COLUMNA 3: Comunidad */}
               <div>
-                <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Ecosistema</h4>
-                <ul className="space-y-4 text-white/40 text-sm">
-                  {/* SECCIÓN INTERCAMBIADA: NOVEDADES PRIMERO, REPERTORIO (SERVICIOS) ÚLTIMO */}
-                  <li><button onClick={() => navigate('/novedades')} className="hover:text-white transition-colors">Novedades</button></li>
+                <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Comunidad</h4>
+                <ul className="space-y-2 text-white/40 text-sm">
                   <li><button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
-                  <li><button onClick={() => navigate('/ecosistema')} className="hover:text-white transition-colors">Repertorio Clínico</button></li>
+                  <li><button onClick={() => navigate('/inicio')} className="hover:text-white transition-colors">Foro de Discusión</button></li>
                 </ul>
               </div>
 
+              {/* COLUMNA 4: Contacto */}
               <div>
-                <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Contacto</h4>
-                <ul className="space-y-4 mb-8 text-white/40 text-sm leading-none">
-                  <li><a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors"><Mail className="w-4 h-4 shrink-0" /> <span>elportalveterinario.arg@gmail.com</span></a></li>
-                  <li className="flex items-center gap-3"><Globe className="w-4 h-4" /> elportal.vet</li>
+                <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Contacto</h4>
+                <ul className="space-y-2 text-white/40 text-sm leading-none">
+                  <li>
+                    <a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors">
+                      <Mail className="w-4 h-4 shrink-0" /> 
+                      <span className="truncate">elportalveterinario.arg@gmail.com</span>
+                    </a>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <Globe className="w-4 h-4" /> elportal.vet
+                  </li>
                 </ul>
               </div>
             </div>
 
-            <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-white/40 font-bold text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
-              <div className="text-white/40 text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
+            {/* FILA DE CRÉDITOS UNIFICADA */}
+            <div className="flex flex-row items-center justify-center gap-x-8 mb-10 pt-4">
+              
+              {/* Iconos Redes */}
+              <div className="flex gap-3 shrink-0">
+                <a href="#" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a href="#" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                  <Instagram className="w-4 h-4" />
+                </a>
+                <a href="#" aria-label="Linkedin" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              </div>
+              
+              {/* Copyright */}
+              <div className="text-white/40 text-[11px] md:text-xs font-medium leading-relaxed whitespace-nowrap shrink-0">
+                <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
+              </div>
+
+              {/* Legales */}
+              <div className="text-white/40 text-[11px] md:text-xs font-medium flex items-center gap-2 shrink-0">
+                <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors">Términos</button>
+                <span className="opacity-20">•</span>
+                <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors">Privacidad</button>
+              </div>
+            </div>
+
+            {/* BARRA INFERIOR FINAL - Letras en blanco */}
+            <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
+              <div className="text-white text-[11px] md:text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
                 <span>Hecho con</span>
-                <Heart className="w-3 h-3 text-red-400/50 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
+                <Heart className="w-3 h-3 text-red-400/80 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
                 <span>en Argentina.</span>
               </div>
-              <div className="flex items-center gap-2 text-white/40">
+              <div className="flex items-center gap-2 text-white">
                 <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
+                <span className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
               </div>
             </div>
           </div>

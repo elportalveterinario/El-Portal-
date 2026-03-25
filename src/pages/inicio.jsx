@@ -1,15 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+// Importamos todos los iconos necesarios
 import { 
   Menu, X, Heart, Facebook, Instagram, Linkedin, Mail, Globe, Info, ShieldCheck,
-  Home, User, LayoutGrid, Sparkles, Briefcase, Edit, ChevronRight,
+  Home, LayoutGrid, Sparkles, Briefcase, Edit, ChevronRight,
   Building, Truck
 } from 'lucide-react';
 
-export default function Inicio() {
+export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCookieBanner, setShowCookieBanner] = useState(true);
-  const navigate = useNavigate();
+  const [isFooterVisible, setIsFooterVisible] = useState(false);
+  const footerRef = useRef(null);
+
+  // Mock de navegación (en un entorno real usarías useNavigate de react-router-dom)
+  const navigate = (path) => console.log('Navegando a:', path);
+  const setView = (view) => console.log('Cambiando vista a:', view);
 
   useEffect(() => {
     const link = document.createElement('link');
@@ -24,12 +29,28 @@ export default function Inicio() {
         to { transform: translateY(0); opacity: 1; }
       }
       .animate-slide-up { animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     `;
     document.head.appendChild(style);
+
+    // Lógica para que las cookies no "pisen" el footer
+    // Ajustamos el threshold a 0.5 para que no desaparezca apenas se asoma el footer
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFooterVisible(entry.isIntersecting);
+      },
+      { threshold: 0.5 } 
+    );
+
+    if (footerRef.current) {
+      observer.observe(footerRef.current);
+    }
 
     return () => {
       document.head.removeChild(link);
       document.head.removeChild(style);
+      if (footerRef.current) observer.unobserve(footerRef.current);
     };
   }, []);
 
@@ -41,7 +62,7 @@ export default function Inicio() {
            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
       </div>
 
-      {/* NAVBAR: Manteniendo tu estilo original */}
+      {/* NAVBAR */}
       <nav className="fixed top-0 left-0 w-full z-[100] h-[80px] bg-white/90 backdrop-blur-lg border-b border-gray-100 flex items-center px-8 md:px-10">
         <div className="max-w-[1100px] mx-auto w-full flex justify-between items-center">
             <div className="text-[#1A3D3D] font-['Montserrat'] font-extrabold text-2xl tracking-tighter cursor-pointer">
@@ -73,10 +94,6 @@ export default function Inicio() {
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 mt-2 text-left">Perfiles</p>
                         <button onClick={() => { navigate('/perfil-clinica'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Building className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Perfil Clínica</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                         <button onClick={() => { navigate('/perfil-proveedor'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Truck className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Perfil Proveedor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                        
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 mt-2 text-left">Editores</p>
-                        <button onClick={() => { navigate('/editor-clinica'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Clínica</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                        <button onClick={() => { navigate('/editor-insumos'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Insumos</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                       </div>
                     </nav>
                   </>
@@ -86,8 +103,8 @@ export default function Inicio() {
         </div>
       </nav>
 
-      {/* SECCIÓN CENTRAL: Ahora con min-height para evitar que se peguen los elementos */}
-      <main className="flex-grow flex items-center justify-center pt-[80px] min-h-[60vh]">
+      {/* SECCIÓN CENTRAL - Aumentamos min-height para que el footer no se vea de entrada */}
+      <main className="flex-grow flex items-center justify-center pt-[80px] min-h-[85vh]">
         <div className="relative z-10 text-center py-20">
           <h1 className="text-xl md:text-2xl font-black text-[#1A3D3D] tracking-[0.2em] font-['Montserrat'] uppercase opacity-60">
             Sitio en <span className="text-[#2D6A6A]">construcción</span>
@@ -96,79 +113,109 @@ export default function Inicio() {
         </div>
       </main>
 
-      {/* FOOTER: Manteniendo tu estilo original */}
-      <footer className="w-full bg-gradient-to-br from-[#1A3D3D] to-[#2D6A6A] relative overflow-hidden pt-20 pb-12 text-left print:hidden mt-auto">
+      {/* FOOTER COMPACTO */}
+      <footer ref={footerRef} className="w-full bg-gradient-to-br from-[#1A3D3D] to-[#2D6A6A] relative overflow-hidden pt-12 pb-8 text-left print:hidden">
         <div className="absolute top-0 left-0 w-full h-px bg-white/10"></div>
-        <div className="max-w-[1100px] mx-auto px-8 md:px-10 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+        <div className="max-w-[1100px] mx-auto px-8 md:px-10 relative z-10 text-left">
+          
+          {/* BLOQUE DE CONTENIDO SUPERIOR */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-8 mb-6 text-left">
             
-            <div className="md:col-span-1">
-              <div onClick={() => navigate('/')} className="text-white font-['Montserrat'] font-bold text-2xl mb-6 leading-none cursor-pointer block hover:opacity-80 transition-opacity">
+            {/* COLUMNA 1: Branding */}
+            <div className="md:col-span-1 text-left">
+              <button onClick={() => navigate('/')} className="text-white font-['Montserrat'] font-bold text-2xl mb-4 text-left leading-none cursor-pointer block hover:opacity-80 transition-opacity">
                 El Portal<span className="text-white/40">.</span>
-              </div>
-              <p className="text-white/50 text-[13px] leading-relaxed mb-6 font-medium">La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.</p>
-              <div className="flex gap-3">
-                <button aria-label="Facebook de El Portal" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Facebook className="w-4 h-4" /></button>
-                <button aria-label="Instagram de El Portal" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Instagram className="w-4 h-4" /></button>
-                <button aria-label="Linkedin de El Portal" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Linkedin className="w-4 h-4" /></button>
-              </div>
-              <div className="text-white/40 text-[10px] font-medium space-y-1.5 flex flex-col items-start mt-6">
-                <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
-                <p className="flex items-center gap-2">
-                  <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors focus:outline-none">Términos</button>
-                  <span>•</span>
-                  <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors focus:outline-none">Privacidad</button>
-                </p>
-              </div>
+              </button>
+              <p className="text-white/50 text-sm md:text-[13px] leading-relaxed font-medium text-left">
+                La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.
+              </p>
             </div>
 
+            {/* COLUMNA 2: Repertorio */}
             <div>
-              <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Navegación</h4>
-              <ul className="space-y-4 text-white/40 text-sm">
-                <li><button onClick={() => navigate('/')} className="hover:text-white transition-colors">Inicio</button></li>
-                <li><button onClick={() => navigate('/perfil')} className="hover:text-white transition-colors">Mi Perfil</button></li>
-                <li><button onClick={() => navigate('/editor')} className="hover:text-white transition-colors">Editor de Perfil</button></li>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Repertorio</h4>
+              <ul className="space-y-2 text-white/40 text-sm">
+                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
+                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Insumos</button></li>
               </ul>
             </div>
 
+            {/* COLUMNA 3: Comunidad */}
             <div>
-              <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Ecosistema</h4>
-              <ul className="space-y-4 text-white/40 text-sm">
-                <li><button onClick={() => navigate('/ecosistema')} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
-                <li><button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
-                <li><button onClick={() => navigate('/novedades')} className="hover:text-white transition-colors">Novedades</button></li>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Comunidad</h4>
+              <ul className="space-y-2 text-white/40 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">Bolsa de Trabajo</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Foro de Discusión</a></li>
               </ul>
             </div>
 
+            {/* COLUMNA 4: Contacto */}
             <div>
-              <h4 className="text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-6">Contacto</h4>
-              <ul className="space-y-4 mb-8 text-white/40 text-sm leading-none">
-                <li><a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors"><Mail className="w-4 h-4 shrink-0" /> <span>elportalveterinario.arg@gmail.com</span></a></li>
-                <li className="flex items-center gap-3"><Globe className="w-4 h-4" /> elportal.vet</li>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Contacto</h4>
+              <ul className="space-y-2 text-white/40 text-sm leading-none">
+                <li>
+                  <a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors">
+                    <Mail className="w-4 h-4 shrink-0" /> 
+                    <span className="truncate">elportalveterinario.arg@gmail.com</span>
+                  </a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Globe className="w-4 h-4" /> elportal.vet
+                </li>
               </ul>
             </div>
           </div>
 
-          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-white/40 font-bold text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
-            <div className="text-white/40 text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
+          {/* FILA DE CRÉDITOS UNIFICADA */}
+          <div className="flex flex-row items-center justify-center gap-x-8 mb-10 pt-4">
+            
+            {/* Iconos Redes */}
+            <div className="flex gap-3 shrink-0">
+              <a href="#" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a href="#" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a href="#" aria-label="Linkedin" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Linkedin className="w-4 h-4" />
+              </a>
+            </div>
+            
+            {/* Copyright */}
+            <div className="text-white/40 text-[11px] md:text-xs font-medium leading-relaxed whitespace-nowrap shrink-0">
+              <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
+            </div>
+
+            {/* Legales */}
+            <div className="text-white/40 text-[11px] md:text-xs font-medium flex items-center gap-2 shrink-0">
+              <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors">Términos</button>
+              <span className="opacity-20">•</span>
+              <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors">Privacidad</button>
+            </div>
+          </div>
+
+          {/* BARRA INFERIOR FINAL - Letras en blanco */}
+          <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
+            <div className="text-white text-[11px] md:text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
               <span>Hecho con</span>
-              <Heart className="w-3 h-3 text-red-400/50 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
+              <Heart className="w-3 h-3 text-red-400/80 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
               <span>en Argentina.</span>
             </div>
-            <div className="flex items-center gap-2 text-white/40">
+            <div className="flex items-center gap-2 text-white">
               <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
+              <span className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
             </div>
           </div>
         </div>
       </footer>
 
       {/* BANNER DE COOKIES */}
-      {showCookieBanner && (
+      {showCookieBanner && !isFooterVisible && (
         <div className="fixed bottom-0 left-0 w-full bg-[#0a1e1e]/95 backdrop-blur-md border-t border-white/10 z-[100] py-4 px-8 flex flex-col md:flex-row items-center justify-between gap-4 animate-slide-up shadow-2xl">
-          <div className="flex items-center gap-3 text-white/60 text-[11px] font-medium">
-            <Info size={14} className="text-[#2D6A6A]" />
+          <div className="flex items-center gap-3 text-white/60 text-[11px] font-medium text-center md:text-left">
+            <Info size={14} className="text-[#2D6A6A] shrink-0" />
             <p>Utilizamos cookies para mejorar tu experiencia. Al continuar navegando, aceptás nuestros términos.</p>
           </div>
           <button 

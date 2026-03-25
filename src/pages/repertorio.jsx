@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Star, Clock, ChevronLeft, Filter, Search, ShieldCheck,
-  FileText, CircleCheck, PlayCircle, Plus, MessageCircle, Menu, ExternalLink, ChevronRight, Monitor, MapPin, Check, Info,
+  FileText, CheckCircle2, PlayCircle, Plus, MessageCircle, Menu, ExternalLink, ChevronRight, Monitor, MapPin, Check, Info,
   Award, BookOpen, Users, Globe, Share2, Tag,
   Facebook, Instagram, Linkedin, Mail, Heart,
   Home, User, Edit3, LayoutGrid, X, Briefcase as BriefcaseIcon,
-  UploadCloud, Save, Loader2, Trash2, Download, Activity, AlertCircle, Sparkles, Building,
-  Truck, Settings2, Shield, Smartphone, Send, CreditCard, Lock
+  UploadCloud, Save, Loader2, Trash2, Download, Activity, AlertCircle, Sparkles,
+  Truck, Settings2, Shield, Smartphone, Send, Building
 } from 'lucide-react';
 
 // ==========================================
@@ -32,6 +32,8 @@ const SEMINARIOS = [
     precioOriginal: 55000,
     badge: "Más Vendido",
     categoria: "Cirugía General",
+    rating: 4.8,
+    reviews: 124,
     incluye: ["Certificado de validez nacional", "Material de estudio descargable", "Acceso de por vida", "Foro de consultas con el docente", "Análisis de casos clínicos reales", "Protocolos anestésicos actualizados"]
   },
   {
@@ -49,7 +51,69 @@ const SEMINARIOS = [
     precioOriginal: 38000,
     badge: "Nuevo",
     categoria: "Dermatología",
+    rating: 5.0,
+    reviews: 18,
     incluye: ["Kit de bienvenida", "Práctica en laboratorio", "Certificado físico", "Networking presencial", "Toma de muestras en vivo", "Guía rápida de fármacos"]
+  }
+];
+
+const CATEGORIAS_INSUMOS = ["Ecografía y Diagnóstico", "Equipamiento Quirófano", "Instrumental y Descartables", "Software y Gestión", "Nutrición Clínica"];
+
+const PROVEEDORES = [
+  {
+    id: 'p1',
+    marca: "Distribuidora MedVet",
+    logoMarca: "https://api.dicebear.com/7.x/initials/svg?seed=DM&backgroundColor=2D6A6A",
+    imagenPortada: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80",
+    descripcionCorta: "Equipamiento de alta gama para diagnóstico por imágenes, ecógrafos portátiles e internación.",
+    categorias: ["Ecografía y Diagnóstico", "Equipamiento Quirófano"],
+    isPremium: true,
+    ubicacion: "Buenos Aires, CABA",
+    sitioWeb: "www.medvet.com.ar"
+  },
+  {
+    id: 'p2',
+    marca: "VetTech Anestesia",
+    logoMarca: "https://api.dicebear.com/7.x/initials/svg?seed=VT&backgroundColor=1A3D3D",
+    imagenPortada: "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80",
+    descripcionCorta: "Especialistas en monitores multiparamétricos, bombas de infusión y máquinas de anestesia veterinaria.",
+    categorias: ["Equipamiento Quirófano"],
+    isPremium: true,
+    ubicacion: "Córdoba, Capital",
+    sitioWeb: "www.vettech.com"
+  },
+  {
+    id: 'p3',
+    marca: "Insumos Sur",
+    logoMarca: "https://api.dicebear.com/7.x/initials/svg?seed=IS&backgroundColor=475569",
+    imagenPortada: "https://images.unsplash.com/photo-1576089238240-749e77163c44?auto=format&fit=crop&w=800&q=80",
+    descripcionCorta: "Instrumental quirúrgico de acero alemán, descartables, suturas y ropa médica de alta durabilidad.",
+    categorias: ["Instrumental y Descartables"],
+    isPremium: false,
+    ubicacion: "Rosario, Santa Fe",
+    sitioWeb: "www.insumossur.com.ar"
+  },
+  {
+    id: 'p4',
+    marca: "SoftVet Cloud",
+    logoMarca: "https://api.dicebear.com/7.x/initials/svg?seed=SV&backgroundColor=2D6A6A",
+    imagenPortada: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+    descripcionCorta: "Software de gestión integral en la nube. Historias clínicas, turnos y facturación automatizada.",
+    categorias: ["Software y Gestión"],
+    isPremium: false,
+    ubicacion: "CABA, Buenos Aires",
+    sitioWeb: "www.softvet.io"
+  },
+  {
+    id: 'p5',
+    marca: "NutriVet Pro",
+    logoMarca: "https://api.dicebear.com/7.x/initials/svg?seed=NV&backgroundColor=eab308",
+    imagenPortada: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80",
+    descripcionCorta: "Dietas de prescripción veterinaria, suplementos y alimentación premium para casos clínicos complejos.",
+    categorias: ["Nutrición Clínica"],
+    isPremium: false,
+    ubicacion: "Mendoza, Capital",
+    sitioWeb: "www.nutrivet.com"
   }
 ];
 
@@ -118,13 +182,23 @@ export default function Repertorio() {
   const [modalidadesSeleccionadas, setModalidadesSeleccionadas] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('about');
+  const [activeTab, setActiveTab] = useState('about'); // Para detalle de curso
+  const [activeGridTab, setActiveGridTab] = useState('cursos'); // Nuevo: Para vista principal ('cursos' | 'proveedores')
   const [activeInsumoTab, setActiveInsumoTab] = useState('features');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(null);
   const [isNavbarScrolled, setIsNavbarScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [showCookieBanner, setShowCookieBanner] = useState(true);
+  const [isFooterVisible, setIsFooterVisible] = useState(false);
   
+  // Estados nuevos de repertorio hoy.jsx
+  const [favoritos, setFavoritos] = useState([]);
+  const [visibleCourses, setVisibleCourses] = useState(6);
+  const [visibleProviders, setVisibleProviders] = useState(6);
+  const [proveedorSearchTerm, setProveedorSearchTerm] = useState('');
+  const [proveedorFiltroCategoria, setProveedorFiltroCategoria] = useState(null);
+
   // States Formulario Wizard (Cursos)
   const [wizardStep, setWizardStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -145,22 +219,44 @@ export default function Repertorio() {
     caracteristicas: [''],
     especificaciones: [{ label: '', value: '' }]
   });
-
-  // NUEVOS: States Checkout y Success para Insumos
-  const [checkoutData, setCheckoutData] = useState(null);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const bannerRef = useRef(null);
   const footerRef = useRef(null);
 
-  // Efecto para tipografías
+  // Efecto para tipografías y Observer Footer
   useEffect(() => {
     const link = document.createElement('link');
     link.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap';
     link.rel = 'stylesheet';
     document.head.appendChild(link);
-    return () => document.head.removeChild(link);
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes slideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      .animate-slide-up { animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+    `;
+    document.head.appendChild(style);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFooterVisible(entry.isIntersecting);
+      },
+      { threshold: 0.5 }
+    );
+
+    if (footerRef.current) {
+      observer.observe(footerRef.current);
+    }
+
+    return () => {
+      document.head.removeChild(link);
+      document.head.removeChild(style);
+      if (footerRef.current) observer.unobserve(footerRef.current);
+    };
   }, []);
 
   // Efecto para scroll del Navbar
@@ -184,6 +280,26 @@ export default function Repertorio() {
       setModalidadesSeleccionadas(modalidadesSeleccionadas.filter(m => m !== mod));
     } else {
       setModalidadesSeleccionadas([...modalidadesSeleccionadas, mod]);
+    }
+    setVisibleCourses(6);
+  };
+
+  const handleCategoryFilter = (cat) => {
+    setFiltroCategoria(cat);
+    setVisibleCourses(6);
+  };
+
+  const handleProveedorCategoryFilter = (cat) => {
+    setProveedorFiltroCategoria(cat);
+    setVisibleProviders(6);
+  };
+
+  const toggleFavorito = (e, id) => {
+    e.stopPropagation();
+    if (favoritos.includes(id)) {
+      setFavoritos(favoritos.filter(favId => favId !== id));
+    } else {
+      setFavoritos([...favoritos, id]);
     }
   };
 
@@ -281,38 +397,20 @@ export default function Repertorio() {
     }, 2000);
   };
 
-  // MODIFICADO: Ahora redirige al checkout en vez del alert y publicitar
   const handleInsumoSubmit = (e) => {
     e.preventDefault();
     setIsInsumoSubmitting(true);
     setTimeout(() => {
       setIsInsumoSubmitting(false);
-      setCheckoutData({ 
-        type: 'insumo', 
-        title: insumoFormState.tituloProducto,
-        empresa: insumoFormState.empresa,
-        precioPublicacion: 25000 // Precio ficticio por publicar en ARS
-      });
-      setView('checkout');
-      window.scrollTo(0,0);
-    }, 1500);
-  };
-
-  // NUEVO: Manejador del pago para los insumos
-  const handlePaymentSubmit = (e) => {
-    e.preventDefault();
-    setIsProcessingPayment(true);
-    setTimeout(() => {
-      setIsProcessingPayment(false);
-      // Limpiamos el formulario una vez procesado el pago con éxito
+      alert("¡Datos guardados! Redirigiendo al pago... Una vez verificado, publicaremos tu producto.");
       setInsumoFormState({ 
         empresa: '', contacto: '', email: '', telefono: '', 
         tituloProducto: '', precio: '', categoria: 'Ecografía y Diagnóstico', categoriaOtra: '', 
         website: '', mensaje: '', caracteristicas: [''], especificaciones: [{ label: '', value: '' }] 
       });
-      setView('success');
+      setView('publicitar');
       window.scrollTo(0,0);
-    }, 2500);
+    }, 1500);
   };
 
   const copyToClipboard = (text) => {
@@ -326,6 +424,21 @@ export default function Repertorio() {
     const matchBusqueda = !searchTerm || curso.titulo.toLowerCase().includes(searchTerm.toLowerCase());
     return matchCategoria && matchModalidad && matchBusqueda;
   });
+
+  const proveedoresFiltrados = PROVEEDORES.filter(prov => {
+    const matchCategoria = !proveedorFiltroCategoria || prov.categorias.includes(proveedorFiltroCategoria);
+    const matchBusqueda = !proveedorSearchTerm || 
+                          prov.marca.toLowerCase().includes(proveedorSearchTerm.toLowerCase()) || 
+                          prov.descripcionCorta.toLowerCase().includes(proveedorSearchTerm.toLowerCase());
+    return matchCategoria && matchBusqueda;
+  }).sort((a, b) => {
+    if (a.isPremium && !b.isPremium) return -1;
+    if (!a.isPremium && b.isPremium) return 1;
+    return a.marca.localeCompare(b.marca);
+  });
+
+  const cursosMostrados = cursosFiltrados.slice(0, visibleCourses);
+  const proveedoresMostrados = proveedoresFiltrados.slice(0, visibleProviders);
 
   const handleDownloadPDF = async () => {
     setIsGeneratingPDF(true);
@@ -358,194 +471,6 @@ export default function Repertorio() {
       setIsGeneratingPDF(false);
     }
   };
-
-  // NUEVO: Pantalla de Checkout
-  const renderCheckout = () => (
-    <section className="max-w-[1000px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24 px-4">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <button 
-          onClick={() => { setView('insumoForm'); window.scrollTo(0,0); }} 
-          className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-xs md:text-[10px] uppercase tracking-[0.3em] transition-colors group"
-        >
-          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver al Formulario
-        </button>
-        <div className="flex items-center gap-2 text-[#2D6A6A] bg-[#2D6A6A]/10 px-4 py-2 rounded-full self-start md:self-auto">
-          <Lock className="w-4 h-4" />
-          <span className="text-[11px] font-bold uppercase tracking-widest">Pago 100% Seguro</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white rounded-[32px] p-8 md:p-10 border border-gray-100 shadow-xl relative overflow-hidden">
-            <h2 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-6">Detalles de Facturación</h2>
-            
-            <form onSubmit={handlePaymentSubmit} className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Número de Tarjeta</label>
-                  <div className="relative">
-                    <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input 
-                      type="text" required
-                      placeholder="0000 0000 0000 0000" 
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-12 pr-4 py-3.5 text-base font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Vencimiento</label>
-                    <input 
-                      type="text" required
-                      placeholder="MM/AA" 
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">CVC</label>
-                    <input 
-                      type="text" required
-                      placeholder="123" 
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Nombre en la tarjeta</label>
-                  <input 
-                    type="text" required
-                    placeholder="TITULAR DE LA TARJETA" 
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base font-medium focus:outline-none focus:bg-white focus:border-[#2D6A6A] transition-all text-[#1A3D3D]" 
-                  />
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-gray-100">
-                <button 
-                  type="submit"
-                  disabled={isProcessingPayment}
-                  className="w-full py-4 bg-[#1A3D3D] text-white font-black text-sm uppercase tracking-widest hover:bg-[#2D6A6A] rounded-xl transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50"
-                >
-                  {isProcessingPayment ? (
-                    <><Loader2 className="w-5 h-5 animate-spin" /> Procesando el pago...</>
-                  ) : (
-                    <><Lock className="w-5 h-5" /> Pagar ${checkoutData?.precioPublicacion.toLocaleString('es-AR')}</>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <div className="lg:col-span-5">
-          <div className="bg-[#1A3D3D] text-white rounded-[32px] p-8 shadow-xl sticky top-28 overflow-hidden">
-            <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-white/5 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/3"></div>
-            
-            <h3 className="text-xl font-black font-['Montserrat'] mb-6 relative z-10 border-b border-white/10 pb-4">Resumen de Publicación</h3>
-            
-            <div className="space-y-4 relative z-10 mb-8">
-              <div className="flex justify-between items-start gap-4">
-                <div>
-                  <p className="text-white/60 text-xs uppercase tracking-widest font-bold mb-1">Producto a publicar</p>
-                  <p className="font-medium text-lg leading-tight">{checkoutData?.title}</p>
-                </div>
-              </div>
-              <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                <p className="text-white/60 text-xs uppercase tracking-widest font-bold">Empresa</p>
-                <p className="font-bold">{checkoutData?.empresa}</p>
-              </div>
-              <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                <p className="text-white/60 text-xs uppercase tracking-widest font-bold">Duración</p>
-                <p className="font-bold">Anual</p>
-              </div>
-            </div>
-
-            <div className="relative z-10 bg-white/10 rounded-2xl p-6 border border-white/20">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-white/80">Subtotal</span>
-                <span className="text-sm font-bold">${checkoutData?.precioPublicacion.toLocaleString('es-AR')}</span>
-              </div>
-              <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
-                <span className="text-sm font-medium text-white/80">Impuestos (IVA)</span>
-                <span className="text-sm font-bold">Incluido</span>
-              </div>
-              <div className="flex justify-between items-end">
-                <span className="text-xs uppercase tracking-widest font-bold text-white/80">Total a pagar</span>
-                <span className="text-3xl font-black font-['Montserrat']">${checkoutData?.precioPublicacion.toLocaleString('es-AR')}</span>
-              </div>
-            </div>
-            
-            <div className="mt-6 flex items-start gap-3 relative z-10">
-              <ShieldCheck className="w-5 h-5 text-[#4DB6AC] shrink-0" />
-              <p className="text-[11px] text-white/60 leading-tight">Al procesar el pago, tu producto entrará en fase de verificación (24hs). Si no cumple los requisitos, el dinero será devuelto automáticamente.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-
-  // NUEVO: Pantalla de Éxito
-  const renderSuccess = () => (
-    <section className="max-w-[700px] mx-auto animate-in zoom-in-95 duration-500 pb-24 px-4 text-center mt-10">
-      <div className="bg-white rounded-[40px] p-12 md:p-20 shadow-xl border border-gray-100 relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-[#4DB6AC]/10 rounded-full blur-[80px]"></div>
-        
-        <div className="relative z-10 flex flex-col items-center">
-          <div className="w-24 h-24 bg-[#4DB6AC] rounded-full flex items-center justify-center mb-8 shadow-lg shadow-[#4DB6AC]/30 animate-bounce">
-            <Check className="w-12 h-12 text-white stroke-[3]" />
-          </div>
-          
-          <h1 className="text-3xl md:text-5xl font-black font-['Montserrat'] text-[#1A3D3D] tracking-tight mb-4">
-            ¡Pago Aprobado!
-          </h1>
-          
-          <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 w-full max-w-sm mb-8">
-            <p className="text-xs uppercase tracking-widest font-bold text-gray-400 mb-1">
-              Equipamiento Insumo
-            </p>
-            <p className="text-lg font-bold text-[#1A3D3D]">{checkoutData?.title}</p>
-          </div>
-          
-          <p className="text-gray-500 font-medium text-base md:text-lg mb-10 max-w-md mx-auto leading-relaxed">
-            Hemos recibido el pago y los datos del producto correctamente. Nuestro equipo lo verificará y será publicado en el portal a la brevedad.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
-            <button 
-              onClick={() => { setView('grid'); setCheckoutData(null); window.scrollTo(0,0); }}
-              className="px-8 py-4 bg-[#1A3D3D] text-white font-black text-xs uppercase tracking-widest hover:bg-[#2D6A6A] rounded-xl transition-all shadow-lg"
-            >
-              Volver al Repertorio
-            </button>
-            <button 
-              onClick={() => { setView('publicitar'); setCheckoutData(null); window.scrollTo(0,0); }}
-              className="px-8 py-4 bg-white text-[#1A3D3D] border border-gray-200 font-bold text-xs uppercase tracking-widest hover:bg-gray-50 rounded-xl transition-all shadow-sm"
-            >
-              Publicar otro
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-
-  // Añadido para evitar crash si el renderDetail faltaba en tu copia del portapapeles
-  const renderDetail = () => {
-    if (!selectedCourse) return null;
-    return (
-      <div className="max-w-[1000px] mx-auto animate-in fade-in duration-500 pb-24 text-center py-20">
-         <button onClick={() => setView('grid')} className="mx-auto flex items-center gap-2 text-[#2D6A6A] font-bold text-xs uppercase tracking-widest mb-4 hover:underline">
-          <ChevronLeft className="w-4 h-4" /> Volver
-         </button>
-         <h1 className="text-4xl font-black text-[#1A3D3D] font-['Montserrat']">{selectedCourse.titulo}</h1>
-         <p className="mt-4 text-gray-500 max-w-lg mx-auto">{selectedCourse.descripcion}</p>
-      </div>
-    )
-  }
 
   const renderPropuesta = () => (
     <article className="max-w-[1000px] mx-auto animate-in fade-in duration-500 pb-24 relative">
@@ -1497,6 +1422,166 @@ export default function Repertorio() {
     </section>
   );
 
+  const renderDetail = () => {
+    if (!selectedCourse) {
+      // Esto previene un crash si la vista es 'detail' pero no hay curso seleccionado.
+      return null; 
+    }
+    return (
+    <article className="max-w-[1200px] mx-auto animate-in fade-in duration-500 pb-24">
+      <button 
+        onClick={() => setView('grid')} 
+        className="flex items-center gap-2 text-gray-400 hover:text-[#1A3D3D] font-bold text-[10px] uppercase tracking-[0.3em] mb-8 transition-colors group"
+      >
+        <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver al Repertorio
+      </button>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <section className="lg:col-span-8">
+          <header className="mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-[40px] font-black font-['Montserrat'] text-[#1A3D3D] leading-[1.1] uppercase tracking-tighter">
+              {selectedCourse.titulo}
+            </h1>
+          </header>
+
+          <div className="w-full md:w-[95%] aspect-video md:max-h-[360px] rounded-[32px] overflow-hidden bg-black shadow-lg relative group cursor-pointer mb-10 border border-gray-100">
+            <img src={selectedCourse.imagen} className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-[2s]" alt="Portada del curso" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 transition-all shadow-xl">
+                <PlayCircle className="w-8 h-8 md:w-10 md:h-10 text-white fill-white/80" />
+              </div>
+            </div>
+          </div>
+
+          <nav className="flex flex-wrap gap-x-6 gap-y-3 md:gap-12 border-b border-gray-200 mb-8" aria-label="Pestañas del curso">
+            <button 
+              onClick={() => setActiveTab('about')} 
+              aria-current={activeTab === 'about' ? 'page' : undefined}
+              className={`pb-3 md:pb-4 text-[11px] md:text-[13px] font-bold uppercase tracking-widest transition-all ${activeTab === 'about' ? 'border-b-2 border-[#2D6A6A] text-[#1A3D3D]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+            >
+              Acerca del curso
+            </button>
+            <button 
+              onClick={() => setActiveTab('speaker')} 
+              aria-current={activeTab === 'speaker' ? 'page' : undefined}
+              className={`pb-3 md:pb-4 text-[11px] md:text-[13px] font-bold uppercase tracking-widest transition-all ${activeTab === 'speaker' ? 'border-b-2 border-[#2D6A6A] text-[#1A3D3D]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+            >
+              Instructorxs
+            </button>
+            <button 
+              onClick={() => setActiveTab('reviews')} 
+              aria-current={activeTab === 'reviews' ? 'page' : undefined}
+              className={`pb-3 md:pb-4 text-[11px] md:text-[13px] font-bold uppercase tracking-widest transition-all ${activeTab === 'reviews' ? 'border-b-2 border-[#2D6A6A] text-[#1A3D3D]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+            >
+              Reseñas (4.9)
+            </button>
+          </nav>
+
+          {activeTab === 'about' && (
+            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2">
+              <div>
+                <h3 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-4">Descripción del programa</h3>
+                <p className="text-gray-600 text-[15px] md:text-base leading-relaxed font-medium">
+                  {selectedCourse.descripcion}
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-black font-['Montserrat'] text-[#1A3D3D] mb-6">¿Qué vas a aprender?</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {selectedCourse.incluye.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-4 bg-white px-5 py-4 rounded-[16px] border border-gray-100 shadow-sm">
+                      <div className="w-6 h-6 rounded-full bg-[#2D6A6A]/10 flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 text-[#2D6A6A] stroke-[3]" />
+                      </div>
+                      <span className="text-[13px] font-bold text-[#1A3D3D] leading-tight">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'speaker' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+              <div className="bg-white p-5 md:p-8 rounded-[24px] md:rounded-[32px] border border-gray-100 shadow-sm flex flex-row gap-4 md:gap-6 items-start">
+                <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-[#2D6A6A]/10 flex items-center justify-center text-[#2D6A6A] font-black text-2xl border border-gray-100 shrink-0">
+                    {selectedCourse.instructor.charAt(0)}
+                </div>
+                <div className="text-left flex-1 mt-1 md:mt-2">
+                  <h3 className="text-lg md:text-2xl font-black font-['Montserrat'] text-[#1A3D3D] leading-tight">{selectedCourse.instructor}</h3>
+                  <p className="text-[9px] md:text-[10px] font-bold text-[#2D6A6A] uppercase tracking-widest mb-3 md:mb-4 mt-1">Especialista Referente</p>
+                  <p className="text-gray-600 text-xs md:text-sm leading-relaxed font-medium">
+                    Profesional con más de 15 años de experiencia clínica especializada. Disertante internacional y autor de múltiples publicaciones científicas en la materia. Reconocido por su enfoque práctico y resolución de casos complejos.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'reviews' && (
+            <div className="animate-in fade-in slide-in-from-bottom-2 bg-white p-8 rounded-[32px] border border-gray-100 text-center">
+               <Star className="w-12 h-12 text-yellow-400 fill-yellow-400 mx-auto mb-4 opacity-50" />
+               <p className="text-[#1A3D3D] font-bold text-lg mb-2">Reseñas Excelentes</p>
+               <p className="text-gray-500 font-medium text-sm">Este curso mantiene un promedio de 4.9 estrellas en evaluaciones de profesionales.</p>
+            </div>
+          )}
+
+        </section>
+
+        <aside className="lg:col-span-4">
+          <div className="sticky top-28 bg-white p-8 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-gray-100 space-y-8">
+            <div>
+              <div className="flex items-baseline gap-3 mb-1">
+                <h4 className="text-4xl md:text-5xl font-black font-['Montserrat'] text-[#1A3D3D] tracking-tighter">
+                  ${selectedCourse.precio.toLocaleString('es-AR')}
+                </h4>
+                <span className="text-gray-400 line-through text-lg font-bold">${selectedCourse.precioOriginal.toLocaleString('es-AR')}</span>
+              </div>
+              <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mt-2 flex items-center gap-1.5">
+                <Clock className="w-3 h-3" /> Oferta por tiempo limitado
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <button className="w-full py-5 bg-[#2D6A6A] text-white rounded-[20px] font-black text-xs uppercase tracking-[0.2em] hover:bg-[#1A3D3D] transition-all shadow-lg shadow-[#2D6A6A]/20 flex items-center justify-center gap-2 active:scale-95">
+                Inscribirme Ahora
+              </button>
+              <button className="w-full py-4 bg-gray-50 text-[#1A3D3D] border border-gray-200 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-gray-100 transition-all flex items-center justify-center gap-2 active:scale-95">
+                Descargar Programa <FileText className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-5 pt-6 border-t border-gray-100">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-[14px] bg-gray-50 flex items-center justify-center border border-gray-100"><Clock className="w-5 h-5 text-[#2D6A6A]" /></div>
+                <div><p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Duración</p><p className="text-sm font-black text-[#1A3D3D]">{selectedCourse.duracion}</p></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-[14px] bg-gray-50 flex items-center justify-center border border-gray-100"><Award className="w-5 h-5 text-[#2D6A6A]" /></div>
+                <div><p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Nivel</p><p className="text-sm font-black text-[#1A3D3D]">{selectedCourse.nivel}</p></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-[14px] bg-gray-50 flex items-center justify-center border border-gray-100"><Monitor className="w-5 h-5 text-[#2D6A6A]" /></div>
+                <div><p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Modalidad</p><p className="text-sm font-black text-[#1A3D3D]">{selectedCourse.modalidad}</p></div>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-gray-100 text-center">
+              <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-4">Certificación avalada por</p>
+              <div className="flex items-center justify-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                <img src={selectedCourse.logoMarca} className="w-8 h-8 rounded-full border border-gray-200" alt="Marca" />
+                <span className="text-xs font-black text-[#1A3D3D] uppercase tracking-wider">{selectedCourse.marca}</span>
+              </div>
+            </div>
+
+          </div>
+        </aside>
+      </div>
+    </article>
+    );
+  };
+
   const renderInsumoDetail = () => {
     if (!selectedInsumo) return null;
 
@@ -1667,240 +1752,44 @@ export default function Repertorio() {
 
   const renderGrid = () => (
     <div className="flex flex-col gap-6 md:gap-8 animate-in fade-in duration-500">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-2 md:mb-4">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-5 md:mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-black font-['Montserrat'] text-[#1A3D3D] tracking-tight uppercase leading-none">
             Repertorio Clínico
           </h1>
-          <p className="text-[#2D6A6A] text-[11px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">
-            Insumos & cursos
+          <p className="text-[#2D6A6A] text-[11px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1.5">
+            Ecosistema Veterinario
           </p>
         </div>
 
-        <div className="w-full lg:max-w-md flex flex-col gap-3">
-          <div className="relative w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-4 h-4" aria-hidden="true" />
-            <input 
-              type="search" 
-              aria-label="Buscar curso o seminario"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="¿Qué quieres aprender hoy?" 
-              className="bg-white border border-gray-100 rounded-full pl-11 pr-6 py-3 md:py-3.5 text-base md:text-xs font-medium focus:outline-none focus:border-[#2D6A6A] w-full shadow-sm placeholder:text-gray-300 transition-all" 
-            />
-          </div>
-
-          <div className="flex lg:hidden items-center gap-2 relative z-20">
-            <div className="flex-1 relative">
-              <button 
-                onClick={() => setMobileFilterOpen(mobileFilterOpen === 'cat' ? null : 'cat')}
-                aria-haspopup="listbox"
-                aria-expanded={mobileFilterOpen === 'cat'}
-                className="w-full bg-white border border-gray-200 rounded-[12px] px-3 py-3 md:py-2 text-xs md:text-[10px] font-bold text-[#1A3D3D] flex justify-between items-center shadow-sm"
-              >
-                <span className="truncate pr-2">{filtroCategoria || "Categorías"}</span> <Filter className="w-3 h-3 shrink-0" />
-              </button>
-              {mobileFilterOpen === 'cat' && (
-                <div className="absolute top-full left-0 w-[150%] mt-2 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50" role="listbox">
-                  <div 
-                    role="option"
-                    aria-selected={filtroCategoria === null}
-                    className="px-4 py-3 md:py-2.5 text-xs md:text-[11px] font-bold text-gray-400 cursor-pointer hover:bg-gray-50 border-b border-gray-50"
-                    onClick={() => { setFiltroCategoria(null); setMobileFilterOpen(null); }}
-                  >Todas las categorías</div>
-                  {CATEGORIAS.map(cat => (
-                    <div 
-                      key={cat}
-                      role="option"
-                      aria-selected={filtroCategoria === cat}
-                      className="px-4 py-3 md:py-2.5 text-xs md:text-[11px] font-semibold text-[#1A3D3D] cursor-pointer hover:bg-gray-50 leading-tight"
-                      onClick={() => { setFiltroCategoria(cat); setMobileFilterOpen(null); }}
-                    >{cat}</div>
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            <div className="flex-1 relative">
-              <button 
-                onClick={() => setMobileFilterOpen(mobileFilterOpen === 'mod' ? null : 'mod')}
-                aria-haspopup="listbox"
-                aria-expanded={mobileFilterOpen === 'mod'}
-                className="w-full bg-white border border-gray-200 rounded-[12px] px-3 py-3 md:py-2 text-xs md:text-[10px] font-bold text-[#1A3D3D] flex justify-between items-center shadow-sm"
-              >
-                Modalidad <Monitor className="w-3 h-3 shrink-0" />
-              </button>
-              {mobileFilterOpen === 'mod' && (
-                <div className="absolute top-full right-0 w-[120%] mt-2 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50" role="listbox">
-                  {MODALIDADES.map(mod => (
-                    <div 
-                      key={mod}
-                      role="option"
-                      aria-selected={modalidadesSeleccionadas.includes(mod)}
-                      className="px-4 py-3 md:py-2.5 flex items-center gap-3 cursor-pointer hover:bg-gray-50"
-                      onClick={() => toggleModalidad(mod)}
-                    >
-                      <div className={`w-4 h-4 md:w-3.5 md:h-3.5 rounded border flex items-center justify-center shrink-0 ${modalidadesSeleccionadas.includes(mod) ? 'bg-[#2D6A6A] border-[#2D6A6A]' : 'border-gray-300'}`}>
-                        {modalidadesSeleccionadas.includes(mod) && <Check className="w-3 h-3 md:w-2.5 md:h-2.5 text-white stroke-[3]" />}
-                      </div>
-                      <span className="text-xs md:text-[11px] font-semibold text-[#1A3D3D]">{mod}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+        {/* CONTROLES DE PESTAÑAS (TABS) */}
+        <div className="flex bg-white p-1.5 rounded-[16px] md:rounded-full border border-gray-100 shadow-sm w-full md:w-auto overflow-x-auto">
+          <button 
+            onClick={() => setActiveGridTab('cursos')} 
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 md:py-3 rounded-[12px] md:rounded-full text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
+              activeGridTab === 'cursos' ? 'bg-[#2D6A6A] text-white shadow-md' : 'text-gray-400 hover:text-[#1A3D3D] hover:bg-gray-50'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" /> Seminarios
+          </button>
+          <button 
+            onClick={() => setActiveGridTab('proveedores')} 
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 md:py-3 rounded-[12px] md:rounded-full text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
+              activeGridTab === 'proveedores' ? 'bg-[#2D6A6A] text-white shadow-md' : 'text-gray-400 hover:text-[#1A3D3D] hover:bg-gray-50'
+            }`}
+          >
+            <Building className="w-4 h-4" /> Marcas y Proveedores
+          </button>
         </div>
       </header>
 
-      <div className="w-full flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-16">
+      <div className="w-full flex flex-col lg:grid lg:grid-cols-12 gap-5 lg:gap-8">
         <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6">
-          <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm sticky top-32">
-            <h3 className="font-['Montserrat'] font-black text-[#1A3D3D] text-[10px] uppercase tracking-[0.2em] mb-6 flex items-center gap-2 border-b border-gray-50 pb-2">
-              <Filter className="w-3.5 h-3.5 text-[#2D6A6A]" /> Categorías
-            </h3>
-            <ul className="space-y-4 mb-10">
-              <li 
-                onClick={() => setFiltroCategoria(null)}
-                className={`text-[13px] font-black font-['Montserrat'] tracking-tight cursor-pointer transition-colors ${!filtroCategoria ? 'text-[#2D6A6A]' : 'text-gray-300 hover:text-[#1A3D3D]'}`}
-              >
-                Todos
-              </li>
-              {CATEGORIAS.map(cat => (
-                <li 
-                  key={cat} 
-                  onClick={() => setFiltroCategoria(cat)}
-                  className={`text-[13px] font-semibold cursor-pointer transition-colors ${filtroCategoria === cat ? 'text-[#2D6A6A]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
-                >
-                  {cat}
-                </li>
-              ))}
-            </ul>
-
-            <h3 className="font-['Montserrat'] font-black text-[#1A3D3D] text-[10px] uppercase tracking-[0.2em] mb-6 flex items-center gap-2 border-b border-gray-50 pb-2">
-              <Monitor className="w-3.5 h-3.5 text-[#2D6A6A]" /> Modalidad
-            </h3>
-            <div className="space-y-4">
-              {MODALIDADES.map(mod => (
-                <div 
-                  key={mod} 
-                  onClick={() => toggleModalidad(mod)}
-                  className="flex items-center gap-3 group cursor-pointer"
-                >
-                  <div className={`w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center ${
-                    modalidadesSeleccionadas.includes(mod) 
-                    ? 'bg-[#2D6A6A] border-[#2D6A6A]' 
-                    : 'border-gray-200 group-hover:border-[#2D6A6A]'
-                  }`}>
-                    {modalidadesSeleccionadas.includes(mod) && <Check className="w-3 h-3 text-white stroke-[4px]" />}
-                  </div>
-                  <span className={`text-[13px] font-semibold transition-colors ${
-                    modalidadesSeleccionadas.includes(mod) ? 'text-[#1A3D3D]' : 'text-gray-400 group-hover:text-[#1A3D3D]'
-                  }`}>
-                    {mod}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {activeGridTab === 'cursos' ? renderCursosFilters() : renderProveedoresFilters()}
         </aside>
 
-        <section className="lg:col-span-9 flex flex-col gap-6 md:gap-10">
-          <article 
-            ref={bannerRef}
-            onMouseMove={handleMouseMove}
-            className="bg-[#1A3D3D] px-5 py-4 md:p-10 rounded-[20px] md:rounded-[32px] text-left relative overflow-hidden group shadow-md md:shadow-lg flex flex-row items-center justify-between gap-3 md:gap-6 border border-white/5"
-          >
-            <div 
-              className="absolute pointer-events-none transition-transform duration-300 ease-out bg-white opacity-5 rounded-full blur-3xl"
-              style={{ width: '300px', height: '300px', left: mousePos.x - 150, top: mousePos.y - 150 }}
-            />
-            <div className="relative z-10 flex flex-col items-start gap-1 md:gap-2 max-w-xl">
-              <h2 className="text-white font-['Montserrat'] font-black text-[13px] md:text-2xl uppercase leading-none tracking-tight">
-                ¿Querés publicitar tu marca?
-              </h2>
-              <p className="text-white/40 text-[10px] md:text-[13px] font-medium italic hidden sm:block">Llegá a miles de profesionales de todo el país</p>
-            </div>
-            <button 
-              onClick={() => { setView('publicitar'); window.scrollTo(0,0); }}
-              className="bg-[#2D6A6A] text-white px-5 py-3 md:px-8 md:py-3.5 rounded-full text-[10px] md:text-[10px] font-bold uppercase tracking-widest relative z-10 shadow-lg hover:bg-[#3d8b8b] transition-all whitespace-nowrap"
-            >
-              <span className="md:hidden">Más Info</span>
-              <span className="hidden md:inline">Más información</span>
-            </button>
-          </article>
-
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-10 items-start">
-            <div className="col-span-1 lg:col-span-2 flex flex-col gap-4 md:gap-6">
-              <h2 className="font-['Montserrat'] font-black text-[#2D6A6A] text-[11px] md:text-base uppercase tracking-[0.2em]">Seminarios</h2>
-              
-              {cursosFiltrados.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  {cursosFiltrados.map(curso => (
-                    <article key={curso.id} className="bg-white rounded-[16px] md:rounded-[32px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all group flex flex-col h-full">
-                      <div className="h-24 md:h-44 relative overflow-hidden cursor-pointer" onClick={() => handleCourseClick(curso)}>
-                        <img src={curso.imagen} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={curso.titulo} />
-                        <div className="absolute top-2 left-2 md:top-4 md:left-4">
-                          <span className="bg-[#1A3D3D] text-white text-[9px] md:text-[8px] font-bold px-2 py-1 md:px-3 md:py-1.5 rounded-full uppercase tracking-widest">{curso.badge}</span>
-                        </div>
-                      </div>
-                      <div className="p-4 md:p-6 flex flex-col flex-grow">
-                        <div className="flex items-center gap-2 mb-2 md:mb-3">
-                          <img src={curso.logoMarca} className="w-5 h-5 md:w-5 md:h-5 rounded-full border border-gray-100" alt={`${curso.marca} logo`} />
-                          <span className="text-[10px] md:text-[9px] font-bold text-[#2D6A6A] uppercase tracking-widest truncate">{curso.marca}</span>
-                        </div>
-                        <h3 
-                          onClick={() => handleCourseClick(curso)}
-                          className="font-['Montserrat'] font-black text-[#1A3D3D] text-[13px] md:text-sm leading-tight mb-4 md:mb-6 group-hover:text-[#2D6A6A] transition-colors line-clamp-3 md:line-clamp-2 cursor-pointer"
-                        >
-                          {curso.titulo}
-                        </h3>
-                        <div className="mt-auto pt-3 md:pt-5 border-t border-gray-50 flex items-center justify-between">
-                          <span className="text-sm md:text-lg font-black text-[#1A3D3D] tracking-tight">${curso.precio.toLocaleString('es-AR')}</span>
-                          <button aria-label="Ver detalles del curso" onClick={() => handleCourseClick(curso)} className="bg-[#1A3D3D] text-white p-2 md:p-2.5 rounded-lg md:rounded-xl hover:bg-[#2D6A6A] transition-all">
-                            <ChevronRight className="w-4 h-4 md:w-4 md:h-4" aria-hidden="true" />
-                          </button>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-white rounded-[32px] border border-gray-100 p-10 text-center flex flex-col items-center justify-center">
-                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                    <Search className="w-8 h-8 text-gray-300" />
-                  </div>
-                  <h3 className="font-['Montserrat'] font-black text-[#1A3D3D] text-lg mb-2">No encontramos resultados</h3>
-                  <p className="text-gray-500 text-sm">Intentá cambiar los filtros o el término de búsqueda.</p>
-                  <button 
-                    onClick={() => { setFiltroCategoria(null); setModalidadesSeleccionadas([]); setSearchTerm(''); }}
-                    className="mt-6 text-[#2D6A6A] font-bold text-xs md:text-[10px] uppercase tracking-widest hover:underline"
-                  >
-                    Limpiar filtros
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <aside className="col-span-1 flex flex-col gap-4 md:gap-6">
-              <h2 className="font-['Montserrat'] font-black text-gray-400 text-[11px] md:text-base uppercase tracking-[0.2em]">Insumos</h2>
-              {PARTNERS.map(ad => (
-                <article key={ad.id} className="bg-white rounded-[16px] md:rounded-[32px] overflow-hidden shadow-sm p-3 md:p-4 border border-gray-100 group cursor-pointer" onClick={() => handleInsumoClick(ad)}>
-                  <div className="h-24 md:h-40 relative rounded-[12px] md:rounded-[24px] overflow-hidden mb-3 md:mb-5 bg-gray-50">
-                    <img src={ad.imagen} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={ad.titulo} />
-                  </div>
-                  <div className="px-1 md:px-2 pb-2 md:pb-2 text-center md:text-left">
-                    <span className="text-[9px] md:text-[9px] font-black text-[#2D6A6A] uppercase tracking-[0.3em] block mb-1 md:mb-2 truncate">{ad.marca}</span>
-                    <h4 className="font-['Montserrat'] font-black text-[#1A3D3D] text-xs md:text-sm mb-3 md:mb-3 uppercase leading-tight line-clamp-2">{ad.titulo}</h4>
-                    <button className="w-full py-2.5 md:py-3.5 bg-gray-50 text-[#1A3D3D] rounded-[10px] md:rounded-[16px] text-[10px] md:text-[9px] font-bold uppercase tracking-[0.2em] group-hover:bg-[#2D6A6A] group-hover:text-white transition-all">
-                      Ver Catálogo
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </aside>
-            
-          </div>
+        <section className="lg:col-span-9 flex flex-col gap-6 w-full">
+          {activeGridTab === 'cursos' ? renderCursosContent() : renderProveedoresContent()}
         </section>
       </div>
     </div>
@@ -1939,17 +1828,11 @@ export default function Repertorio() {
                       <p className="text-[11px] md:text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 text-left">Navegación</p>
                       <button onClick={() => { navigate('/inicio'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Home className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Inicio</span></button>
                       <button onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Info className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Entrada</span></button>
+                      <button onClick={() => { navigate('/perfil'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><User className="w-4 h-4 text-[#2D6A6A]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Mi Perfil Público</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                       <button onClick={() => { setView('grid'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Repertorio Clínico</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                       <button onClick={() => { navigate('/novedades'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Sparkles className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Novedades</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                       <button onClick={() => { navigate('/bolsa-de-trabajo'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><BriefcaseIcon className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Bolsa de Trabajo</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 mt-2 text-left">Perfiles</p>
-                      <button onClick={() => { navigate('/perfil-clinica'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Building className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Perfil Clínica</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                      <button onClick={() => { navigate('/perfil-proveedor'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Truck className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Perfil Proveedor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                      
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 mt-2 text-left">Editores</p>
-                      <button onClick={() => { navigate('/editor-clinica'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit3 className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Clínica</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                      <button onClick={() => { navigate('/editor-insumos'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit3 className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Insumos</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { navigate('/editor'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit3 className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Ir al Editor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                     </div>
                   </nav>
                 </>
@@ -1960,66 +1843,473 @@ export default function Repertorio() {
       </nav>
 
       <main id="main-content" className="max-w-[1440px] mx-auto pt-6 px-6 md:px-12 lg:px-24">
-        {view === 'grid' ? renderGrid() : view === 'detail' ? renderDetail() : view === 'insumoDetail' ? renderInsumoDetail() : view === 'wizard' ? renderCourseWizard() : view === 'insumoForm' ? renderInsumoForm() : view === 'checkout' ? renderCheckout() : view === 'success' ? renderSuccess() : view === 'propuesta' ? renderPropuesta() : renderAdvertise()}
+        {view === 'grid' ? renderGrid() : view === 'detail' ? renderDetail() : view === 'insumoDetail' ? renderInsumoDetail() : view === 'wizard' ? renderCourseWizard() : view === 'insumoForm' ? renderInsumoForm() : view === 'propuesta' ? renderPropuesta() : renderAdvertise()}
       </main>
 
-      <footer ref={footerRef} className="w-full bg-gradient-to-br from-[#1A3D3D] to-[#2D6A6A] relative overflow-hidden mt-12 pt-20 pb-12 text-left print:hidden">
+      {/* FOOTER COMPACTO (Definitivo) */}
+      <footer ref={footerRef} className="w-full bg-gradient-to-br from-[#1A3D3D] to-[#2D6A6A] relative overflow-hidden mt-12 pt-12 pb-8 text-left print:hidden">
         <div className="absolute top-0 left-0 w-full h-px bg-white/10"></div>
         <div className="max-w-[1100px] mx-auto px-8 md:px-10 relative z-10 text-left">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16 text-left">
+          
+          {/* BLOQUE DE CONTENIDO SUPERIOR */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-8 mb-6 text-left">
+            
+            {/* COLUMNA 1: Branding */}
             <div className="md:col-span-1 text-left">
-              <button onClick={() => navigate('/')} className="text-white font-['Montserrat'] font-bold text-2xl mb-6 text-left leading-none cursor-pointer block hover:opacity-80 transition-opacity">El Portal<span className="text-white/40">.</span></button>
-              <p className="text-white/50 text-sm md:text-[13px] leading-relaxed mb-6 font-medium text-left">La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.</p>
-              <div className="flex gap-4">
-                <a href="#" aria-label="Facebook de El Portal" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Facebook className="w-4 h-4" /></a>
-                <a href="#" aria-label="Instagram de El Portal" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Instagram className="w-4 h-4" /></a>
-                <a href="#" aria-label="Linkedin de El Portal" className="w-9 h-9 bg-white/5 rounded-xl flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all"><Linkedin className="w-4 h-4" /></a>
-              </div>
-              <div className="text-white/40 text-[11px] md:text-[10px] font-medium space-y-1.5 flex flex-col items-start mt-6">
-                <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
-                <p className="flex items-center gap-2">
-                  <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors focus:outline-none">Términos</button>
-                  <span>•</span>
-                  <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors focus:outline-none">Privacidad</button>
-                </p>
-              </div>
+              <button onClick={() => navigate('/')} className="text-white font-['Montserrat'] font-bold text-2xl mb-4 text-left leading-none cursor-pointer block hover:opacity-80 transition-opacity">
+                El Portal<span className="text-white/40">.</span>
+              </button>
+              <p className="text-white/50 text-sm md:text-[13px] leading-relaxed font-medium text-left">
+                La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.
+              </p>
             </div>
+
+            {/* COLUMNA 2: Repertorio */}
             <div>
-              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-6">Repertorio</h4>
-              <ul className="space-y-4 text-white/40 text-sm">
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Repertorio</h4>
+              <ul className="space-y-2 text-white/40 text-sm">
                 <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
                 <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Insumos</button></li>
               </ul>
             </div>
+
+            {/* COLUMNA 3: Comunidad */}
             <div>
-              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-6">Comunidad</h4>
-              <ul className="space-y-4 text-white/40 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">Bolsa de Trabajo</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Foro de Discusión</a></li>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Comunidad</h4>
+              <ul className="space-y-2 text-white/40 text-sm">
+                <li><button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
+                <li><button onClick={() => navigate('/inicio')} className="hover:text-white transition-colors">Foro de Discusión</button></li>
               </ul>
             </div>
+
+            {/* COLUMNA 4: Contacto */}
             <div>
-              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-6">Contacto</h4>
-              <ul className="space-y-4 mb-8 text-white/40 text-sm leading-none">
-                <li><a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors"><Mail className="w-4 h-4 shrink-0" /> <span>elportalveterinario.arg@gmail.com</span></a></li>
-                <li className="flex items-center gap-3"><Globe className="w-4 h-4" /> elportal.vet</li>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Contacto</h4>
+              <ul className="space-y-2 text-white/40 text-sm leading-none">
+                <li>
+                  <a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors">
+                    <Mail className="w-4 h-4 shrink-0" /> 
+                    <span className="truncate">elportalveterinario.arg@gmail.com</span>
+                  </a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Globe className="w-4 h-4" /> elportal.vet
+                </li>
               </ul>
             </div>
           </div>
-          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-white/40 font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
-            <div className="text-white/40 text-[11px] md:text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
+
+          {/* FILA DE CRÉDITOS UNIFICADA */}
+          <div className="flex flex-row items-center justify-center gap-x-8 mb-10 pt-4">
+            
+            {/* Iconos Redes */}
+            <div className="flex gap-3 shrink-0">
+              <a href="#" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a href="#" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a href="#" aria-label="Linkedin" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Linkedin className="w-4 h-4" />
+              </a>
+            </div>
+            
+            {/* Copyright */}
+            <div className="text-white/40 text-[11px] md:text-xs font-medium leading-relaxed whitespace-nowrap shrink-0">
+              <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
+            </div>
+
+            {/* Legales */}
+            <div className="text-white/40 text-[11px] md:text-xs font-medium flex items-center gap-2 shrink-0">
+              <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors">Términos</button>
+              <span className="opacity-20">•</span>
+              <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors">Privacidad</button>
+            </div>
+          </div>
+
+          {/* BARRA INFERIOR FINAL - Letras en blanco */}
+          <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
+            <div className="text-white text-[11px] md:text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
               <span>Hecho con</span>
-              <Heart className="w-3 h-3 text-red-400/50 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
+              <Heart className="w-3 h-3 text-red-400/80 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
               <span>en Argentina.</span>
             </div>
-            <div className="flex items-center gap-2 text-white/40">
+            <div className="flex items-center gap-2 text-white">
               <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
               <span className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
             </div>
           </div>
         </div>
       </footer>
+
+      {/* BANNER DE COOKIES */}
+      {showCookieBanner && !isFooterVisible && (
+        <div className="fixed bottom-0 left-0 w-full bg-[#0a1e1e]/95 backdrop-blur-md border-t border-white/10 z-[100] py-4 px-8 flex flex-col md:flex-row items-center justify-between gap-4 animate-slide-up shadow-2xl">
+          <div className="flex items-center gap-3 text-white/60 text-[11px] font-medium text-center md:text-left">
+            <Info size={14} className="text-[#2D6A6A] shrink-0" />
+            <p>Utilizamos cookies para mejorar tu experiencia. Al continuar navegando, aceptás nuestros términos.</p>
+          </div>
+          <button 
+            onClick={() => setShowCookieBanner(false)}
+            className="bg-[#2D6A6A] hover:bg-white text-white hover:text-[#1A3D3D] px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
+          >
+            Entendido
+          </button>
+        </div>
+      )}
+
+    </div>
+  );
+}             <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Repertorio</h4>
+              <ul className="space-y-2 text-white/40 text-sm">
+                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
+                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Insumos</button></li>
+              </ul>
+            </div>
+
+            {/* COLUMNA 3: Comunidad */}
+            <div>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Comunidad</h4>
+              <ul className="space-y-2 text-white/40 text-sm">
+                <li><button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
+                <li><button onClick={() => navigate('/inicio')} className="hover:text-white transition-colors">Foro de Discusión</button></li>
+              </ul>
+            </div>
+
+            {/* COLUMNA 4: Contacto */}
+            <div>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Contacto</h4>
+              <ul className="space-y-2 text-white/40 text-sm leading-none">
+                <li>
+                  <a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors">
+                    <Mail className="w-4 h-4 shrink-0" /> 
+                    <span className="truncate">elportalveterinario.arg@gmail.com</span>
+                  </a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Globe className="w-4 h-4" /> elportal.vet
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* FILA DE CRÉDITOS UNIFICADA */}
+          <div className="flex flex-row items-center justify-center gap-x-8 mb-10 pt-4">
+            
+            {/* Iconos Redes */}
+            <div className="flex gap-3 shrink-0">
+              <a href="#" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a href="#" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a href="#" aria-label="Linkedin" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Linkedin className="w-4 h-4" />
+              </a>
+            </div>
+            
+            {/* Copyright */}
+            <div className="text-white/40 text-[11px] md:text-xs font-medium leading-relaxed whitespace-nowrap shrink-0">
+              <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
+            </div>
+
+            {/* Legales */}
+            <div className="text-white/40 text-[11px] md:text-xs font-medium flex items-center gap-2 shrink-0">
+              <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors">Términos</button>
+              <span className="opacity-20">•</span>
+              <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors">Privacidad</button>
+            </div>
+          </div>
+
+          {/* BARRA INFERIOR FINAL - Letras en blanco */}
+          <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
+            <div className="text-white text-[11px] md:text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
+              <span>Hecho con</span>
+              <Heart className="w-3 h-3 text-red-400/80 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
+              <span>en Argentina.</span>
+            </div>
+            <div className="flex items-center gap-2 text-white">
+              <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
+              <span className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* BANNER DE COOKIES */}
+      {showCookieBanner && !isFooterVisible && (
+        <div className="fixed bottom-0 left-0 w-full bg-[#0a1e1e]/95 backdrop-blur-md border-t border-white/10 z-[100] py-4 px-8 flex flex-col md:flex-row items-center justify-between gap-4 animate-slide-up shadow-2xl">
+          <div className="flex items-center gap-3 text-white/60 text-[11px] font-medium text-center md:text-left">
+            <Info size={14} className="text-[#2D6A6A] shrink-0" />
+            <p>Utilizamos cookies para mejorar tu experiencia. Al continuar navegando, aceptás nuestros términos.</p>
+          </div>
+          <button 
+            onClick={() => setShowCookieBanner(false)}
+            className="bg-[#2D6A6A] hover:bg-white text-white hover:text-[#1A3D3D] px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
+          >
+            Entendido
+          </button>
+        </div>
+      )}
+
+    </div>
+  );
+}             <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Repertorio</h4>
+              <ul className="space-y-2 text-white/40 text-sm">
+                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
+                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Insumos</button></li>
+              </ul>
+            </div>
+
+            {/* COLUMNA 3: Comunidad */}
+            <div>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Comunidad</h4>
+              <ul className="space-y-2 text-white/40 text-sm">
+                <li><button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
+                <li><button onClick={() => navigate('/inicio')} className="hover:text-white transition-colors">Foro de Discusión</button></li>
+              </ul>
+            </div>
+
+            {/* COLUMNA 4: Contacto */}
+            <div>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Contacto</h4>
+              <ul className="space-y-2 text-white/40 text-sm leading-none">
+                <li>
+                  <a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors">
+                    <Mail className="w-4 h-4 shrink-0" /> 
+                    <span className="truncate">elportalveterinario.arg@gmail.com</span>
+                  </a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Globe className="w-4 h-4" /> elportal.vet
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* FILA DE CRÉDITOS UNIFICADA */}
+          <div className="flex flex-row items-center justify-center gap-x-8 mb-10 pt-4">
+            
+            {/* Iconos Redes */}
+            <div className="flex gap-3 shrink-0">
+              <a href="#" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a href="#" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a href="#" aria-label="Linkedin" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Linkedin className="w-4 h-4" />
+              </a>
+            </div>
+            
+            {/* Copyright */}
+            <div className="text-white/40 text-[11px] md:text-xs font-medium leading-relaxed whitespace-nowrap shrink-0">
+              <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
+            </div>
+
+            {/* Legales */}
+            <div className="text-white/40 text-[11px] md:text-xs font-medium flex items-center gap-2 shrink-0">
+              <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors">Términos</button>
+              <span className="opacity-20">•</span>
+              <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors">Privacidad</button>
+            </div>
+          </div>
+
+          {/* BARRA INFERIOR FINAL - Letras en blanco */}
+          <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
+            <div className="text-white text-[11px] md:text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
+              <span>Hecho con</span>
+              <Heart className="w-3 h-3 text-red-400/80 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
+              <span>en Argentina.</span>
+            </div>
+            <div className="flex items-center gap-2 text-white">
+              <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
+              <span className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* BANNER DE COOKIES */}
+      {showCookieBanner && !isFooterVisible && (
+        <div className="fixed bottom-0 left-0 w-full bg-[#0a1e1e]/95 backdrop-blur-md border-t border-white/10 z-[100] py-4 px-8 flex flex-col md:flex-row items-center justify-between gap-4 animate-slide-up shadow-2xl">
+          <div className="flex items-center gap-3 text-white/60 text-[11px] font-medium text-center md:text-left">
+            <Info size={14} className="text-[#2D6A6A] shrink-0" />
+            <p>Utilizamos cookies para mejorar tu experiencia. Al continuar navegando, aceptás nuestros términos.</p>
+          </div>
+          <button 
+            onClick={() => setShowCookieBanner(false)}
+            className="bg-[#2D6A6A] hover:bg-white text-white hover:text-[#1A3D3D] px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
+          >
+            Entendido
+          </button>
+        </div>
+      )}
+
+    </div>
+  );
+}           <div className="hidden md:flex items-center gap-10 text-[11px] font-black text-gray-400 uppercase tracking-widest">
+              <button className="text-[#1A3D3D] border-b-2 border-[#2D6A6A] pb-1 cursor-pointer" onClick={() => { setView('grid'); window.scrollTo(0,0); }}>Ecosistema</button>
+              <button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-[#1A3D3D] cursor-pointer transition-colors">Empleos</button>
+              <button onClick={() => navigate('/novedades')} className="hover:text-[#1A3D3D] cursor-pointer transition-colors">Novedades</button>
+              <button onClick={() => { setView('publicitar'); window.scrollTo(0,0); }} className="bg-[#1A3D3D] text-white px-8 py-3 rounded-full hover:bg-[#2D6A6A] transition-all">Publicar</button>
+            </div>
+
+            <div className="relative">
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                aria-label={isMenuOpen ? "Cerrar menú principal" : "Abrir menú principal"}
+                aria-expanded={isMenuOpen}
+                className="w-12 h-12 bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center text-[#1A3D3D] hover:bg-[#F4F7F7] transition-all active:scale-95"
+              >
+                {isMenuOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
+              </button>
+              {isMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-[-1]" onClick={() => setIsMenuOpen(false)}></div>
+                  <nav className="absolute right-0 mt-4 w-64 bg-white rounded-[32px] shadow-[0_20px_50px_rgba(26,61,61,0.15)] border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="p-3">
+                      <p className="text-[11px] md:text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 text-left">Navegación</p>
+                      <button onClick={() => { navigate('/inicio'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Home className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Inicio</span></button>
+                      <button onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Info className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Entrada</span></button>
+                      <button onClick={() => { navigate('/perfil'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><User className="w-4 h-4 text-[#2D6A6A]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Mi Perfil Público</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { setView('grid'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Repertorio Clínico</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { navigate('/novedades'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Sparkles className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Novedades</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { navigate('/bolsa-de-trabajo'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><BriefcaseIcon className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Bolsa de Trabajo</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                      <button onClick={() => { navigate('/editor'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit3 className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Ir al Editor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                    </div>
+                  </nav>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main id="main-content" className="max-w-[1440px] mx-auto pt-6 px-6 md:px-12 lg:px-24">
+        {view === 'grid' ? renderGrid() : view === 'detail' ? renderDetail() : view === 'insumoDetail' ? renderInsumoDetail() : view === 'wizard' ? renderCourseWizard() : view === 'insumoForm' ? renderInsumoForm() : view === 'propuesta' ? renderPropuesta() : renderAdvertise()}
+      </main>
+
+      {/* FOOTER COMPACTO (Definitivo) */}
+      <footer ref={footerRef} className="w-full bg-gradient-to-br from-[#1A3D3D] to-[#2D6A6A] relative overflow-hidden mt-12 pt-12 pb-8 text-left print:hidden">
+        <div className="absolute top-0 left-0 w-full h-px bg-white/10"></div>
+        <div className="max-w-[1100px] mx-auto px-8 md:px-10 relative z-10 text-left">
+          
+          {/* BLOQUE DE CONTENIDO SUPERIOR */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-8 mb-6 text-left">
+            
+            {/* COLUMNA 1: Branding */}
+            <div className="md:col-span-1 text-left">
+              <button onClick={() => navigate('/')} className="text-white font-['Montserrat'] font-bold text-2xl mb-4 text-left leading-none cursor-pointer block hover:opacity-80 transition-opacity">
+                El Portal<span className="text-white/40">.</span>
+              </button>
+              <p className="text-white/50 text-sm md:text-[13px] leading-relaxed font-medium text-left">
+                La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.
+              </p>
+            </div>
+
+            {/* COLUMNA 2: Repertorio */}
+            <div>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Repertorio</h4>
+              <ul className="space-y-2 text-white/40 text-sm">
+                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
+                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Insumos</button></li>
+              </ul>
+            </div>
+
+            {/* COLUMNA 3: Comunidad */}
+            <div>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Comunidad</h4>
+              <ul className="space-y-2 text-white/40 text-sm">
+                <li><button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
+                <li><button onClick={() => navigate('/inicio')} className="hover:text-white transition-colors">Foro de Discusión</button></li>
+              </ul>
+            </div>
+
+            {/* COLUMNA 4: Contacto */}
+            <div>
+              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Contacto</h4>
+              <ul className="space-y-2 text-white/40 text-sm leading-none">
+                <li>
+                  <a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors">
+                    <Mail className="w-4 h-4 shrink-0" /> 
+                    <span className="truncate">elportalveterinario.arg@gmail.com</span>
+                  </a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Globe className="w-4 h-4" /> elportal.vet
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* FILA DE CRÉDITOS UNIFICADA */}
+          <div className="flex flex-row items-center justify-center gap-x-8 mb-10 pt-4">
+            
+            {/* Iconos Redes */}
+            <div className="flex gap-3 shrink-0">
+              <a href="#" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a href="#" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a href="#" aria-label="Linkedin" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
+                <Linkedin className="w-4 h-4" />
+              </a>
+            </div>
+            
+            {/* Copyright */}
+            <div className="text-white/40 text-[11px] md:text-xs font-medium leading-relaxed whitespace-nowrap shrink-0">
+              <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
+            </div>
+
+            {/* Legales */}
+            <div className="text-white/40 text-[11px] md:text-xs font-medium flex items-center gap-2 shrink-0">
+              <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors">Términos</button>
+              <span className="opacity-20">•</span>
+              <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors">Privacidad</button>
+            </div>
+          </div>
+
+          {/* BARRA INFERIOR FINAL - Letras en blanco */}
+          <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
+            <div className="text-white text-[11px] md:text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
+              <span>Hecho con</span>
+              <Heart className="w-3 h-3 text-red-400/80 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
+              <span>en Argentina.</span>
+            </div>
+            <div className="flex items-center gap-2 text-white">
+              <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
+              <span className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* BANNER DE COOKIES */}
+      {showCookieBanner && !isFooterVisible && (
+        <div className="fixed bottom-0 left-0 w-full bg-[#0a1e1e]/95 backdrop-blur-md border-t border-white/10 z-[100] py-4 px-8 flex flex-col md:flex-row items-center justify-between gap-4 animate-slide-up shadow-2xl">
+          <div className="flex items-center gap-3 text-white/60 text-[11px] font-medium text-center md:text-left">
+            <Info size={14} className="text-[#2D6A6A] shrink-0" />
+            <p>Utilizamos cookies para mejorar tu experiencia. Al continuar navegando, aceptás nuestros términos.</p>
+          </div>
+          <button 
+            onClick={() => setShowCookieBanner(false)}
+            className="bg-[#2D6A6A] hover:bg-white text-white hover:text-[#1A3D3D] px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
+          >
+            Entendido
+          </button>
+        </div>
+      )}
+
     </div>
   );
 }
