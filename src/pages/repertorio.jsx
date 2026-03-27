@@ -472,6 +472,359 @@ export default function Repertorio() {
     }
   };
 
+  // =========================================================================
+  // COMPONENTES DE FILTROS (ASIDE IZQUIERDO)
+  // =========================================================================
+  const renderCursosFilters = () => (
+    <div className="bg-white rounded-[32px] p-6 lg:p-8 border border-gray-100 shadow-sm sticky top-[100px] animate-in slide-in-from-left-4 duration-500">
+      <h3 className="font-['Montserrat'] font-black text-[#1A3D3D] text-[10px] uppercase tracking-[0.2em] mb-5 flex items-center gap-2 border-b border-gray-50 pb-2">
+        <Filter className="w-3.5 h-3.5 text-[#2D6A6A]" /> Especialidades
+      </h3>
+      <ul className="space-y-3.5 mb-8">
+        <li onClick={() => handleCategoryFilter(null)} className={`text-[13px] font-black font-['Montserrat'] tracking-tight cursor-pointer transition-colors ${!filtroCategoria ? 'text-[#2D6A6A]' : 'text-gray-300 hover:text-[#1A3D3D]'}`}>
+          Todas
+        </li>
+        {CATEGORIAS.map(cat => (
+          <li key={cat} onClick={() => handleCategoryFilter(cat)} className={`text-[13px] font-semibold cursor-pointer transition-colors ${filtroCategoria === cat ? 'text-[#2D6A6A]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}>
+            {cat}
+          </li>
+        ))}
+      </ul>
+
+      <h3 className="font-['Montserrat'] font-black text-[#1A3D3D] text-[10px] uppercase tracking-[0.2em] mb-5 flex items-center gap-2 border-b border-gray-50 pb-2">
+        <Monitor className="w-3.5 h-3.5 text-[#2D6A6A]" /> Modalidad
+      </h3>
+      <div className="space-y-3.5">
+        {MODALIDADES.map(mod => (
+          <div key={mod} onClick={() => toggleModalidad(mod)} className="flex items-center gap-3 group cursor-pointer">
+            <div className={`w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center ${modalidadesSeleccionadas.includes(mod) ? 'bg-[#2D6A6A] border-[#2D6A6A]' : 'border-gray-200 group-hover:border-[#2D6A6A]'}`}>
+              {modalidadesSeleccionadas.includes(mod) && <Check className="w-3 h-3 text-white stroke-[4px]" />}
+            </div>
+            <span className={`text-[13px] font-semibold transition-colors ${modalidadesSeleccionadas.includes(mod) ? 'text-[#1A3D3D]' : 'text-gray-400 group-hover:text-[#1A3D3D]'}`}>
+              {mod}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderProveedoresFilters = () => (
+    <div className="bg-white rounded-[32px] p-6 lg:p-8 border border-gray-100 shadow-sm sticky top-[100px] animate-in slide-in-from-left-4 duration-500">
+      <h3 className="font-['Montserrat'] font-black text-[#1A3D3D] text-[10px] uppercase tracking-[0.2em] mb-5 flex items-center gap-2 border-b border-gray-50 pb-2">
+        <Filter className="w-3.5 h-3.5 text-[#2D6A6A]" /> Rubros de Insumos
+      </h3>
+      <ul className="space-y-3.5 mb-8">
+        <li 
+          onClick={() => handleProveedorCategoryFilter(null)}
+          className={`text-[13px] font-black font-['Montserrat'] tracking-tight cursor-pointer transition-colors ${!proveedorFiltroCategoria ? 'text-[#2D6A6A]' : 'text-gray-300 hover:text-[#1A3D3D]'}`}
+        >
+          Todos los rubros
+        </li>
+        {CATEGORIAS_INSUMOS.map(cat => (
+          <li 
+            key={cat} 
+            onClick={() => handleProveedorCategoryFilter(cat)}
+            className={`text-[13px] font-semibold cursor-pointer transition-colors ${proveedorFiltroCategoria === cat ? 'text-[#2D6A6A]' : 'text-gray-400 hover:text-[#1A3D3D]'}`}
+          >
+            {cat}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  // =========================================================================
+  // COMPONENTES DE CONTENIDO (MAIN)
+  // =========================================================================
+  const renderCursosContent = () => (
+    <div className="flex flex-col gap-5 md:gap-6 animate-in fade-in duration-500 w-full">
+      <div className="relative w-full">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-4 h-4" aria-hidden="true" />
+        <input 
+          type="search" 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="¿Qué quieres aprender hoy? (ej. Cirugía, Dermatología...)" 
+          className="bg-white border border-gray-100 rounded-full pl-11 pr-6 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:border-[#2D6A6A] w-full shadow-sm placeholder:text-gray-400 transition-all" 
+        />
+      </div>
+
+      <article 
+        ref={bannerRef}
+        onMouseMove={handleMouseMove}
+        className="bg-[#1A3D3D] px-5 py-4 md:px-8 md:py-5 rounded-[20px] md:rounded-[24px] text-left relative overflow-hidden group shadow-md flex flex-row items-center justify-between gap-3 md:gap-6 border border-white/5"
+      >
+        <div 
+          className="absolute pointer-events-none transition-transform duration-300 ease-out bg-white opacity-5 rounded-full blur-3xl"
+          style={{ width: '300px', height: '300px', left: mousePos.x - 150, top: mousePos.y - 150 }}
+        />
+        <div className="relative z-10 flex flex-col items-start gap-1">
+          <h2 className="text-white font-['Montserrat'] font-black text-[13px] md:text-lg uppercase leading-none tracking-tight">
+            ¿Querés publicitar tu marca?
+          </h2>
+          <p className="text-white/50 text-[10px] md:text-xs font-medium italic hidden sm:block mt-0.5">
+            Llegá a miles de profesionales de todo el país
+          </p>
+        </div>
+        <button 
+          onClick={() => setView('publicitar')}
+          className="bg-[#2D6A6A] text-white px-5 py-2.5 md:px-6 md:py-3 rounded-full text-[10px] font-bold uppercase tracking-widest relative z-10 shadow-lg hover:bg-[#3d8b8b] transition-all whitespace-nowrap"
+        >
+          <span className="md:hidden">Más info</span>
+          <span className="hidden md:inline">Más información</span>
+        </button>
+      </article>
+
+      <div className="flex flex-col lg:grid lg:grid-cols-9 gap-5 lg:gap-8 w-full mt-2">
+        <div className="lg:col-span-6 flex flex-col gap-5 md:gap-6">
+          {cursosMostrados.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                {cursosMostrados.map(curso => (
+                  <article key={curso.id} className="bg-white rounded-[24px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all group flex flex-col h-full relative">
+                    <div className="h-36 md:h-40 relative overflow-hidden cursor-pointer shrink-0" onClick={() => handleCourseClick(curso)}>
+                      <img src={curso.imagen} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={curso.titulo} />
+                      <div className="absolute top-3 left-3 flex gap-2">
+                        <span className="bg-[#1A3D3D] text-white text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-md">
+                          {curso.badge}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <button 
+                      onClick={(e) => toggleFavorito(e, `curso-${curso.id}`)}
+                      className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-all z-10"
+                    >
+                      <Heart className={`w-4 h-4 transition-colors ${favoritos.includes(`curso-${curso.id}`) ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-500'}`} />
+                    </button>
+
+                    <div className="p-4 md:p-5 flex flex-col flex-grow text-left">
+                      <div className="flex items-center gap-2 mb-2">
+                        <img src={curso.logoMarca} className="w-5 h-5 rounded-full border border-gray-100" alt={`${curso.marca} logo`} />
+                        <span className="text-[9px] font-bold text-[#2D6A6A] uppercase tracking-widest truncate">{curso.marca}</span>
+                      </div>
+                      <h3 
+                        onClick={() => handleCourseClick(curso)}
+                        className="font-['Montserrat'] font-black text-[#1A3D3D] text-[13px] md:text-sm leading-tight mb-1 group-hover:text-[#2D6A6A] transition-colors line-clamp-2 cursor-pointer"
+                      >
+                        {curso.titulo}
+                      </h3>
+                      
+                      <div className="flex items-center gap-1.5 mb-4">
+                        <div className="flex items-center gap-0.5">
+                          <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                          <span className="text-[11px] font-bold text-gray-700">{curso.rating.toFixed(1)}</span>
+                        </div>
+                        <span className="text-[10px] font-medium text-gray-400">({curso.reviews})</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 text-[10px] text-gray-400 font-semibold mb-4 mt-auto">
+                        <span className="flex items-center gap-1"><Monitor className="w-3 h-3" /> {curso.modalidad}</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {curso.duracion}</span>
+                      </div>
+
+                      <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
+                        <span className="text-lg font-black text-[#1A3D3D] tracking-tight">${curso.precio.toLocaleString('es-AR')}</span>
+                        <button aria-label="Ver detalles del curso" onClick={() => handleCourseClick(curso)} className="bg-[#1A3D3D] text-white p-2.5 rounded-xl hover:bg-[#2D6A6A] transition-all">
+                          <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              
+              {cursosFiltrados.length > visibleCourses && (
+                <div className="mt-4 flex justify-center">
+                  <button 
+                    onClick={() => setVisibleCourses(prev => prev + 6)}
+                    className="px-6 py-3 bg-white border border-gray-200 text-[#1A3D3D] text-[11px] font-bold uppercase tracking-widest rounded-full hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2"
+                  >
+                    Cargar más resultados <Plus className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="bg-white rounded-[32px] border border-gray-100 p-12 text-center flex flex-col items-center justify-center w-full h-full">
+              <Search className="w-10 h-10 text-gray-200 mb-4" />
+              <h3 className="font-['Montserrat'] font-black text-[#1A3D3D] text-lg mb-2">No encontramos seminarios</h3>
+              <p className="text-gray-500 text-sm">Prueba ajustando los filtros de búsqueda.</p>
+            </div>
+          )}
+        </div>
+
+        <aside className="lg:col-span-3 flex flex-col gap-5 md:gap-6 animate-in fade-in duration-500">
+          <div className="flex flex-col gap-1">
+            <h2 className="font-['Montserrat'] font-black text-gray-400 text-[11px] md:text-xs uppercase tracking-[0.2em]">Insumos Destacados</h2>
+            <button 
+              onClick={() => { setActiveGridTab('proveedores'); window.scrollTo(0,0); }} 
+              className="text-[#2D6A6A] font-bold text-[10px] uppercase tracking-widest hover:underline flex items-center gap-1 w-fit mt-1 group"
+            >
+              Ver Directorio <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            {PARTNERS.slice(0, 2).map(insumo => (
+              <article 
+                key={insumo.id} 
+                className="bg-white rounded-[20px] overflow-hidden shadow-sm border border-gray-100 group cursor-pointer hover:shadow-lg transition-all flex flex-col relative" 
+                onClick={() => handleInsumoClick(insumo)}
+              >
+                <div className="h-24 relative bg-gray-50 border-b border-gray-100 shrink-0">
+                  <img src={insumo.imagen} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={insumo.titulo} />
+                  <div className="absolute -bottom-4 left-3 z-20">
+                    <img src={insumo.logoMarca} className="w-10 h-10 rounded-[10px] bg-white border border-gray-100 shadow-sm object-cover" alt={`Logo ${insumo.marca}`} />
+                  </div>
+                </div>
+
+                <button 
+                  onClick={(e) => toggleFavorito(e, `insumo-${insumo.id}`)}
+                  className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-all z-20"
+                >
+                  <Heart className={`w-3.5 h-3.5 transition-colors ${favoritos.includes(`insumo-${insumo.id}`) ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-500'}`} />
+                </button>
+                
+                <div className="pt-6 px-4 pb-4 text-left flex flex-col flex-grow">
+                  <h4 className="font-['Montserrat'] font-black text-[#1A3D3D] text-xs mb-1 uppercase leading-tight line-clamp-1">{insumo.titulo}</h4>
+                  <span className="text-[8px] font-bold text-[#2D6A6A] uppercase tracking-[0.2em] block mb-2 truncate">
+                    {insumo.marca}
+                  </span>
+                  
+                  <button className="mt-auto w-full py-2.5 bg-gray-50 text-[#1A3D3D] rounded-[10px] text-[9px] font-bold uppercase tracking-[0.2em] group-hover:bg-[#1A3D3D] group-hover:text-white transition-all flex items-center justify-center gap-1">
+                    Ver Detalles
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+
+  const renderProveedoresContent = () => (
+    <div className="flex flex-col gap-5 md:gap-6 animate-in fade-in duration-500 w-full">
+      <div className="relative w-full">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-4 h-4" aria-hidden="true" />
+        <input 
+          type="search" 
+          value={proveedorSearchTerm}
+          onChange={(e) => setProveedorSearchTerm(e.target.value)}
+          placeholder="Buscar marcas, equipamiento, software..." 
+          className="bg-white border border-gray-100 rounded-full pl-11 pr-6 py-3.5 text-base md:text-sm font-medium focus:outline-none focus:border-[#2D6A6A] w-full shadow-sm placeholder:text-gray-400 transition-all" 
+        />
+      </div>
+
+      <article 
+        className="bg-[#1A3D3D] px-5 py-4 md:px-8 md:py-5 rounded-[20px] md:rounded-[24px] text-left relative overflow-hidden group shadow-md flex flex-row items-center justify-between gap-3 md:gap-6 border border-white/5"
+      >
+        <div className="relative z-10 flex flex-col items-start gap-1">
+          <h2 className="text-white font-['Montserrat'] font-black text-[13px] md:text-lg uppercase leading-none tracking-tight">
+            ¿Querés sumar tu empresa?
+          </h2>
+          <p className="text-white/50 text-[10px] md:text-xs font-medium italic hidden sm:block mt-0.5">
+            Destacá tu marca en nuestro ecosistema veterinario.
+          </p>
+        </div>
+        <button 
+          onClick={() => setView('publicitar')}
+          className="bg-[#2D6A6A] text-white px-5 py-2.5 md:px-6 md:py-3 rounded-full text-[10px] font-bold uppercase tracking-widest relative z-10 shadow-lg hover:bg-[#3d8b8b] transition-all whitespace-nowrap"
+        >
+          <span className="md:hidden">Más info</span>
+          <span className="hidden md:inline">Más información</span>
+        </button>
+      </article>
+
+      {proveedoresMostrados.length > 0 ? (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 mt-2">
+            {proveedoresMostrados.map(proveedor => (
+              <article 
+                key={proveedor.id} 
+                onClick={() => alert(`En el futuro esto abrirá el perfil de: ${proveedor.marca}.`)}
+                className={`bg-white rounded-[24px] overflow-hidden shadow-sm border flex flex-col h-full hover:shadow-xl transition-all cursor-pointer relative group ${
+                  proveedor.isPremium ? 'border-[#2D6A6A]/30 ring-1 ring-[#2D6A6A]/10' : 'border-gray-100'
+                }`}
+              >
+                {proveedor.isPremium && (
+                  <div className="absolute top-4 left-4 z-10">
+                    <span className="bg-[#1A3D3D] text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-widest flex items-center gap-1 shadow-md">
+                      <Star className="w-3 h-3 fill-current" /> Destacado
+                    </span>
+                  </div>
+                )}
+
+                <button 
+                  onClick={(e) => toggleFavorito(e, `prov-${proveedor.id}`)}
+                  className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-all z-20"
+                >
+                  <Heart className={`w-4 h-4 transition-colors ${favoritos.includes(`prov-${proveedor.id}`) ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-500'}`} />
+                </button>
+
+                <div className="h-28 md:h-32 relative bg-gray-50 shrink-0">
+                  <img src={proveedor.imagenPortada} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={`Portada de ${proveedor.marca}`} />
+                  <div className="absolute -bottom-6 left-5 z-20">
+                    <img 
+                      src={proveedor.logoMarca} 
+                      className="w-14 h-14 rounded-[12px] bg-white border-2 border-white shadow-md object-cover" 
+                      alt={`Logo ${proveedor.marca}`} 
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-10 px-5 pb-5 flex flex-col flex-grow text-left">
+                  <h4 className="font-['Montserrat'] font-black text-[#1A3D3D] text-sm mb-1 uppercase leading-tight line-clamp-1 group-hover:text-[#2D6A6A] transition-colors">
+                    {proveedor.marca}
+                  </h4>
+                  
+                  <span className="text-[9px] font-bold text-[#2D6A6A] uppercase tracking-[0.2em] block mb-3 line-clamp-1">
+                    {proveedor.categorias.join(' • ')}
+                  </span>
+                  
+                  <p className="text-gray-500 text-xs font-medium leading-relaxed line-clamp-2 flex-grow mb-4">
+                    {proveedor.descripcionCorta}
+                  </p>
+                  
+                  <div className="flex items-center gap-3 text-[10px] text-gray-400 font-semibold mb-5 border-t border-gray-50 pt-4 mt-auto">
+                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {proveedor.ubicacion.split(',')[0]}</span>
+                  </div>
+
+                  <button className={`w-full py-3 rounded-[12px] text-[10px] font-bold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${
+                    proveedor.isPremium 
+                    ? 'bg-[#1A3D3D] text-white hover:bg-[#2D6A6A] shadow-md' 
+                    : 'bg-gray-50 text-[#1A3D3D] border border-gray-200 group-hover:bg-[#1A3D3D] group-hover:text-white group-hover:border-[#1A3D3D]'
+                  }`}>
+                    Ver Perfil
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {proveedoresFiltrados.length > visibleProviders && (
+            <div className="mt-4 flex justify-center">
+              <button 
+                onClick={() => setVisibleProviders(prev => prev + 6)}
+                className="px-6 py-3 bg-white border border-gray-200 text-[#1A3D3D] text-[11px] font-bold uppercase tracking-widest rounded-full hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2"
+              >
+                Cargar más resultados <Plus className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="bg-white rounded-[32px] border border-gray-100 p-12 text-center flex flex-col items-center justify-center w-full mt-2">
+          <Building className="w-10 h-10 text-gray-200 mb-4" />
+          <h3 className="font-['Montserrat'] font-black text-[#1A3D3D] text-lg mb-2">No encontramos proveedores</h3>
+          <p className="text-gray-500 text-sm">Intentá cambiar el rubro o el término de búsqueda.</p>
+        </div>
+      )}
+    </div>
+  );
+
   const renderPropuesta = () => (
     <article className="max-w-[1000px] mx-auto animate-in fade-in duration-500 pb-24 relative">
       
@@ -1962,354 +2315,4 @@ export default function Repertorio() {
 
     </div>
   );
-}             <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Repertorio</h4>
-              <ul className="space-y-2 text-white/40 text-sm">
-                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
-                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Insumos</button></li>
-              </ul>
-            </div>
-
-            {/* COLUMNA 3: Comunidad */}
-            <div>
-              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Comunidad</h4>
-              <ul className="space-y-2 text-white/40 text-sm">
-                <li><button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
-                <li><button onClick={() => navigate('/inicio')} className="hover:text-white transition-colors">Foro de Discusión</button></li>
-              </ul>
-            </div>
-
-            {/* COLUMNA 4: Contacto */}
-            <div>
-              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Contacto</h4>
-              <ul className="space-y-2 text-white/40 text-sm leading-none">
-                <li>
-                  <a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors">
-                    <Mail className="w-4 h-4 shrink-0" /> 
-                    <span className="truncate">elportalveterinario.arg@gmail.com</span>
-                  </a>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Globe className="w-4 h-4" /> elportal.vet
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* FILA DE CRÉDITOS UNIFICADA */}
-          <div className="flex flex-row items-center justify-center gap-x-8 mb-10 pt-4">
-            
-            {/* Iconos Redes */}
-            <div className="flex gap-3 shrink-0">
-              <a href="#" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a href="#" aria-label="Linkedin" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
-                <Linkedin className="w-4 h-4" />
-              </a>
-            </div>
-            
-            {/* Copyright */}
-            <div className="text-white/40 text-[11px] md:text-xs font-medium leading-relaxed whitespace-nowrap shrink-0">
-              <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
-            </div>
-
-            {/* Legales */}
-            <div className="text-white/40 text-[11px] md:text-xs font-medium flex items-center gap-2 shrink-0">
-              <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors">Términos</button>
-              <span className="opacity-20">•</span>
-              <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors">Privacidad</button>
-            </div>
-          </div>
-
-          {/* BARRA INFERIOR FINAL - Letras en blanco */}
-          <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
-            <div className="text-white text-[11px] md:text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
-              <span>Hecho con</span>
-              <Heart className="w-3 h-3 text-red-400/80 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
-              <span>en Argentina.</span>
-            </div>
-            <div className="flex items-center gap-2 text-white">
-              <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-              <span className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
-            </div>
-          </div>
-        </div>
-      </footer>
-
-      {/* BANNER DE COOKIES */}
-      {showCookieBanner && !isFooterVisible && (
-        <div className="fixed bottom-0 left-0 w-full bg-[#0a1e1e]/95 backdrop-blur-md border-t border-white/10 z-[100] py-4 px-8 flex flex-col md:flex-row items-center justify-between gap-4 animate-slide-up shadow-2xl">
-          <div className="flex items-center gap-3 text-white/60 text-[11px] font-medium text-center md:text-left">
-            <Info size={14} className="text-[#2D6A6A] shrink-0" />
-            <p>Utilizamos cookies para mejorar tu experiencia. Al continuar navegando, aceptás nuestros términos.</p>
-          </div>
-          <button 
-            onClick={() => setShowCookieBanner(false)}
-            className="bg-[#2D6A6A] hover:bg-white text-white hover:text-[#1A3D3D] px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
-          >
-            Entendido
-          </button>
-        </div>
-      )}
-
-    </div>
-  );
-}             <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Repertorio</h4>
-              <ul className="space-y-2 text-white/40 text-sm">
-                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
-                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Insumos</button></li>
-              </ul>
-            </div>
-
-            {/* COLUMNA 3: Comunidad */}
-            <div>
-              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Comunidad</h4>
-              <ul className="space-y-2 text-white/40 text-sm">
-                <li><button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
-                <li><button onClick={() => navigate('/inicio')} className="hover:text-white transition-colors">Foro de Discusión</button></li>
-              </ul>
-            </div>
-
-            {/* COLUMNA 4: Contacto */}
-            <div>
-              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Contacto</h4>
-              <ul className="space-y-2 text-white/40 text-sm leading-none">
-                <li>
-                  <a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors">
-                    <Mail className="w-4 h-4 shrink-0" /> 
-                    <span className="truncate">elportalveterinario.arg@gmail.com</span>
-                  </a>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Globe className="w-4 h-4" /> elportal.vet
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* FILA DE CRÉDITOS UNIFICADA */}
-          <div className="flex flex-row items-center justify-center gap-x-8 mb-10 pt-4">
-            
-            {/* Iconos Redes */}
-            <div className="flex gap-3 shrink-0">
-              <a href="#" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a href="#" aria-label="Linkedin" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
-                <Linkedin className="w-4 h-4" />
-              </a>
-            </div>
-            
-            {/* Copyright */}
-            <div className="text-white/40 text-[11px] md:text-xs font-medium leading-relaxed whitespace-nowrap shrink-0">
-              <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
-            </div>
-
-            {/* Legales */}
-            <div className="text-white/40 text-[11px] md:text-xs font-medium flex items-center gap-2 shrink-0">
-              <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors">Términos</button>
-              <span className="opacity-20">•</span>
-              <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors">Privacidad</button>
-            </div>
-          </div>
-
-          {/* BARRA INFERIOR FINAL - Letras en blanco */}
-          <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
-            <div className="text-white text-[11px] md:text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
-              <span>Hecho con</span>
-              <Heart className="w-3 h-3 text-red-400/80 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
-              <span>en Argentina.</span>
-            </div>
-            <div className="flex items-center gap-2 text-white">
-              <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-              <span className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
-            </div>
-          </div>
-        </div>
-      </footer>
-
-      {/* BANNER DE COOKIES */}
-      {showCookieBanner && !isFooterVisible && (
-        <div className="fixed bottom-0 left-0 w-full bg-[#0a1e1e]/95 backdrop-blur-md border-t border-white/10 z-[100] py-4 px-8 flex flex-col md:flex-row items-center justify-between gap-4 animate-slide-up shadow-2xl">
-          <div className="flex items-center gap-3 text-white/60 text-[11px] font-medium text-center md:text-left">
-            <Info size={14} className="text-[#2D6A6A] shrink-0" />
-            <p>Utilizamos cookies para mejorar tu experiencia. Al continuar navegando, aceptás nuestros términos.</p>
-          </div>
-          <button 
-            onClick={() => setShowCookieBanner(false)}
-            className="bg-[#2D6A6A] hover:bg-white text-white hover:text-[#1A3D3D] px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
-          >
-            Entendido
-          </button>
-        </div>
-      )}
-
-    </div>
-  );
-}           <div className="hidden md:flex items-center gap-10 text-[11px] font-black text-gray-400 uppercase tracking-widest">
-              <button className="text-[#1A3D3D] border-b-2 border-[#2D6A6A] pb-1 cursor-pointer" onClick={() => { setView('grid'); window.scrollTo(0,0); }}>Ecosistema</button>
-              <button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-[#1A3D3D] cursor-pointer transition-colors">Empleos</button>
-              <button onClick={() => navigate('/novedades')} className="hover:text-[#1A3D3D] cursor-pointer transition-colors">Novedades</button>
-              <button onClick={() => { setView('publicitar'); window.scrollTo(0,0); }} className="bg-[#1A3D3D] text-white px-8 py-3 rounded-full hover:bg-[#2D6A6A] transition-all">Publicar</button>
-            </div>
-
-            <div className="relative">
-              <button 
-                onClick={() => setIsMenuOpen(!isMenuOpen)} 
-                aria-label={isMenuOpen ? "Cerrar menú principal" : "Abrir menú principal"}
-                aria-expanded={isMenuOpen}
-                className="w-12 h-12 bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center text-[#1A3D3D] hover:bg-[#F4F7F7] transition-all active:scale-95"
-              >
-                {isMenuOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
-              </button>
-              {isMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-[-1]" onClick={() => setIsMenuOpen(false)}></div>
-                  <nav className="absolute right-0 mt-4 w-64 bg-white rounded-[32px] shadow-[0_20px_50px_rgba(26,61,61,0.15)] border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
-                    <div className="p-3">
-                      <p className="text-[11px] md:text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 text-left">Navegación</p>
-                      <button onClick={() => { navigate('/inicio'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Home className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Inicio</span></button>
-                      <button onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><Info className="w-4 h-4 text-gray-400 group-hover:text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Entrada</span></button>
-                      <button onClick={() => { navigate('/perfil'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><User className="w-4 h-4 text-[#2D6A6A]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Mi Perfil Público</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                      <button onClick={() => { setView('grid'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><LayoutGrid className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Repertorio Clínico</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                      <button onClick={() => { navigate('/novedades'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Sparkles className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Novedades</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                      <button onClick={() => { navigate('/bolsa-de-trabajo'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><BriefcaseIcon className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Bolsa de Trabajo</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                      <button onClick={() => { navigate('/editor'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F4F7F7] rounded-2xl transition-colors group"><div className="flex items-center gap-3"><Edit3 className="w-4 h-4 text-[#1A3D3D]" /><span className="text-[15px] md:text-sm font-bold text-[#1A3D3D]">Ir al Editor</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                    </div>
-                  </nav>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <main id="main-content" className="max-w-[1440px] mx-auto pt-6 px-6 md:px-12 lg:px-24">
-        {view === 'grid' ? renderGrid() : view === 'detail' ? renderDetail() : view === 'insumoDetail' ? renderInsumoDetail() : view === 'wizard' ? renderCourseWizard() : view === 'insumoForm' ? renderInsumoForm() : view === 'propuesta' ? renderPropuesta() : renderAdvertise()}
-      </main>
-
-      {/* FOOTER COMPACTO (Definitivo) */}
-      <footer ref={footerRef} className="w-full bg-gradient-to-br from-[#1A3D3D] to-[#2D6A6A] relative overflow-hidden mt-12 pt-12 pb-8 text-left print:hidden">
-        <div className="absolute top-0 left-0 w-full h-px bg-white/10"></div>
-        <div className="max-w-[1100px] mx-auto px-8 md:px-10 relative z-10 text-left">
-          
-          {/* BLOQUE DE CONTENIDO SUPERIOR */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-8 mb-6 text-left">
-            
-            {/* COLUMNA 1: Branding */}
-            <div className="md:col-span-1 text-left">
-              <button onClick={() => navigate('/')} className="text-white font-['Montserrat'] font-bold text-2xl mb-4 text-left leading-none cursor-pointer block hover:opacity-80 transition-opacity">
-                El Portal<span className="text-white/40">.</span>
-              </button>
-              <p className="text-white/50 text-sm md:text-[13px] leading-relaxed font-medium text-left">
-                La red profesional exclusiva para medicina veterinaria de alta complejidad. Conectando talento con vocación.
-              </p>
-            </div>
-
-            {/* COLUMNA 2: Repertorio */}
-            <div>
-              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Repertorio</h4>
-              <ul className="space-y-2 text-white/40 text-sm">
-                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Cursos y Seminarios</button></li>
-                <li><button onClick={() => { setView('grid'); window.scrollTo(0,0); }} className="hover:text-white transition-colors">Insumos</button></li>
-              </ul>
-            </div>
-
-            {/* COLUMNA 3: Comunidad */}
-            <div>
-              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Comunidad</h4>
-              <ul className="space-y-2 text-white/40 text-sm">
-                <li><button onClick={() => navigate('/bolsa-de-trabajo')} className="hover:text-white transition-colors">Bolsa de Trabajo</button></li>
-                <li><button onClick={() => navigate('/inicio')} className="hover:text-white transition-colors">Foro de Discusión</button></li>
-              </ul>
-            </div>
-
-            {/* COLUMNA 4: Contacto */}
-            <div>
-              <h4 className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em] mb-4">Contacto</h4>
-              <ul className="space-y-2 text-white/40 text-sm leading-none">
-                <li>
-                  <a href="mailto:elportalveterinario.arg@gmail.com" className="flex items-center gap-3 hover:text-white transition-colors">
-                    <Mail className="w-4 h-4 shrink-0" /> 
-                    <span className="truncate">elportalveterinario.arg@gmail.com</span>
-                  </a>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Globe className="w-4 h-4" /> elportal.vet
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* FILA DE CRÉDITOS UNIFICADA */}
-          <div className="flex flex-row items-center justify-center gap-x-8 mb-10 pt-4">
-            
-            {/* Iconos Redes */}
-            <div className="flex gap-3 shrink-0">
-              <a href="#" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a href="#" aria-label="Linkedin" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/70 hover:bg-white hover:text-[#1A3D3D] transition-all">
-                <Linkedin className="w-4 h-4" />
-              </a>
-            </div>
-            
-            {/* Copyright */}
-            <div className="text-white/40 text-[11px] md:text-xs font-medium leading-relaxed whitespace-nowrap shrink-0">
-              <p>&copy; {new Date().getFullYear()} El Portal. Todos los derechos reservados.</p>
-            </div>
-
-            {/* Legales */}
-            <div className="text-white/40 text-[11px] md:text-xs font-medium flex items-center gap-2 shrink-0">
-              <button onClick={() => navigate('/terminos-y-condiciones')} className="underline hover:text-white transition-colors">Términos</button>
-              <span className="opacity-20">•</span>
-              <button onClick={() => navigate('/politica-de-privacidad')} className="underline hover:text-white transition-colors">Privacidad</button>
-            </div>
-          </div>
-
-          {/* BARRA INFERIOR FINAL - Letras en blanco */}
-          <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-white font-bold text-[11px] md:text-[10px] uppercase tracking-[0.3em]">creado por Belén M. Arenas</p>
-            <div className="text-white text-[11px] md:text-[10px] uppercase tracking-[0.3em] font-medium flex items-center gap-1.5 group cursor-default">
-              <span>Hecho con</span>
-              <Heart className="w-3 h-3 text-red-400/80 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300 fill-current" aria-hidden="true" />
-              <span>en Argentina.</span>
-            </div>
-            <div className="flex items-center gap-2 text-white">
-              <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-              <span className="text-[11px] md:text-[10px] font-bold uppercase tracking-[0.3em] leading-none">Única plataforma veterinaria oficial</span>
-            </div>
-          </div>
-        </div>
-      </footer>
-
-      {/* BANNER DE COOKIES */}
-      {showCookieBanner && !isFooterVisible && (
-        <div className="fixed bottom-0 left-0 w-full bg-[#0a1e1e]/95 backdrop-blur-md border-t border-white/10 z-[100] py-4 px-8 flex flex-col md:flex-row items-center justify-between gap-4 animate-slide-up shadow-2xl">
-          <div className="flex items-center gap-3 text-white/60 text-[11px] font-medium text-center md:text-left">
-            <Info size={14} className="text-[#2D6A6A] shrink-0" />
-            <p>Utilizamos cookies para mejorar tu experiencia. Al continuar navegando, aceptás nuestros términos.</p>
-          </div>
-          <button 
-            onClick={() => setShowCookieBanner(false)}
-            className="bg-[#2D6A6A] hover:bg-white text-white hover:text-[#1A3D3D] px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
-          >
-            Entendido
-          </button>
-        </div>
-      )}
-
-    </div>
-  );
-}
+}             
