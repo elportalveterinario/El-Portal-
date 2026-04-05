@@ -28,7 +28,7 @@ function App() {
         
         <Route path="/editor" element={<Editor />} />
         <Route path="/editor-clinica" element={<EditorClinica />} />
-        <Route path="/editor-proveedor" element={<EditorProveedor />} />
+        <Route path="/editor-proveedores" element={<EditorProveedor />} />
         
         <Route path="/ecosistema" element={<Ecosistema />} />
         <Route path="/novedades" element={<Novedades />} />

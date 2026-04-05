@@ -7,7 +7,7 @@ import {
   Award, Bell, Facebook, Instagram, Linkedin, Mail, Calendar, Heart,
   Building, Truck, Home, User, Edit, LayoutGrid, MapPin, Activity, ArrowRight,
   Chrome, Eye, EyeOff, Lock, Filter, Stethoscope, Info, Tag, ShoppingCart,
-  CheckCircle2, PlusCircle
+  CheckCircle2, PlusCircle, TrendingUp, Network, ShoppingBag
 } from 'lucide-react';
 
 // ==========================================
@@ -111,6 +111,7 @@ function LandingPageContent() {
   const [isFormExpanded, setIsFormExpanded] = useState(false);
   const [activeRole, setActiveRole] = useState('profesional');
   const [isFooterVisible, setIsFooterVisible] = useState(false);
+  const [highlightForm, setHighlightForm] = useState(false); // Estado para animar el form
   const navigate = useNavigate();
   const footerRef = useRef(null);
 
@@ -194,6 +195,20 @@ function LandingPageContent() {
     return "Únete a la red profesional de Argentina.";
   };
 
+  const handleEmpezaAcaClick = () => {
+    // Hace scroll suave arriba
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Espera a que termine el scroll aprox y activa la animación del formulario
+    setTimeout(() => {
+      setHighlightForm(true);
+      // Apaga la animación después de 2.5 segundos
+      setTimeout(() => {
+        setHighlightForm(false);
+      }, 2500);
+    }, 600);
+  };
+
   return (
     <div className="min-h-screen bg-[#F4F7F7] font-['Inter'] text-[#333333] overflow-x-hidden relative selection:bg-[#2D6A6A] selection:text-white antialiased">
       
@@ -243,7 +258,7 @@ function LandingPageContent() {
                         
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] px-4 py-3 border-b border-gray-50 mb-2 mt-2 text-left">Editores</p>
                         <button onClick={() => handleNav('editor-clinica')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F7F7] rounded-xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Clínica</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
-                        <button onClick={() => handleNav('editor-insumos')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F7F7] rounded-xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Insumos</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                        <button onClick={() => handleNav('editor-proveedores')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F7F7] rounded-xl transition-colors group"><div className="flex items-center gap-3"><Edit className="w-4 h-4 text-[#1A3D3D]" /><span className="text-sm font-bold text-[#1A3D3D]">Editor Proveedores</span></div><ChevronRight className="w-4 h-4 text-gray-300" /></button>
                       </div>
                     </div>
                   </>
@@ -291,7 +306,7 @@ function LandingPageContent() {
               {/* LADO DERECHO: FORMULARIO DE REGISTRO */}
               <div className="relative group max-w-[420px] mx-auto w-full">
                 <div className="absolute -inset-1 bg-gradient-to-r from-[#2D6A6A]/20 to-transparent rounded-[32px] blur-xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
-                <div className="relative bg-white/95 backdrop-blur-xl border border-white/5 rounded-[32px] p-6 md:px-8 md:py-7 shadow-[0_30px_60px_rgba(26,61,61,0.08)] flex flex-col items-center">
+                <div className={`relative bg-white/95 backdrop-blur-xl border border-white/5 rounded-[32px] p-6 md:px-8 md:py-7 flex flex-col items-center transition-all duration-700 ease-out ${highlightForm ? 'scale-[1.03] shadow-[0_0_80px_rgba(45,106,106,0.3)] ring-4 ring-[#4DB6AC] ring-offset-4 ring-offset-[#F4F7F7]' : 'scale-100 shadow-[0_30px_60px_rgba(26,61,61,0.08)]'}`}>
                   
                   <h2 className="text-[22px] md:text-[22px] font-black text-[#1A3D3D] mb-1 font-['Montserrat'] text-center leading-tight">Crea tu cuenta, es gratis.</h2>
                   <p className="text-gray-400 text-[13px] md:text-[13px] font-medium mb-4 text-center transition-all duration-300">{getRoleSubtext()}</p>
@@ -376,7 +391,7 @@ function LandingPageContent() {
                         </div>
 
                         <button 
-                          onClick={() => handleNav(activeRole === 'profesional' ? 'editor' : activeRole === 'clinica' ? 'editor-clinica' : 'editor-insumos')} 
+                          onClick={() => handleNav(activeRole === 'profesional' ? 'editor' : activeRole === 'clinica' ? 'editor-clinica' : 'editor-proveedores')} 
                           className="w-full bg-[#2D6A6A] text-white py-3 md:py-3.5 rounded-[12px] font-black uppercase tracking-[0.2em] text-[11px] md:text-[11px] shadow-xl hover:bg-[#1A3D3D] hover:-translate-y-0.5 transition-all active:scale-95 flex items-center justify-center gap-2"
                         >
                           Crear cuenta de {activeRole} <ChevronRight className="w-4 h-4" />
@@ -665,18 +680,32 @@ function LandingPageContent() {
             </h2>
           </div>
 
-          <div className="max-w-[1000px] mx-auto px-8 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 relative z-10">
+          <div className="max-w-[1000px] mx-auto px-8 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 relative z-10">
             
             {/* Split Izquierdo: Clínicas */}
             <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[32px] shadow-sm hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] hover:bg-white/10 transition-all duration-300 group flex flex-col items-start text-left relative overflow-hidden">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center mb-6 shadow-sm border border-white/5">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center mb-5 shadow-sm">
                 <Building2 className="w-6 h-6" />
               </div>
-              <h3 className="text-xl md:text-2xl font-black text-white font-['Montserrat'] mb-3">Centros Veterinarios</h3>
-              <p className="text-white/70 text-sm leading-relaxed font-medium mb-8 flex-1">
-                Visibilidad institucional inteligente. Mostrá tu infraestructura, capacidad de internación y equipamiento tecnológico para captar derivaciones de casos complejos. Encontrá y reclutá a los mejores especialistas directamente desde nuestra Bolsa de Trabajo.
-              </p>
-              <button onClick={() => navigate('/editor-clinica')} className="bg-transparent border border-white/40 text-white px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-white hover:text-[#1A3D3D] transition-colors flex items-center gap-2 shadow-sm w-full md:w-auto justify-center">
+              <h3 className="text-xl md:text-2xl font-black text-white font-['Montserrat'] mb-1">Centros Veterinarios</h3>
+              <h4 className="text-[#4DB6AC] font-bold text-[13px] leading-snug mb-6">Atraé nuevos pacientes y convertite en el centro de derivación de tu región.</h4>
+
+              <ul className="flex flex-col gap-4 mb-8 flex-1">
+                <li className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-[#4DB6AC] shrink-0 mt-0.5" />
+                  <p className="text-white/70 text-[13px] leading-relaxed font-medium"><strong className="text-white font-bold">Visibilidad ante tutores:</strong> Que los dueños de mascotas encuentren tu clínica por zona, exploren tus servicios y conozcan a tu staff de profesionales.</p>
+                </li>
+                <li className="flex items-start gap-3">
+                  <TrendingUp className="w-5 h-5 text-[#4DB6AC] shrink-0 mt-0.5" />
+                  <p className="text-white/70 text-[13px] leading-relaxed font-medium"><strong className="text-white font-bold">Rentabilizá tu equipamiento:</strong> Atraé derivaciones directas de colegas que necesitan tus equipos de alta complejidad o quirófano.</p>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Briefcase className="w-5 h-5 text-[#4DB6AC] shrink-0 mt-0.5" />
+                  <p className="text-white/70 text-[13px] leading-relaxed font-medium"><strong className="text-white font-bold">Reclutamiento ágil:</strong> Publicá búsquedas en nuestra Bolsa de Trabajo y encontrá rápidamente a los especialistas exactos que tu equipo necesita.</p>
+                </li>
+              </ul>
+
+              <button onClick={() => navigate('/editor-clinica')} className="bg-transparent border border-white/40 text-white px-6 py-3.5 rounded-xl font-black uppercase tracking-widest text-[11px] hover:bg-white hover:text-[#1A3D3D] transition-all flex items-center gap-2 shadow-sm w-full md:w-auto justify-center">
                 Unir mi clínica <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -713,14 +742,28 @@ function LandingPageContent() {
 
             {/* Split Derecho: Proveedores */}
             <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[32px] shadow-sm hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] hover:bg-white/10 transition-all duration-300 group flex flex-col items-start text-left relative overflow-hidden">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center mb-6 shadow-sm border border-white/5">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center mb-5 shadow-sm">
                 <Package className="w-6 h-6" />
               </div>
-              <h3 className="text-xl md:text-2xl font-black text-white font-['Montserrat'] mb-3">Proveedores B2B</h3>
-              <p className="text-white/70 text-sm leading-relaxed font-medium mb-8 flex-1">
-                Tu catálogo en el lugar correcto. Dejá de invertir en publicidad masiva; conectá directamente con los directores médicos y profesionales matriculados que toman las decisiones de compra en los quirófanos y consultorios del país.
-              </p>
-              <button onClick={() => navigate('/editor-insumos')} className="bg-[#4DB6AC] text-[#1A3D3D] px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[11px] hover:bg-white transition-all flex items-center gap-2 shadow-lg hover:-translate-y-0.5 w-full md:w-auto justify-center">
+              <h3 className="text-xl md:text-2xl font-black text-white font-['Montserrat'] mb-1">Proveedores B2B</h3>
+              <h4 className="text-[#4DB6AC] font-bold text-[13px] leading-snug mb-6">Tu catálogo frente a los que toman las decisiones de compra.</h4>
+
+              <ul className="flex flex-col gap-4 mb-8 flex-1">
+                <li className="flex items-start gap-3">
+                  <Target className="w-5 h-5 text-[#4DB6AC] shrink-0 mt-0.5" />
+                  <p className="text-white/70 text-[13px] leading-relaxed font-medium"><strong className="text-white font-bold">Tráfico 100% calificado:</strong> Dejá de pagar publicidad masiva. Tu oferta llega exclusivamente a profesionales matriculados y directores médicos.</p>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Network className="w-5 h-5 text-[#4DB6AC] shrink-0 mt-0.5" />
+                  <p className="text-white/70 text-[13px] leading-relaxed font-medium"><strong className="text-white font-bold">Networking de Ventas:</strong> Acortá el embudo de ventas conectando de forma directa a tus distribuidores con las clínicas.</p>
+                </li>
+                <li className="flex items-start gap-3">
+                  <ShoppingBag className="w-5 h-5 text-[#4DB6AC] shrink-0 mt-0.5" />
+                  <p className="text-white/70 text-[13px] leading-relaxed font-medium"><strong className="text-white font-bold">Exhibición de Alta Gama:</strong> Mostrá aparatología, instrumental o insumos destacando ofertas exclusivas directas de fábrica.</p>
+                </li>
+              </ul>
+
+              <button onClick={() => navigate('/editor-proveedores')} className="bg-[#4DB6AC] text-[#1A3D3D] px-6 py-3.5 rounded-xl font-black uppercase tracking-widest text-[11px] hover:bg-white transition-all flex items-center gap-2 shadow-lg hover:-translate-y-0.5 w-full md:w-auto justify-center">
                 Unir mi empresa <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -801,26 +844,26 @@ function LandingPageContent() {
               </div>
 
               {/* Widget 2: Servicios Complementarios */}
-              <div className="md:col-span-1 md:row-span-2 bg-[#2D6A6A]/5 border border-[#2D6A6A]/10 p-8 rounded-[32px] hover:bg-[#2D6A6A]/10 transition-all duration-300 flex flex-col group overflow-hidden text-left">
+              <div className="md:col-span-1 md:row-span-2 bg-[#1A3D3D] border border-white/5 p-8 rounded-[32px] hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] transition-all duration-300 flex flex-col group overflow-hidden text-left">
                 <div className="flex items-center gap-3 mb-4 text-left">
-                  <Activity className="w-6 h-6 text-[#2D6A6A]" />
-                  <h3 className="text-2xl font-bold font-['Montserrat'] text-[#1A3D3D] leading-tight">Servicios & Terapias holísticas</h3>
+                  <Activity className="w-6 h-6 text-white" />
+                  <h3 className="text-2xl font-bold font-['Montserrat'] text-white leading-tight">Servicios & Terapias holísticas</h3>
                 </div>
-                <p className="text-gray-600 leading-relaxed font-medium text-sm text-left mb-8">
+                <p className="text-white/70 leading-relaxed font-medium text-sm text-left mb-8">
                   Damos visibilidad a profesionales y servicios especializados difíciles de hallar: fisioterapia, terapias holísticas, etología y nutrición natural. Conectamos todo el ecosistema de bienestar.
                 </p>
                 <div className="mt-auto flex flex-col gap-3 relative z-10 text-left">
-                  <div className="bg-white p-4 rounded-2xl shadow-sm border border-[#2D6A6A]/10 hover:shadow-md transition-all group-hover:-translate-y-1 transform duration-300 flex justify-between items-center cursor-pointer">
-                    <span className="text-[#2D6A6A] font-bold text-sm">Rehabilitación</span>
-                    <ChevronRight className="w-4 h-4 text-[#2D6A6A]/50" />
+                  <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 hover:bg-white/20 transition-all group-hover:-translate-y-1 transform duration-300 flex justify-between items-center cursor-pointer">
+                    <span className="text-white font-bold text-sm">Rehabilitación</span>
+                    <ChevronRight className="w-4 h-4 text-white/50" />
                   </div>
-                  <div className="bg-white p-4 rounded-2xl shadow-sm border border-[#2D6A6A]/10 hover:shadow-md transition-all group-hover:-translate-y-1 transform duration-300 flex justify-between items-center cursor-pointer delay-75">
-                    <span className="text-[#2D6A6A] font-bold text-sm">Etología Clínica</span>
-                    <ChevronRight className="w-4 h-4 text-[#2D6A6A]/50" />
+                  <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 hover:bg-white/20 transition-all group-hover:-translate-y-1 transform duration-300 flex justify-between items-center cursor-pointer delay-75">
+                    <span className="text-white font-bold text-sm">Etología Clínica</span>
+                    <ChevronRight className="w-4 h-4 text-white/50" />
                   </div>
-                  <div className="bg-white p-4 rounded-2xl shadow-sm border border-[#2D6A6A]/10 hover:shadow-md transition-all group-hover:-translate-y-1 transform duration-300 flex justify-between items-center cursor-pointer delay-150">
-                    <span className="text-[#2D6A6A] font-bold text-sm">Fisioterapia</span>
-                    <ChevronRight className="w-4 h-4 text-[#2D6A6A]/50" />
+                  <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 hover:bg-white/20 transition-all group-hover:-translate-y-1 transform duration-300 flex justify-between items-center cursor-pointer delay-150">
+                    <span className="text-white font-bold text-sm">Fisioterapia</span>
+                    <ChevronRight className="w-4 h-4 text-white/50" />
                   </div>
                 </div>
               </div>
@@ -884,13 +927,13 @@ function LandingPageContent() {
               </div>
 
               {/* Widget 6: Noticias */}
-              <div className="md:col-span-2 bg-[#1A3D3D] p-8 md:p-10 rounded-[32px] hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] transition-all duration-300 flex flex-col md:flex-row gap-8 items-center border border-white/5 text-left overflow-hidden group">
+              <div className="md:col-span-2 bg-[#2D6A6A]/5 border border-[#2D6A6A]/10 p-8 md:p-10 rounded-[32px] hover:bg-[#2D6A6A]/10 transition-all duration-300 flex flex-col md:flex-row gap-8 items-center text-left overflow-hidden group">
                 <div className="flex-1 text-left">
                   <div className="flex items-center gap-3 mb-4 text-left">
-                    <Newspaper className="w-6 h-6 text-white" />
-                    <h3 className="text-2xl font-bold font-['Montserrat'] text-white">Noticias</h3>
+                    <Newspaper className="w-6 h-6 text-[#2D6A6A]" />
+                    <h3 className="text-2xl font-bold font-['Montserrat'] text-[#1A3D3D]">Noticias</h3>
                   </div>
-                  <p className="text-white/70 leading-relaxed font-medium text-sm text-left">
+                  <p className="text-gray-600 leading-relaxed font-medium text-sm text-left">
                     Mantenete al día con los avances de la medicina veterinaria en Argentina. Un feed exclusivo para descubrir procedimientos innovadores y celebrar las hazañas de tus colegas.
                   </p>
                 </div>
@@ -902,9 +945,9 @@ function LandingPageContent() {
                     </div>
                     <p className="font-bold text-[15px] leading-tight text-[#1A3D3D] text-left">Nueva técnica en cirugía de tejidos blandos. Casos de éxito.</p>
                   </div>
-                  <div className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/5 text-left transition-all duration-500 w-full flex items-center justify-between cursor-pointer hover:bg-white/20">
-                    <p className="font-medium text-sm leading-tight text-white/80 text-left">El Portal llega a los 10k miembros activos.</p>
-                    <ArrowRight className="w-4 h-4 text-white/40 shrink-0 ml-4" />
+                  <div className="bg-white p-4 rounded-2xl border border-[#2D6A6A]/10 text-left transition-all duration-500 w-full flex items-center justify-between cursor-pointer hover:shadow-md">
+                    <p className="font-medium text-sm leading-tight text-gray-600 text-left">El Portal llega a los 10k miembros activos.</p>
+                    <ArrowRight className="w-4 h-4 text-[#2D6A6A]/40 shrink-0 ml-4" />
                   </div>
                 </div>
               </div>
@@ -923,7 +966,7 @@ function LandingPageContent() {
             <p className="text-white/80 text-lg md:text-xl font-medium mb-10 max-w-2xl mx-auto text-center">
               Formá parte de la primera cartilla veterinaria que potencia tu visibilidad mientras vos te enfocás en tu profesion.
             </p>
-            <button onClick={() => handleNav('editor')} className="bg-[#1A3D3D] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-white hover:text-[#1A3D3D] hover:-translate-y-1 transition-all mx-auto">
+            <button onClick={handleEmpezaAcaClick} className="bg-[#1A3D3D] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-white hover:text-[#1A3D3D] hover:-translate-y-1 transition-all mx-auto">
               Empeza acá
             </button>
           </div>
