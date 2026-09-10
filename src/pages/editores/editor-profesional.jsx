@@ -233,13 +233,25 @@ const Accordion = ({ title, icon: Icon, children, isOpen, onToggle, tooltip, isB
 
 const SimpleCropper = ({ imageSrc, onCrop, onCancel, type }) => {
   const [zoom, setZoom] = useState(1);
+  const [minZoom, setMinZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [baseScale, setBaseScale] = useState(1);
   const imgRef = useRef(null);
-  
+
   const CROP_SIZE = 256;
   const borderRadius = type === 'perfil' ? '50%' : '1.5rem';
+
+  // Cuando la imagen carga, calculamos la escala base real para que entre en el área
+  const handleImageLoad = (e) => {
+    const img = e.target;
+    const calculated = Math.max(CROP_SIZE / img.naturalWidth, CROP_SIZE / img.naturalHeight);
+    setBaseScale(calculated);
+    setMinZoom(1);
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
+  };
 
   const handlePointerDown = (e) => {
     if (e.cancelable !== false) e.preventDefault();
@@ -264,8 +276,8 @@ const SimpleCropper = ({ imageSrc, onCrop, onCancel, type }) => {
     canvas.height = CROP_SIZE;
     const ctx = canvas.getContext('2d');
     const img = imgRef.current;
-    
-    const baseScale = Math.max(CROP_SIZE / img.naturalWidth, CROP_SIZE / img.naturalHeight);
+
+    // La escala final combina baseScale (para entrar en el área) y zoom del slider
     const finalScale = baseScale * zoom;
     const drawWidth = img.naturalWidth * finalScale;
     const drawHeight = img.naturalHeight * finalScale;
@@ -278,29 +290,47 @@ const SimpleCropper = ({ imageSrc, onCrop, onCancel, type }) => {
     onCrop(canvas.toDataURL('image/jpeg', 0.9));
   };
 
+  // La escala visual en pantalla también combina baseScale + zoom del slider
+  const visualScale = baseScale * zoom;
+
   return (
     <div className="flex flex-col items-center w-full overflow-hidden">
-      <div 
+      <div
         className="relative bg-gray-100 overflow-hidden cursor-move touch-none shadow-inner max-w-full"
         style={{ width: CROP_SIZE, height: CROP_SIZE, borderRadius }}
         onMouseDown={handlePointerDown} onMouseMove={handlePointerMove} onMouseUp={handlePointerUp} onMouseLeave={handlePointerUp}
         onTouchStart={handlePointerDown} onTouchMove={handlePointerMove} onTouchEnd={handlePointerUp}
       >
-        <img 
-          ref={imgRef} src={imageSrc} alt="Original" className="absolute pointer-events-none select-none max-w-none" draggable={false}
+        <img
+          ref={imgRef}
+          src={imageSrc}
+          alt="Original"
+          className="absolute pointer-events-none select-none max-w-none"
+          draggable={false}
+          onLoad={handleImageLoad}
           style={{
-            transform: `translate3d(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px), 0) scale(${zoom})`,
+            transform: `translate3d(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px), 0) scale(${visualScale})`,
             left: '50%', top: '50%', width: 'auto', height: 'auto', maxWidth: 'none', transformOrigin: 'center center'
           }}
         />
         <div className="absolute inset-0 pointer-events-none border-4 border-[#2D6A6A]/40" style={{ borderRadius }}></div>
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-           <Crop className="w-10 h-10 text-white opacity-40 drop-shadow-md" />
+          <Crop className="w-10 h-10 text-white opacity-40 drop-shadow-md" />
         </div>
       </div>
       <div className="mt-8 w-full max-w-[256px]">
-        <label className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 flex justify-between"><span>Alejar</span><span>Acercar</span></label>
-        <input type="range" min="1" max="3" step="0.1" value={zoom} onChange={(e) => setZoom(parseFloat(e.target.value))} className="w-full accent-[#2D6A6A] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" />
+        <label className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 flex justify-between">
+          <span>Alejar</span><span>Acercar</span>
+        </label>
+        <input
+          type="range"
+          min="1"
+          max="3"
+          step="0.05"
+          value={zoom}
+          onChange={(e) => setZoom(parseFloat(e.target.value))}
+          className="w-full accent-[#2D6A6A] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+        />
       </div>
       <div className="flex justify-end gap-3 w-full mt-8 border-t border-gray-100 pt-6">
         <button onClick={onCancel} className="px-6 py-3 rounded-xl text-gray-500 font-bold hover:bg-gray-100 transition-colors text-base">Cancelar</button>
