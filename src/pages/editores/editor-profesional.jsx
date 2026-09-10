@@ -360,15 +360,8 @@ export default function EditorProfesional() {
     }
   }, [location]); 
   const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '', type: 'info', onConfirm: null });
-  const [desktopHintVisto, setDesktopHintVisto] = useState(() => !!localStorage.getItem('editorDesktopHintVisto'));
-
-  useEffect(() => {
-    const handleStorage = () => {
-      setDesktopHintVisto(!!localStorage.getItem('editorDesktopHintVisto'));
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+  
+ 
   const [isSubModalOpen, setIsSubModalOpen] = useState(false); 
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [openSection, setOpenSection] = useState(null);
@@ -1077,29 +1070,7 @@ await updateDoc(doc(db, 'profesionales', currentUser.uid), {
         </div>
       )}
 
-{/* BANNER RECOMENDACIÓN DESKTOP — solo móvil, solo primera vez */}
-{!desktopHintVisto && (
-  <div className="fixed inset-0 bg-[#1A3D3D]/40 backdrop-blur-md z-[400] flex items-center justify-center md:hidden p-4">
-    <div className="bg-white rounded-[32px] w-full max-w-sm p-8 text-center shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
-      <div className="w-16 h-16 bg-[#2D6A6A]/10 rounded-full flex items-center justify-center mx-auto mb-5">
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-[#2D6A6A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
-        </svg>
-      </div>
-      <h3 className="font-bold font-['Montserrat'] text-xl text-[#1A3D3D] mb-3">Mejor desde la computadora</h3>
-      <p className="text-m text-gray-500 mb-8 leading-relaxed">Para completar tu perfil más cómodamente y aprovechar todas las opciones del editor, te recomendamos hacerlo desde una computadora.</p>
-      <button
-        onClick={() => {
-          localStorage.setItem('editorDesktopHintVisto', 'true');
-          window.dispatchEvent(new Event('storage'));
-        }}
-        className="w-full px-8 py-3.5 rounded-xl font-bold text-white bg-[#1A3D3D] hover:bg-[#2D6A6A] transition-colors shadow-lg text-m"
-      >
-        Entendido
-      </button>
-    </div>
-  </div>
-)}
+
 
       {/* NAVBAR DE APLICACIÓN (h: 64px) */}
       <nav className="fixed top-0 w-full z-[80] h-[64px] bg-white/90 backdrop-blur-md border-b border-gray-100 flex items-center px-6 md:px-10 shadow-sm">
